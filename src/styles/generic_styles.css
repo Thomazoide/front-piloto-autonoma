@@ -1,0 +1,8 @@
+.caja-lista{
+    max-height: 300px;
+    overflow-y: scroll;
+    border-radius: 15%;
+    border: solid;
+    border-width: 2px;
+    border-color: lightgrey;
+}

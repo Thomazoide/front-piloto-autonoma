@@ -1,11 +1,12 @@
 import { Link } from "@nextui-org/link";
 import NavBar from '../components/upper/navbar'
+import { ReactElement } from "react";
 
 export default function DefaultLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>): ReactElement {
   return (
     <div className="relative flex flex-col h-screen">
       <NavBar/>
@@ -16,11 +17,11 @@ export default function DefaultLayout({
         <Link
           isExternal
           className="flex items-center gap-1 text-current"
-          href="https://nextui-docs-v2.vercel.app?utm_source=next-pages-template"
-          title="nextui.org homepage"
+          href="#"
+          title=""
         >
-          <span className="text-default-600">Powered by</span>
-          <p className="text-primary">NextUI</p>
+          <span className="text-default-600">Pie de pagina</span>
+          <p className="text-primary">n. Empresa</p>
         </Link>
       </footer>
     </div>
