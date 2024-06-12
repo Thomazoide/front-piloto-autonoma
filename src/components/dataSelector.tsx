@@ -1,19 +1,24 @@
-import { Divider, Listbox, ListboxItem, Select, SelectItem, Spinner } from "@nextui-org/react"
+import { Divider, Select, SelectItem, Spinner, Button, ScrollShadow } from "@nextui-org/react"
 import { useState, ReactElement, useEffect, ChangeEvent, MouseEvent } from "react"
-import { Button, Container, ListGroup } from "react-bootstrap"
+import { Container, ListGroup } from "react-bootstrap"
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
 import { worker } from "@/types/worker"
 import { ingreso } from "@/types/ingreso"
 import axios, { AxiosResponse } from "axios"
+import Mapa from "./mapa"
 import './../styles/generic_styles.css'
+import { beacon } from "@/types/beacon"
 
 export default function DataSelector(): ReactElement{
+    //atributos
     const [isSedeSelected, setIsSedeSelected] = useState<boolean>(false)
     const [isWorkerSelected, setIsWorkerSelected] = useState<boolean>(false)
     const [error, setError] = useState<boolean>(false)
     const [dataSedes, setDataSedes] = useState<sede[]>([])
     const [selectedSede, setSelectedSede] = useState<string>('')
+    const [sSede, setSede] = useState<sede>()
+    const [sSala, setSala] = useState<sala>()
     const [dataSalas, setDataSalas] = useState<sala[]>([])
     const [isSalaSelected, setIsSalaSelected] = useState<boolean>(false)
     const [selectedSala, setSelectedSala] = useState<string>('')
@@ -21,31 +26,42 @@ export default function DataSelector(): ReactElement{
     const [dataWorkers, setDataWorkers] = useState<worker[]>([])
     const [ingresos, setIngresos] = useState<ingreso[]>([])
 
+    //metodos
     const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>) => {
         setSelectedSede(e.target.value)
+        dataSedes.forEach( (s: sede) => {
+            if(String(s.id) === e.target.value){
+                setSede(s)
+                console.log(s)
+            }
+        } )
         setIsSedeSelected(true)
         axios.get(`http://localhost:3000/api/sala/sede/${e.target.value}`).then( (res: AxiosResponse) => {
             if(res.status == 200){
                 const temp: sala[] = res.data
-                console.log(temp)
                 setDataSalas(temp)
             }
         } )
     }
 
-    const handleSalaSelection = (e: MouseEvent<HTMLButtonElement>) => {
-        setSelectedSala(e.currentTarget.value)
+    const handleSalaSelection = (e: ChangeEvent<HTMLSelectElement>) => {
+        setSelectedSala(e.target.value)
+        dataSalas.forEach( (s: sala) => {
+            if(String(s.id) === e.target.value){
+                setSala(s)
+                console.log(s)
+            }
+        } )
         setIsSalaSelected(true)
-        axios.get(`http://localhost:3000/api/ingreso/sala/${e.currentTarget.value}`).then( (res: AxiosResponse) => {
+        axios.get(`http://localhost:3000/api/ingreso/sala/${e.target.value}`).then( (res: AxiosResponse) => {
             if(res.status == 200){
                 const temp: ingreso[] = res.data
-                console.log(temp)
+                setIngresos(temp)
             }
-
         } )
-
     }
 
+    //Efecto inicial
     useEffect( () => {
         axios.get('http://localhost:3000/api/sedes').then( (res: AxiosResponse) => {
             if(res.status == 200){
@@ -59,9 +75,10 @@ export default function DataSelector(): ReactElement{
     }, [] )
 
 
+    //Renderizado del componente
     return(
         <Container>
-            <div className="flex h-5 items-center space-x-4 text-small">
+            <div className="flex h-5 items-center justify-center space-x-4 text-small m-[30px]">
                 { dataSedes[0] ?
                     <Select
                     label='Sede'
@@ -80,25 +97,34 @@ export default function DataSelector(): ReactElement{
                     : <Spinner color="danger"/>
                 }
                 <Divider orientation="vertical"/>
-                { isSedeSelected && selectedSede ?
-                    (
-                        dataSalas[0] ? <div className="caja-lista flex flex-col gap-2">
-                            <ListGroup variant="flush">
-                                {
-                                    dataSalas.map( (s: sala) => (
-                                        <ListGroup.Item key={s.id}>
-                                            <Button variant="light" value={s.id} onClick={handleSalaSelection}>
-                                                sala {s.numero}
-                                            </Button>
-                                        </ListGroup.Item>
-                                    ) )
-                                }
-                            </ListGroup>
-                        </div> : <Spinner color="danger"/>
-                    )
+                { isSedeSelected && selectedSede && dataSalas[0] ?
+                    <Select
+                    label="Sala"
+                    variant="bordered"
+                    placeholder="seleccionar sala"
+                    className="max-w-xs"
+                    onChange={handleSalaSelection}>
+                        {
+                            dataSalas.map( (s: sala) => (
+                                <SelectItem key={s.id} value={s.id}>
+                                    {`Sala ${s.numero}`}
+                                </SelectItem>
+                            ) )
+                        }
+                    </Select>
                 : null}
                 
             </div>
+            { isSedeSelected ? <div className="flex flex-wrap gap-4 h-[500px] min-w-[200px] justify-around p-[5px] border-3 border-solid border-red-500 rounded-md">
+                <Mapa dataSede={sSede} sala={sSala}/>
+                {
+                    isSalaSelected ?
+                        <div>
+
+                        </div>
+                    : null
+                }
+            </div> : null}
         </Container>
         
     )

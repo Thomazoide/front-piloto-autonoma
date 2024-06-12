@@ -1,22 +1,22 @@
-import { LatLngTuple } from "leaflet"
+import { LatLngExpression } from "leaflet"
 
-export type featuresGeoJson = {
+export type featuresGeoJson<T> = {
     type: string,
     properties?: {},
     geometry: {
-        coordinates: LatLngTuple,
+        coordinates: T,
         type: string
     }
 }
 
-export type geoJson = {
+export type GeoJson<T> = {
     type: 'FeatureCollection',
-    features: featuresGeoJson[]
+    features: featuresGeoJson<T>[]
 }
 
 export type sede = {
     id: number,
-    ubicacion: geoJson,
+    ubicacion: GeoJson<LatLngExpression>,
     nombre: string,
-    m2: geoJson
+    m2: GeoJson<LatLngExpression[]>
 }
