@@ -1,11 +1,12 @@
 import { Divider, Select, SelectItem, Spinner, Button, ScrollShadow } from "@nextui-org/react"
-import { useState, ReactElement, useEffect, ChangeEvent, MouseEvent } from "react"
+import { useState, ReactElement, useEffect, ChangeEvent, MouseEvent, MouseEventHandler } from "react"
 import { Container, ListGroup } from "react-bootstrap"
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
 import { worker } from "@/types/worker"
 import { ingreso } from "@/types/ingreso"
 import axios, { AxiosResponse } from "axios"
+import { getGuardiasXsala } from "./utils/function_lib"
 import Mapa from "./mapa"
 import './../styles/generic_styles.css'
 import { beacon } from "@/types/beacon"
@@ -24,7 +25,10 @@ export default function DataSelector(): ReactElement{
     const [selectedSala, setSelectedSala] = useState<string>('')
     const [selectedWorker, setSelectedWorker] = useState<string>()
     const [dataWorkers, setDataWorkers] = useState<worker[]>([])
+    const [dataDocentes, setDataDocentes] = useState<worker[]>([])
+    const [selectedDocente, setSelectedDocente] = useState<worker>()
     const [ingresos, setIngresos] = useState<ingreso[]>([])
+    const [wType, setWType] = useState<string>()
 
     //metodos
     const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -56,23 +60,35 @@ export default function DataSelector(): ReactElement{
         axios.get(`http://localhost:3000/api/ingreso/sala/${e.target.value}`).then( (res: AxiosResponse) => {
             if(res.status == 200){
                 const temp: ingreso[] = res.data
+                console.log(temp)
                 setIngresos(temp)
             }
         } )
     }
 
+    const onWTypeSelect = (e: MouseEvent<HTMLButtonElement>) => {
+        setWType(e.currentTarget.value)
+    }
+
     //Efecto inicial
     useEffect( () => {
-        axios.get('http://localhost:3000/api/sedes').then( (res: AxiosResponse) => {
-            if(res.status == 200){
-                const temp: sede[] = res.data
-                setDataSedes(temp)
-                console.log(temp)
-            } else {
-                setError(true)
-            }
-        } )
-    }, [] )
+        if(!dataSedes[0]){
+            axios.get('http://localhost:3000/api/sedes').then( (res: AxiosResponse) => {
+                if(res.status == 200){
+                    const temp: sede[] = res.data
+                    setDataSedes(temp)
+                    console.log(temp)
+                } else {
+                    setError(true)
+                }
+            } )
+        }
+        if(ingresos[0]){
+            getGuardiasXsala(ingresos).then( (wks: worker[]) => {
+                setDataWorkers(wks)
+            } )
+        }
+    }, [ingresos] )
 
 
     //Renderizado del componente
@@ -115,15 +131,23 @@ export default function DataSelector(): ReactElement{
                 : null}
                 
             </div>
-            { isSedeSelected ? <div className="flex flex-wrap gap-4 h-[500px] min-w-[200px] justify-around p-[5px] border-3 border-solid border-red-500 rounded-md">
+            {
+                isSalaSelected && dataWorkers[0] ?
+                <div className="flex flex-wrap m-[10px] gap-4 justify-center max-w-[100%]" >
+                    <Button isDisabled color="secondary" variant="shadow" value="docentes">
+                        Docentes
+                    </Button>
+                    <Divider orientation="vertical"/>
+                    <Button color="secondary" variant="shadow" value="guardias" onClick={onWTypeSelect}>
+                        Guardias
+                    </Button>
+                </div>
+                : null
+            }
+            { isSedeSelected && sSede ? <div className="flex h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+                
                 <Mapa dataSede={sSede} sala={sSala}/>
-                {
-                    isSalaSelected ?
-                        <div>
-
-                        </div>
-                    : null
-                }
+                
             </div> : null}
         </Container>
         

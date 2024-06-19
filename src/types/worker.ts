@@ -1,7 +1,7 @@
 export type worker = {
     id: number,
     rut: string,
-    nomber: string,
+    nombre: string,
     email: string,
     celular: string,
     id_beacon: number
