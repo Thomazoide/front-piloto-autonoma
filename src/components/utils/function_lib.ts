@@ -29,10 +29,11 @@ export async function getGuardiasXsala(listaIngresos: ingreso[]): Promise<worker
 export function sortDates(listaIngresos: ingreso[], iDate: Date, fDate: Date): ingreso[]{
     let ingresos: ingreso[] = []
     for(let i of listaIngresos){
-        if(i.hora >= iDate && i.hora <= fDate){
+        if(new Date(i.hora) > iDate && new Date(i.hora) < fDate){
             ingresos.push(i)
         }
     }
+    console.log(ingresos.length)
     return ingresos
 }
 

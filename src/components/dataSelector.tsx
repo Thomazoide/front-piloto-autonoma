@@ -8,6 +8,7 @@ import { ingreso } from "@/types/ingreso"
 import axios, { AxiosResponse } from "axios"
 import { getGuardiasXsala } from "./utils/function_lib"
 import Mapa from "./mapa"
+import WorkerFrame from "./workerFrame"
 import './../styles/generic_styles.css'
 import { beacon } from "@/types/beacon"
 
@@ -131,19 +132,25 @@ export default function DataSelector(): ReactElement{
                 : null}
                 
             </div>
+            
             {
                 isSalaSelected && dataWorkers[0] ?
-                <div className="flex flex-wrap m-[10px] gap-4 justify-center max-w-[100%]" >
-                    <Button isDisabled color="secondary" variant="shadow" value="docentes">
+                <div className="flex flex-wrap m-[10px] gap-4 justify-around max-w-[100%]" >
+                    <Button isDisabled color="danger" variant="shadow" value="docentes">
                         Docentes
                     </Button>
-                    <Divider orientation="vertical"/>
-                    <Button color="secondary" variant="shadow" value="guardias" onClick={onWTypeSelect}>
+                    <Button color="danger" variant="shadow" value="guardias" onClick={onWTypeSelect}>
                         Guardias
                     </Button>
                 </div>
                 : null
             }
+            {
+                dataWorkers[0] && ingresos[0] ? 
+                <WorkerFrame tipo="guardias" workers={dataWorkers} ingresos={ingresos}/>
+                : null
+            }
+            <Divider />
             { isSedeSelected && sSede ? <div className="flex h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">
                 
                 <Mapa dataSede={sSede} sala={sSala}/>
