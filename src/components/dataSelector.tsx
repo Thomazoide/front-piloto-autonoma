@@ -15,6 +15,7 @@ import { beacon } from "@/types/beacon"
 export default function DataSelector(): ReactElement{
     //atributos
     const [isSedeSelected, setIsSedeSelected] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const [isWorkerSelected, setIsWorkerSelected] = useState<boolean>(false)
     const [error, setError] = useState<boolean>(false)
     const [dataSedes, setDataSedes] = useState<sede[]>([])
@@ -41,7 +42,7 @@ export default function DataSelector(): ReactElement{
             }
         } )
         setIsSedeSelected(true)
-        axios.get(`http://localhost:3000/api/sala/sede/${e.target.value}`).then( (res: AxiosResponse) => {
+        axios.get(`http://52.201.181.178:3000/api/sala/sede/${e.target.value}`).then( (res: AxiosResponse) => {
             if(res.status == 200){
                 const temp: sala[] = res.data
                 setDataSalas(temp)
@@ -50,6 +51,7 @@ export default function DataSelector(): ReactElement{
     }
 
     const handleSalaSelection = (e: ChangeEvent<HTMLSelectElement>) => {
+        setIsLoading(true)
         setSelectedSala(e.target.value)
         dataSalas.forEach( (s: sala) => {
             if(String(s.id) === e.target.value){
@@ -57,14 +59,15 @@ export default function DataSelector(): ReactElement{
                 console.log(s)
             }
         } )
-        setIsSalaSelected(true)
-        axios.get(`http://localhost:3000/api/ingreso/sala/${e.target.value}`).then( (res: AxiosResponse) => {
+        axios.get(`http://52.201.181.178:3000/api/ingreso/sala/${e.target.value}`).then( (res: AxiosResponse) => {
             if(res.status == 200){
                 const temp: ingreso[] = res.data
                 console.log(temp)
                 setIngresos(temp)
             }
         } )
+        setIsSalaSelected(true)
+        setIsLoading(false)
     }
 
     const onWTypeSelect = (e: MouseEvent<HTMLButtonElement>) => {
@@ -74,7 +77,7 @@ export default function DataSelector(): ReactElement{
     //Efecto inicial
     useEffect( () => {
         if(!dataSedes[0]){
-            axios.get('http://localhost:3000/api/sedes').then( (res: AxiosResponse) => {
+            axios.get('http://52.201.181.178:3000/api/sedes').then( (res: AxiosResponse) => {
                 if(res.status == 200){
                     const temp: sede[] = res.data
                     setDataSedes(temp)
@@ -151,11 +154,21 @@ export default function DataSelector(): ReactElement{
                 : null
             }
             <Divider />
-            { isSedeSelected && sSede ? <div className="flex h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+            {isLoading ?
+            <div className="flex justify-end">
+                <Spinner color="danger" size="sm"/>
+            </div>
+            : null}
+            { isSedeSelected && sSede && !isSalaSelected ? <div className="flex h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">
                 
-                <Mapa dataSede={sSede} sala={sSala}/>
+                <Mapa dataSede={sSede}/>
                 
-            </div> : null}
+            </div> : null }
+            {
+                isSedeSelected && isSalaSelected && sSede && sSala ?
+                <Mapa dataSede={sSede} sala={sSala} />
+                : null
+            }
         </Container>
         
     )

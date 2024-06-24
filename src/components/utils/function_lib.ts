@@ -4,8 +4,8 @@ import { beacon } from '@/types/beacon';
 import { ingreso } from '@/types/ingreso';
 
 export async function getGuardiasXsala(listaIngresos: ingreso[]): Promise<worker[]>{
-    const guardias: worker[] = (await axios.get('http://localhost:3000/api/guardia')).data
-    const beacons: beacon[] = (await axios.get('http://localhost:3000/api/beacon')).data
+    const guardias: worker[] = (await axios.get('http://52.201.181.178:3000/api/guardia')).data
+    const beacons: beacon[] = (await axios.get('http://52.201.181.178:3000/api/beacon')).data
     let beaconsPresent: number[] = []
     for(let i of listaIngresos){
         for(let b of beacons){

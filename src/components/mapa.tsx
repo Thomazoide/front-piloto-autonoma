@@ -1,16 +1,20 @@
-import { ReactElement } from "react"
-import { MapContainer, GeoJSON, TileLayer, Marker, Popup } from "react-leaflet"
+import { ReactElement, useState, useEffect } from "react"
+import { MapContainer, GeoJSON, TileLayer } from "react-leaflet"
 import 'leaflet/dist/leaflet.css'
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
-import { Spinner } from "@nextui-org/react"
-
 interface PropsMapa {
-    dataSede?: sede,
+    dataSede: sede,
     sala?: sala
 }
 
 export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
+    const [sSala, setSSala] = useState<sala | undefined>(props.sala)
+    useEffect( () => {
+        if(props.sala){
+            setSSala(props.sala)
+        }
+    }, [props] )
     return(
         <>
         { props.dataSede ? 
@@ -19,16 +23,8 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Open StreetMap</a> contributors' />
             <GeoJSON data={props.dataSede.m2} style={{color: 'red'}}/>
-            {props.sala ?
-            <Marker
-            position={[props.sala.ubicacion.geometry.coordinates[1], props.sala.ubicacion.geometry.coordinates[0]]}>
-                <Popup closeButton>
-                    <small>
-                        Sala {props.sala.numero} <br/>
-                        ID: {props.sala.id}
-                    </small>
-                </Popup>
-            </Marker>
+            {sSala ?
+            <GeoJSON data={sSala.ubicacion} />
             : null}
         </MapContainer> 
         : null}

@@ -1,6 +1,6 @@
 import { worker } from "@/types/worker"
 import { ReactElement, useEffect, useState } from "react"
-import { Button, RangeCalendar, ScrollShadow, TimeInput, TimeInputValue } from "@nextui-org/react"
+import { Button, Divider, RangeCalendar, ScrollShadow, TimeInput, TimeInputValue } from "@nextui-org/react"
 import type { DateValue, RangeValue } from "@nextui-org/react"
 import {today, getLocalTimeZone, parseAbsoluteToLocal} from "@internationalized/date"
 import { CalendarEdit32Regular } from "@fluentui/react-icons"
@@ -24,6 +24,7 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
     const [sortedIng, setSortedIng] = useState<ingreso[]>(props.ingresos)
     const [sortedGuards, setSortedGuards] = useState<worker[]>(props.workers)
     const [hora, setHora] = useState<TimeInputValue>(parseAbsoluteToLocal((new Date()).toISOString()))
+    const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal((new Date()).toISOString()))
     
 
     const ordenarIngresos = () => {
@@ -50,16 +51,30 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
             </div>
             {
                 verDatePicker ?
-                <div className="flex justify-around">
+                <div className="flex justify-center">
                     <RangeCalendar
                     aria-label="Fecha"
                     value={fecha}
                     onChange={setFecha}/>
-                    <div className="flex justify-center">
+                    <Divider orientation="vertical"/>
+                    <Divider orientation="vertical"/>
+                    <Divider orientation="vertical"/>
+                    <div className="flex flex-row justify-center items-center">
                         <TimeInput 
-                        label="Elegir hora"
+                        label="Elegir hora de inicio"
                         value={hora}
                         onChange={setHora}/>
+                        <span>
+                            <p>
+                                <strong>
+                                    -
+                                </strong>
+                            </p>
+                        </span>
+                        <TimeInput
+                        label="Elegir hora final"
+                        value={horaFinal}
+                        onChange={setHoraFinal}/>
                     </div>
                 </div>
                 : null
@@ -73,10 +88,10 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
                     </p>
                 </div>
                 <div className="flex justify-center">
-                    <ScrollShadow className=" max-h-[400px] min-h-[100px]">
+                    <ScrollShadow className="flex flex-column max-h-[400px] min-h-[100px]">
                         {
                             sortedGuards.map( (g: worker) => (
-                                <Button key={g.id} color="danger" variant="bordered">
+                                <Button className='m-[15px]' key={g.id} color="danger" variant="bordered">
                                     {`${g.nombre} | ${g.rut}`}
                                 </Button>
                             ) )

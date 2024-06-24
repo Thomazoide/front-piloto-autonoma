@@ -1,18 +1,14 @@
 import { LatLngExpression } from "leaflet"
+import { GeoJson } from "./sede"
 
-export type punto = {
-    type: string,
-    properties: {},
-    geometry: {
-        type: string,
-        coordinates: LatLngExpression
-    }
-}
+
+
+
 
 export type sala = {
     id: number,
     numero: number,
-    ubicacion: punto,
+    ubicacion: GeoJson<LatLngExpression>,
     id_gateway?: number,
     id_sede?: number
 }
