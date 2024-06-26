@@ -36,7 +36,6 @@ export default function DataSelector(): ReactElement{
         dataSedes.forEach( (s: sede) => {
             if(String(s.id) === e.target.value){
                 setSede(s)
-                console.log(s)
             }
         } )
         setIsSedeSelected(true)
@@ -61,13 +60,11 @@ export default function DataSelector(): ReactElement{
         dataSalas.forEach( (s: sala) => {
             if(String(s.id) === e.target.value){
                 setSala(s)
-                console.log(s)
             }
         } )
         axios.get(`http://52.201.181.178:3000/api/ingreso/sala/${e.target.value}`).then( (res: AxiosResponse) => {
             if(res.status == 200){
                 const temp: ingreso[] = res.data
-                console.log(temp)
                 setIngresos(temp)
             }
         } )
@@ -85,7 +82,6 @@ export default function DataSelector(): ReactElement{
                 if(res.status == 200){
                     const temp: sede[] = res.data
                     setDataSedes(temp)
-                    console.log(temp)
                 } else {
                     setError(true)
                 }
@@ -106,6 +102,7 @@ export default function DataSelector(): ReactElement{
         return(
             <>
                 <ErrorCircle48Filled />
+                <p> <strong className='color-danger'>Error al cargar datos...</strong> </p>
             </>
         )
     }
@@ -163,8 +160,8 @@ export default function DataSelector(): ReactElement{
                 : null
             }
             {
-                dataWorkers[0] && ingresos[0] ? 
-                <WorkerFrame tipo="guardias" workers={dataWorkers} ingresos={ingresos}/>
+                dataWorkers[0] && ingresos[0] && wType ? 
+                <WorkerFrame tipo={wType} workers={dataWorkers} ingresos={ingresos}/>
                 : null
             }
             <hr/>

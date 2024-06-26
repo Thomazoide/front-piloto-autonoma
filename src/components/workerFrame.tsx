@@ -1,11 +1,11 @@
 import { worker } from "@/types/worker"
-import { ReactElement, useEffect, useState, MouseEvent } from "react"
-import { Button, RangeCalendar, ScrollShadow, TimeInput, TimeInputValue, Checkbox } from "@nextui-org/react"
+import { ReactElement, useEffect, useState, MouseEvent, ChangeEvent } from "react"
+import { Button, DateRangePicker, TimeInput, TimeInputValue, Checkbox, Accordion, AccordionItem, Select, SelectItem, DatePicker } from "@nextui-org/react"
 import type { DateValue, RangeValue } from "@nextui-org/react"
-import {today, getLocalTimeZone, parseAbsoluteToLocal} from "@internationalized/date"
-import { CalendarEdit32Regular } from "@fluentui/react-icons"
+import {today, getLocalTimeZone, parseAbsoluteToLocal, parseDate} from "@internationalized/date"
+import { CalendarEdit32Regular, CatchUp24Regular, Filter16Regular, VideoPerson32Regular } from "@fluentui/react-icons"
 import { ingreso } from "@/types/ingreso"
-import { getGuardiasXsala, sortDates, getIngresoByWorker } from "./utils/function_lib"
+import { getGuardiasXsala, sortDates, getIngresoByWorker, getIngresoByDate} from "./utils/function_lib"
 
 
 type WFProps = {
@@ -16,107 +16,131 @@ type WFProps = {
 
 
 export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
+
+    //ATRIBUTOS
     const [fecha, setFecha] = useState<RangeValue<DateValue>>({
         start: today(getLocalTimeZone()),
         end: today(getLocalTimeZone()).add({days: 1})
     })
-    const [verDatePicker, setVerDatePicker]= useState<boolean>(false)
+    const [fechaExacta, setFechaExacta] = useState<DateValue>(parseDate(new Date().toISOString().slice(0,10)))
+    const [tipoDatePicker, setTipoDatePicker] = useState<"2" | "1">()
     const [sortedIng, setSortedIng] = useState<ingreso[]>(props.ingresos)
     const [sortedGuards, setSortedGuards] = useState<worker[]>(props.workers)
     const [hora, setHora] = useState<TimeInputValue>(parseAbsoluteToLocal((new Date()).toISOString()))
-    const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal((new Date()).toISOString()))
+    const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal((new Date()).toISOString()).add({hours: 1}))
+    const [considerTime, setConsiderTime] = useState<boolean>(false)
     
-
-    const ordenarIngresos = (): void => {
-        const inicio = fecha.start.subtract({days: 1})
-        const final = fecha.end.add({days: 1})
-        const ingresosOrdenados = sortDates(props.ingresos, new Date(`${inicio.year}/${inicio.month}/${inicio.day}`), new Date(`${final.year}/${final.month}/${final.day}`))
-        getGuardiasXsala(ingresosOrdenados).then( (guardias: worker[]) => {
-            setSortedGuards(guardias)
-        } )
-        setSortedIng(ingresosOrdenados)
-        console.log(sortedIng)
-    }
-
-    const ordenarIngresosPorWorker = (e: MouseEvent<HTMLButtonElement>): void => {
-        const idWorker: number = Number(e.currentTarget.value)
-        const listaWorker: worker[] = props.workers
-        const selectedWorker: worker | undefined = listaWorker.find( (w: worker) => w.id === idWorker )
-        if(selectedWorker){
-            setSortedIng(getIngresoByWorker(sortedIng, selectedWorker))
+    //METODOS
+    const filtrarIngresos = (): void => {
+        if(!considerTime && tipoDatePicker === "2"){
+            const inicio = fecha.start.subtract({days: 1})
+            const final = fecha.end.add({days: 1})
+            const ingresosOrdenados: ingreso[] = sortDates(props.ingresos, new Date(`${inicio.year}/${inicio.month}/${inicio.day}`), new Date(`${final.year}/${final.month}/${final.day}`))
+            setSortedIng(ingresosOrdenados)
+            getGuardiasXsala(ingresosOrdenados).then( (workers: worker[]) => {
+                setSortedGuards(workers)
+            } )
+        } else if(considerTime && tipoDatePicker === "2"){
+            const inicio = fecha.start.subtract({days: 1})
+            const final = fecha.end.add({days: 1})
+            
         }
     }
 
-    const handleCheckBox = (e: any): void => {
-        console.log(e)
+    
+
+    const ordenarIngresosPorWorker = (e: MouseEvent<HTMLButtonElement>): void => {
+        const idWorker: number = Number(e.currentTarget.value)
+        const listaWorker: worker[] = sortedGuards
+        const selectedWorker: worker | undefined = listaWorker.find( (w: worker) => w.id === idWorker )
+        if(selectedWorker) setSortedIng(getIngresoByWorker(props.ingresos, selectedWorker))
     }
 
-    useEffect( () => {
-        //ordenarIngresos()
-    }, [fecha] )
+    const handleSelectTipoDate = (e: ChangeEvent<HTMLSelectElement>) => {
+        if(e.target.value === "1" || e.target.value === "2") setTipoDatePicker(e.target.value); else setTipoDatePicker(undefined)
+    }
 
+    //EFECTOS
+    useEffect( () => {
+    }, [sortedIng] )
+
+    //RENDERIZADO
     return(
-        <>
-            <div className="flex justify-center">
-                <div className="flex flex-column align-center justify-center">
-                    <Button isIconOnly variant="bordered" aria-label="Elegir fecha" onClick={() => setVerDatePicker(!verDatePicker)}>
-                        <CalendarEdit32Regular/>
-                    </Button>
-                    <div className="flex">
-                        <small>Filtrar por fecha</small>
+        
+        <div className="flex justify-center">
+            <Accordion selectionMode="multiple">
+                <AccordionItem
+                    className="border-2 border-solid border-red-200 rounded-md p-[10px]"
+                    key="1"
+                    aria-label={props.tipo}
+                    startContent={
+                        <VideoPerson32Regular/>
+                    }
+                    title={props.tipo === "guardias" ? "Guardias" : "Docentes"}
+                    subtitle={`${props.tipo} con ingresos registrados...`}>
+                    <hr className="p-[15px]" />
+                    <div className="flex flex-wrap gap-3 justify-center">
+                    {
+                        sortedGuards.map( (g: worker) => (
+                            <Button color="danger" variant="bordered" value={g.id} key={g.id} onClick={ordenarIngresosPorWorker}>
+                                {`${g.nombre} | ${g.rut}`}
+                            </Button>
+                        ) )
+                    }
                     </div>
-                </div>
-            </div>
-            {
-                verDatePicker ?
-                <div className="flex flex-wrap gap-3 justify-evenly">
-                    <RangeCalendar
-                    aria-label="Fecha"
-                    value={fecha}
-                    onChange={setFecha}/>
-                    <div className="flex flex-column align-center justify-center">
-                        <Checkbox onChange={handleCheckBox} />
-                        <div className="flex flex-row justify-center items-center m-[15px]">
-                            <TimeInput 
-                            label="Elegir hora de inicio"
-                            value={hora}
-                            onChange={setHora}/>
-                            <span>
-                                <p>
-                                    <strong>
-                                        -
-                                    </strong>
-                                </p>
-                            </span>
-                            <TimeInput
-                            label="Elegir hora final"
-                            value={horaFinal}
-                            onChange={setHoraFinal}/>
+                </AccordionItem>
+                <AccordionItem
+                    className="border-2 border-solid border-red-200 rounded-md p-[10px]"
+                    key="2"
+                    aria-label="Filtros por fecha y hora"
+                    startContent={
+                        <CalendarEdit32Regular/>
+                    }
+                    title="Filtrar"
+                    subtitle="Filtrar ingresos por fecha y hora">
+                    <hr className="p-[15px]" />
+                    <div className="flex flex-wrap gap-2 justify-evenly">
+                        <div className="flex flex-column justify-center align-center items-center">
+                            <Select
+                                label="Fecha unica o rango"
+                                variant="bordered"
+                                placeholder="Seleccionar tipo de filtro"
+                                className="max-w-xs m-[10px]"
+                                onChange={handleSelectTipoDate}>
+                                <SelectItem key="1" value={1}>
+                                    Por fecha exacta
+                                </SelectItem>
+                                <SelectItem key="2" value={2}>
+                                    Por rango de fechas
+                                </SelectItem>
+                            </Select>
+                            {
+                                tipoDatePicker === "1" ?
+                                <DatePicker label="Seleccionar fecha" value={fechaExacta} onChange={setFechaExacta}/>
+                                : tipoDatePicker === "2" ?
+                                <DateRangePicker label="Seleccionar rango de fechas" value={fecha} onChange={setFecha}/>
+                                : null
+                            }
+                        </div>
+                        <div className="flex flex-column align-center justify-center items-center">
+                            <div className="flex flex-row gap-2 justify-evenly items-center">
+                                <TimeInput label="Hora inicial" value={hora} onChange={setHora} />
+                                <span>
+                                    <CatchUp24Regular/>
+                                </span>
+                                <TimeInput label="Hora final" value={horaFinal} onChange={setHoraFinal} />
+                            </div>
+                            <Checkbox color="danger" size="sm" onValueChange={setConsiderTime} >Considerar rango de horas?</Checkbox>
                         </div>
                     </div>
-                </div>
-                : null
-            }
-            <div className="flex flex-column justify-center border-2 border-faded border-gray-200 rounded-lg m-[15px] p-[15px]">
-                <div className=" flex justify-center">
-                    <p>
-                        <strong>
-                            Guardias con ingresos registrados en fecha...
-                        </strong>
-                    </p>
-                </div>
-                <div className="flex justify-center">
-                    <ScrollShadow className="flex flex-column max-h-[400px] min-h-[100px]">
-                        {
-                            sortedGuards.map( (g: worker) => (
-                                <Button className='m-[15px]' key={g.id} color="danger" variant="bordered" onClick={ordenarIngresosPorWorker} value={g.id}>
-                                    {`${g.nombre} | ${g.rut}`}
-                                </Button>
-                            ) )
-                        }
-                    </ScrollShadow>
-                </div>
-            </div>
-        </>
+                    <div className="flex justify-center p-15px mt-[10px]">
+                        <Button startContent={<Filter16Regular/>} variant="bordered" color="danger">
+                            Filtrar ingresos
+                        </Button>
+                    </div>
+                </AccordionItem>
+            </Accordion>
+        </div>
+        
     )
 }

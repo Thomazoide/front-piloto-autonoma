@@ -54,12 +54,8 @@ export function getIngresoByDate(listaIngresos: ingreso[], fecha: Date): ingreso
 
 //Dada una lista de ingresos y los datos de un empleado, retorna los ingresos registrados por el empleado
 export function getIngresoByWorker(listaIngresos: ingreso[], empleado: worker): ingreso[]{
-    let nuevaListaIngreso: ingreso[] = []
-    for(let i of listaIngresos){
-        if(i.id_beacon === empleado.id_beacon){
-            nuevaListaIngreso.push(i)
-        }
-    }
+    let nuevaListaIngreso: ingreso[] = listaIngresos.filter( (i: ingreso) => i.id_beacon === empleado.id_beacon )
+    console.log(nuevaListaIngreso)
     return nuevaListaIngreso
 }
 
@@ -67,3 +63,7 @@ export function getIngresoByWorker(listaIngresos: ingreso[], empleado: worker): 
 export function timeOut(callback: VoidFunction, tiempo: number): void {
     setTimeout(callback, tiempo)
 }
+
+// export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number[], horaFinal: number[]): ingreso[]{
+
+// }

@@ -1,10 +1,6 @@
 import { LatLngExpression } from "leaflet"
 import { GeoJson } from "./sede"
 
-
-
-
-
 export type sala = {
     id: number,
     numero: number,
