@@ -1,11 +1,11 @@
 import { worker } from "@/types/worker"
-import { ReactElement, useEffect, useState } from "react"
-import { Button, Divider, RangeCalendar, ScrollShadow, TimeInput, TimeInputValue } from "@nextui-org/react"
+import { ReactElement, useEffect, useState, MouseEvent } from "react"
+import { Button, RangeCalendar, ScrollShadow, TimeInput, TimeInputValue, Checkbox } from "@nextui-org/react"
 import type { DateValue, RangeValue } from "@nextui-org/react"
 import {today, getLocalTimeZone, parseAbsoluteToLocal} from "@internationalized/date"
 import { CalendarEdit32Regular } from "@fluentui/react-icons"
 import { ingreso } from "@/types/ingreso"
-import { getGuardiasXsala, sortDates } from "./utils/function_lib"
+import { getGuardiasXsala, sortDates, getIngresoByWorker } from "./utils/function_lib"
 
 
 type WFProps = {
@@ -27,7 +27,7 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
     const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal((new Date()).toISOString()))
     
 
-    const ordenarIngresos = () => {
+    const ordenarIngresos = (): void => {
         const inicio = fecha.start.subtract({days: 1})
         const final = fecha.end.add({days: 1})
         const ingresosOrdenados = sortDates(props.ingresos, new Date(`${inicio.year}/${inicio.month}/${inicio.day}`), new Date(`${final.year}/${final.month}/${final.day}`))
@@ -38,43 +38,61 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
         console.log(sortedIng)
     }
 
+    const ordenarIngresosPorWorker = (e: MouseEvent<HTMLButtonElement>): void => {
+        const idWorker: number = Number(e.currentTarget.value)
+        const listaWorker: worker[] = props.workers
+        const selectedWorker: worker | undefined = listaWorker.find( (w: worker) => w.id === idWorker )
+        if(selectedWorker){
+            setSortedIng(getIngresoByWorker(sortedIng, selectedWorker))
+        }
+    }
+
+    const handleCheckBox = (e: any): void => {
+        console.log(e)
+    }
+
     useEffect( () => {
-        ordenarIngresos()
+        //ordenarIngresos()
     }, [fecha] )
 
     return(
         <>
             <div className="flex justify-center">
-                <Button isIconOnly variant="bordered" aria-label="Elegir fecha" onClick={() => setVerDatePicker(!verDatePicker)}>
-                    <CalendarEdit32Regular/>
-                </Button>
+                <div className="flex flex-column align-center justify-center">
+                    <Button isIconOnly variant="bordered" aria-label="Elegir fecha" onClick={() => setVerDatePicker(!verDatePicker)}>
+                        <CalendarEdit32Regular/>
+                    </Button>
+                    <div className="flex">
+                        <small>Filtrar por fecha</small>
+                    </div>
+                </div>
             </div>
             {
                 verDatePicker ?
-                <div className="flex justify-center">
+                <div className="flex flex-wrap gap-3 justify-evenly">
                     <RangeCalendar
                     aria-label="Fecha"
                     value={fecha}
                     onChange={setFecha}/>
-                    <Divider orientation="vertical"/>
-                    <Divider orientation="vertical"/>
-                    <Divider orientation="vertical"/>
-                    <div className="flex flex-row justify-center items-center">
-                        <TimeInput 
-                        label="Elegir hora de inicio"
-                        value={hora}
-                        onChange={setHora}/>
-                        <span>
-                            <p>
-                                <strong>
-                                    -
-                                </strong>
-                            </p>
-                        </span>
-                        <TimeInput
-                        label="Elegir hora final"
-                        value={horaFinal}
-                        onChange={setHoraFinal}/>
+                    <div className="flex flex-column align-center justify-center">
+                        <Checkbox onChange={handleCheckBox} />
+                        <div className="flex flex-row justify-center items-center m-[15px]">
+                            <TimeInput 
+                            label="Elegir hora de inicio"
+                            value={hora}
+                            onChange={setHora}/>
+                            <span>
+                                <p>
+                                    <strong>
+                                        -
+                                    </strong>
+                                </p>
+                            </span>
+                            <TimeInput
+                            label="Elegir hora final"
+                            value={horaFinal}
+                            onChange={setHoraFinal}/>
+                        </div>
                     </div>
                 </div>
                 : null
@@ -91,7 +109,7 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
                     <ScrollShadow className="flex flex-column max-h-[400px] min-h-[100px]">
                         {
                             sortedGuards.map( (g: worker) => (
-                                <Button className='m-[15px]' key={g.id} color="danger" variant="bordered">
+                                <Button className='m-[15px]' key={g.id} color="danger" variant="bordered" onClick={ordenarIngresosPorWorker} value={g.id}>
                                     {`${g.nombre} | ${g.rut}`}
                                 </Button>
                             ) )

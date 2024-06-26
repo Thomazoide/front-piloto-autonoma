@@ -1,22 +1,21 @@
-import { Divider, Select, SelectItem, Spinner, Button, ScrollShadow } from "@nextui-org/react"
-import { useState, ReactElement, useEffect, ChangeEvent, MouseEvent, MouseEventHandler } from "react"
-import { Container, ListGroup } from "react-bootstrap"
+import { Divider, Select, SelectItem, Button, Spinner } from "@nextui-org/react"
+import { useState, ReactElement, useEffect, ChangeEvent, MouseEvent } from "react"
+import { Container } from "react-bootstrap"
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
 import { worker } from "@/types/worker"
 import { ingreso } from "@/types/ingreso"
+import { ErrorCircle48Filled } from "@fluentui/react-icons"
 import axios, { AxiosResponse } from "axios"
-import { getGuardiasXsala } from "./utils/function_lib"
+import { getGuardiasXsala, timeOut } from "./utils/function_lib"
 import Mapa from "./mapa"
 import WorkerFrame from "./workerFrame"
 import './../styles/generic_styles.css'
-import { beacon } from "@/types/beacon"
 
 export default function DataSelector(): ReactElement{
     //atributos
     const [isSedeSelected, setIsSedeSelected] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [isWorkerSelected, setIsWorkerSelected] = useState<boolean>(false)
     const [error, setError] = useState<boolean>(false)
     const [dataSedes, setDataSedes] = useState<sede[]>([])
     const [selectedSede, setSelectedSede] = useState<string>('')
@@ -25,14 +24,13 @@ export default function DataSelector(): ReactElement{
     const [dataSalas, setDataSalas] = useState<sala[]>([])
     const [isSalaSelected, setIsSalaSelected] = useState<boolean>(false)
     const [selectedSala, setSelectedSala] = useState<string>('')
-    const [selectedWorker, setSelectedWorker] = useState<string>()
     const [dataWorkers, setDataWorkers] = useState<worker[]>([])
     const [dataDocentes, setDataDocentes] = useState<worker[]>([])
-    const [selectedDocente, setSelectedDocente] = useState<worker>()
     const [ingresos, setIngresos] = useState<ingreso[]>([])
     const [wType, setWType] = useState<string>()
 
     //metodos
+
     const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>) => {
         setSelectedSede(e.target.value)
         dataSedes.forEach( (s: sede) => {
@@ -50,8 +48,15 @@ export default function DataSelector(): ReactElement{
         } )
     }
 
-    const handleSalaSelection = (e: ChangeEvent<HTMLSelectElement>) => {
+    const setSSandIL = (): void => {
+        setIsSedeSelected(true)
+        setIsLoading(false)
+    }
+
+    const handleSalaSelection = (e: ChangeEvent<HTMLSelectElement>): void => {
         setIsLoading(true)
+        setIsSedeSelected(false)
+        setIsSalaSelected(false)
         setSelectedSala(e.target.value)
         dataSalas.forEach( (s: sala) => {
             if(String(s.id) === e.target.value){
@@ -67,7 +72,6 @@ export default function DataSelector(): ReactElement{
             }
         } )
         setIsSalaSelected(true)
-        setIsLoading(false)
     }
 
     const onWTypeSelect = (e: MouseEvent<HTMLButtonElement>) => {
@@ -91,11 +95,21 @@ export default function DataSelector(): ReactElement{
             getGuardiasXsala(ingresos).then( (wks: worker[]) => {
                 setDataWorkers(wks)
             } )
+            timeOut(setSSandIL, 500)
         }
     }, [ingresos] )
 
 
     //Renderizado del componente
+
+    if(error){
+        return(
+            <>
+                <ErrorCircle48Filled />
+            </>
+        )
+    }
+
     return(
         <Container>
             <div className="flex h-5 items-center justify-center space-x-4 text-small m-[30px]">
@@ -117,7 +131,7 @@ export default function DataSelector(): ReactElement{
                     : <Spinner color="danger"/>
                 }
                 <Divider orientation="vertical"/>
-                { isSedeSelected && selectedSede && dataSalas[0] ?
+                { selectedSede && dataSalas[0] ?
                     <Select
                     label="Sala"
                     variant="bordered"
@@ -138,7 +152,7 @@ export default function DataSelector(): ReactElement{
             
             {
                 isSalaSelected && dataWorkers[0] ?
-                <div className="flex flex-wrap m-[10px] gap-4 justify-around max-w-[100%]" >
+                <div className="flex flex-wrap m-[10px] gap-4 justify-evenly max-w-[100%]" >
                     <Button isDisabled color="danger" variant="shadow" value="docentes">
                         Docentes
                     </Button>
@@ -153,22 +167,16 @@ export default function DataSelector(): ReactElement{
                 <WorkerFrame tipo="guardias" workers={dataWorkers} ingresos={ingresos}/>
                 : null
             }
-            <Divider />
-            {isLoading ?
-            <div className="flex justify-end">
-                <Spinner color="danger" size="sm"/>
-            </div>
-            : null}
-            { isSedeSelected && sSede && !isSalaSelected ? <div className="flex h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+            <hr/>
+            { isSedeSelected && sSede ? <div className="flex h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">
                 
-                <Mapa dataSede={sSede}/>
+                <Mapa dataSede={sSede} sala={sSala}/>
                 
-            </div> : null }
-            {
-                isSedeSelected && isSalaSelected && sSede && sSala ?
-                <Mapa dataSede={sSede} sala={sSala} />
-                : null
-            }
+            </div> : null}
+            { isLoading &&
+            <div className="flex justify-center align-center h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+                <Spinner color="danger" label="Cargando mapa" labelColor="warning" size="lg" />
+            </div>  }
         </Container>
         
     )
