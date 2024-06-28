@@ -25,12 +25,12 @@ export default function DataSelector(): ReactElement{
     const [isSalaSelected, setIsSalaSelected] = useState<boolean>(false)
     const [selectedSala, setSelectedSala] = useState<string>('')
     const [dataWorkers, setDataWorkers] = useState<worker[]>([])
+    //@ts-ignore
     const [dataDocentes, setDataDocentes] = useState<worker[]>([])
     const [ingresos, setIngresos] = useState<ingreso[]>([])
     const [wType, setWType] = useState<string>()
 
     //metodos
-
     const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>) => {
         setSelectedSede(e.target.value)
         dataSedes.forEach( (s: sede) => {
@@ -75,7 +75,7 @@ export default function DataSelector(): ReactElement{
         setWType(e.currentTarget.value)
     }
 
-    //Efecto inicial
+    //Efectos
     useEffect( () => {
         if(!dataSedes[0]){
             axios.get('http://52.201.181.178:3000/api/sedes').then( (res: AxiosResponse) => {
@@ -93,11 +93,14 @@ export default function DataSelector(): ReactElement{
             } )
             timeOut(setSSandIL, 500)
         }
-    }, [ingresos] )
+        if(selectedSala != localStorage.getItem("idSala")){
+            setWType(undefined)
+            localStorage.setItem("idSala", selectedSala)
+        }
+    }, [ingresos, selectedSala] )
 
 
     //Renderizado del componente
-
     if(error){
         return(
             <>
@@ -160,9 +163,9 @@ export default function DataSelector(): ReactElement{
                 : null
             }
             {
-                dataWorkers[0] && ingresos[0] && wType ? 
+                dataWorkers[0] && ingresos[0] && wType && !isLoading && selectedSala ? 
                 <WorkerFrame tipo={wType} workers={dataWorkers} ingresos={ingresos}/>
-                : null
+                : isLoading ? <div className="flex justify-center align-center items-center"> <Spinner color="danger" size="sm" /> </div> : null
             }
             <hr/>
             { isSedeSelected && sSede ? <div className="flex h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">

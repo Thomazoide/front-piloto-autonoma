@@ -35,7 +35,6 @@ export function sortDates(listaIngresos: ingreso[], iDate: Date, fDate: Date): i
             ingresos.push(i)
         }
     }
-    console.log(ingresos.length)
     return ingresos
 }
 
@@ -44,7 +43,7 @@ export function getIngresoByDate(listaIngresos: ingreso[], fecha: Date): ingreso
     const strFecha = fecha.toISOString().slice(0,10)
     const ingresosEnFecha: ingreso[] = []
     for(let i of listaIngresos){
-        const strFechaI = i.hora.toISOString().slice(0,10)
+        const strFechaI = new Date(i.hora).toISOString().slice(0,10)
         if(strFecha === strFechaI){
             ingresosEnFecha.push(i)
         }
@@ -64,6 +63,14 @@ export function timeOut(callback: VoidFunction, tiempo: number): void {
     setTimeout(callback, tiempo)
 }
 
-// export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number[], horaFinal: number[]): ingreso[]{
-
-// }
+export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number[], horaFinal: number[]): ingreso[]{
+    const nuevosIngresos: ingreso[] = []
+    for(let i of listaIngresos){
+        let horas: number = new Date(i.hora).getHours()
+        let minutos: number = new Date(i.hora).getMinutes()
+        if((horas >= horaInicio[0] && minutos >= horaInicio[1]) && (horas <= horaFinal[0] && minutos <= horaFinal[1])){
+            nuevosIngresos.push(i)
+        }
+    }
+    return nuevosIngresos
+}
