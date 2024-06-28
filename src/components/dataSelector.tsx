@@ -19,13 +19,12 @@ export default function DataSelector(): ReactElement{
     const [error, setError] = useState<boolean>(false)
     const [dataSedes, setDataSedes] = useState<sede[]>([])
     const [selectedSede, setSelectedSede] = useState<string>('')
-    const [sSede, setSede] = useState<sede>()
-    const [sSala, setSala] = useState<sala>()
+    const [sSede, setSSede] = useState<sede>()
+    const [sSala, setSSala] = useState<sala>()
     const [dataSalas, setDataSalas] = useState<sala[]>([])
     const [isSalaSelected, setIsSalaSelected] = useState<boolean>(false)
     const [selectedSala, setSelectedSala] = useState<string>('')
     const [dataWorkers, setDataWorkers] = useState<worker[]>([])
-    //@ts-ignore
     const [dataDocentes, setDataDocentes] = useState<worker[]>([])
     const [ingresos, setIngresos] = useState<ingreso[]>([])
     const [wType, setWType] = useState<string>()
@@ -35,7 +34,7 @@ export default function DataSelector(): ReactElement{
         setSelectedSede(e.target.value)
         dataSedes.forEach( (s: sede) => {
             if(String(s.id) === e.target.value){
-                setSede(s)
+                setSSede(s)
             }
         } )
         setIsSedeSelected(true)
@@ -59,7 +58,7 @@ export default function DataSelector(): ReactElement{
         setSelectedSala(e.target.value)
         dataSalas.forEach( (s: sala) => {
             if(String(s.id) === e.target.value){
-                setSala(s)
+                setSSala(s)
             }
         } )
         axios.get(`http://52.201.181.178:3000/api/ingreso/sala/${e.target.value}`).then( (res: AxiosResponse) => {

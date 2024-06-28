@@ -10,7 +10,11 @@ module.exports = {
     './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "ua-gray": "#393938"
+      }
+    },
   },
   darkMode: "class",
   plugins: [nextui()],

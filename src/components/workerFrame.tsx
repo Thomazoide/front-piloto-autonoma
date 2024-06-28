@@ -6,12 +6,19 @@ import {today, getLocalTimeZone, parseAbsoluteToLocal, parseDate} from "@interna
 import { CalendarEdit32Regular, CatchUp24Regular, Filter16Regular, VideoPerson32Regular } from "@fluentui/react-icons"
 import { ingreso } from "@/types/ingreso"
 import { getGuardiasXsala, sortDates, getIngresoByWorker, getIngresoByDate, sortIngresosByHoras, timeOut} from "./utils/function_lib"
+import VerIngresos from "./verIngresos"
 
 
 type WFProps = {
     tipo: string
     workers: worker[]
     ingresos: ingreso[]
+}
+
+type ingresosWorker = {
+    id: string
+    index: number
+    mostrar: boolean
 }
 
 
@@ -30,6 +37,9 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
     const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal((new Date()).toISOString()).add({hours: 1}))
     const [considerTime, setConsiderTime] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isIngresoLoading, setIsIngresoLoading] = useState<boolean>(false)
+    const [verIngresos, setVerIngresos] = useState<boolean>(false)
+    const [revealIn, setRevealIn] = useState<ingresosWorker[]>([])
     
     //METODOS
     const filtrarIngresos = (): void => {
@@ -53,7 +63,9 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
             setIsLoading(true)
             const ingresosPorFecha: ingreso[] = getIngresoByDate(props.ingresos, fechaExacta.toDate(getLocalTimeZone()))
             setSortedIng(ingresosPorFecha)
-            getGuardiasXsala(ingresosPorFecha).then( (ws: worker[]) => setSortedGuards(ws) )
+            getGuardiasXsala(ingresosPorFecha).then( (ws: worker[]) => {
+                setSortedGuards(ws)
+            } )
         } else if(considerTime && tipoDatePicker == "1"){
             setIsLoading(true)
             const ingresosPorFecha: ingreso[] = getIngresoByDate(props.ingresos, fechaExacta.toDate(getLocalTimeZone()))
@@ -61,16 +73,26 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
             const ingresosFinal: ingreso[] = sortIngresosByHoras(ingresosPorFecha, horas[0], horas[1])
             setSortedIng(ingresosFinal)
             getGuardiasXsala(ingresosFinal).then( (ws: worker[]) => setSortedGuards(ws) )
+        } else if(considerTime && tipoDatePicker === undefined){
+            const horas: number[][] = [[hora.hour, hora.minute], [horaFinal.hour, horaFinal.minute]]
+            const ingresosFinal: ingreso[] = sortIngresosByHoras(props.ingresos, horas[0], horas[1])
+            setSortedIng(ingresosFinal)
+            getGuardiasXsala(ingresosFinal).then( (ws: worker[]) => setSortedGuards(ws) )
         }
     }
 
-    
-
     const ordenarIngresosPorWorker = (e: MouseEvent<HTMLButtonElement>): void => {
+        setIsIngresoLoading(true)
+        setVerIngresos(true)
         const idWorker: number = Number(e.currentTarget.value)
         const listaWorker: worker[] = sortedGuards
         const selectedWorker: worker | undefined = listaWorker.find( (w: worker) => w.id === idWorker )
         if(selectedWorker) setSortedIng(getIngresoByWorker(props.ingresos, selectedWorker))
+        const listaMostrar: ingresosWorker[] = revealIn
+        
+        timeOut(() => {
+            setIsIngresoLoading(false)
+        }, 1500)
     }
 
     const handleSelectTipoDate = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -82,7 +104,19 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
         timeOut(() => {
             setIsLoading(false)
         }, 1000)
-    }, [sortedIng] )
+        if(props.workers[0]){
+            const lista: ingresosWorker[] = []
+            props.workers.forEach( (w: worker, indice: number) => {
+                const wk: ingresosWorker = {
+                    id: String(w.id),
+                    index: indice,
+                    mostrar: false
+                }
+                lista.push(wk)
+            } )
+            setRevealIn(lista)
+        }
+    }, [sortedIng, props.workers] )
 
     //RENDERIZADO
     return(
@@ -152,11 +186,13 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
                     subtitle={`${props.tipo} con ingresos registrados...`}>
                     <hr className="p-[15px]" />
                     { !isLoading ? <div className="flex flex-wrap gap-3 justify-center">
-                    {
-                        sortedGuards.map( (g: worker) => (
-                            <Button color="danger" variant="bordered" value={g.id} key={g.id} onClick={ordenarIngresosPorWorker}>
-                                {`${g.nombre} | ${g.rut}`}
-                            </Button>
+                    { revealIn &&
+                        revealIn.map( (w: ingresosWorker) => (
+                            <>
+                                <Button color="danger" variant="bordered" value={w.id} key={w.id} onClick={ordenarIngresosPorWorker}>
+                                    {`${sortedGuards[w.index].nombre} | ${sortedGuards[w.index].rut}`}
+                                </Button>
+                            </>
                         ) )
                     }
                     </div> : isLoading ? <div className="flex justify-center items-center align-center">
