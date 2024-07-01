@@ -1,18 +1,17 @@
 import { Route, Routes } from "react-router-dom";
-
 import IndexPage from "@/pages/index";
-import DocsPage from "@/pages/docs";
-import PricingPage from "@/pages/pricing";
-import BlogPage from "@/pages/blog";
 import AboutPage from "@/pages/about";
+import Landing from "@/pages/landing";
+import Sedes from "./pages/sedes";
+import ManageGuardias from "./pages/guardias";
 
 function App() {
   return (
     <Routes>
-      <Route element={<IndexPage />} path="/" />
-      <Route element={<DocsPage />} path="/docs" />
-      <Route element={<PricingPage />} path="/pricing" />
-      <Route element={<BlogPage />} path="/blog" />
+      <Route element={<Landing />} path="/" />
+      <Route element={<IndexPage />} path="/home" />
+      <Route element={<Sedes />} path="/sedes" />
+      <Route element={<ManageGuardias />} path="/guardias" />
       <Route element={<AboutPage />} path="/about" />
     </Routes>
   );

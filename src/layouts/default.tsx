@@ -2,14 +2,13 @@ import { Link } from "@nextui-org/link";
 import NavBar from '../components/upper/navbar'
 import { ReactElement } from "react";
 
-export default function DefaultLayout({
-  children,
-}: Readonly<{
+export default function DefaultLayout({children, llave}: Readonly<{
   children: React.ReactNode;
+  llave: "1" | "2" | "3" | "4"
 }>): ReactElement {
   return (
     <div className="relative flex flex-col h-screen">
-      <NavBar/>
+      <NavBar llaveActiva={llave}/>
       <main className="container mx-auto max-w-7xl px-6 flex-grow pt-16">
         {children}
       </main>
@@ -17,11 +16,11 @@ export default function DefaultLayout({
         <Link
           isExternal
           className="flex items-center gap-1 text-current"
-          href="#"
+          href="https://econnection.cl/"
           title=""
         >
-          <span className="text-default-600">Pie de pagina</span>
-          <p className="text-primary">n. Empresa</p>
+          <span className="text-default-600">Todos los derechos reservados</span>
+          <p className="text-primary">eConnection</p>
         </Link>
       </footer>
     </div>

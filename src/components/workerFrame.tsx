@@ -6,7 +6,6 @@ import {today, getLocalTimeZone, parseAbsoluteToLocal, parseDate} from "@interna
 import { CalendarEdit32Regular, CatchUp24Regular, Filter16Regular, VideoPerson32Regular } from "@fluentui/react-icons"
 import { ingreso } from "@/types/ingreso"
 import { getGuardiasXsala, sortDates, getIngresoByWorker, getIngresoByDate, sortIngresosByHoras, timeOut} from "./utils/function_lib"
-import VerIngresos from "./verIngresos"
 
 
 type WFProps = {
@@ -37,8 +36,6 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
     const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal((new Date()).toISOString()).add({hours: 1}))
     const [considerTime, setConsiderTime] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [isIngresoLoading, setIsIngresoLoading] = useState<boolean>(false)
-    const [verIngresos, setVerIngresos] = useState<boolean>(false)
     const [revealIn, setRevealIn] = useState<ingresosWorker[]>([])
     
     //METODOS
@@ -81,18 +78,11 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
         }
     }
 
-    const ordenarIngresosPorWorker = (e: MouseEvent<HTMLButtonElement>): void => {
-        setIsIngresoLoading(true)
-        setVerIngresos(true)
+    const ordenarIngresosPorWorker = function(e: MouseEvent<HTMLButtonElement>): void {
         const idWorker: number = Number(e.currentTarget.value)
         const listaWorker: worker[] = sortedGuards
         const selectedWorker: worker | undefined = listaWorker.find( (w: worker) => w.id === idWorker )
         if(selectedWorker) setSortedIng(getIngresoByWorker(props.ingresos, selectedWorker))
-        const listaMostrar: ingresosWorker[] = revealIn
-        
-        timeOut(() => {
-            setIsIngresoLoading(false)
-        }, 1500)
     }
 
     const handleSelectTipoDate = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -188,11 +178,9 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
                     { !isLoading ? <div className="flex flex-wrap gap-3 justify-center">
                     { revealIn &&
                         revealIn.map( (w: ingresosWorker) => (
-                            <>
                                 <Button color="danger" variant="bordered" value={w.id} key={w.id} onClick={ordenarIngresosPorWorker}>
                                     {`${sortedGuards[w.index].nombre} | ${sortedGuards[w.index].rut}`}
                                 </Button>
-                            </>
                         ) )
                     }
                     </div> : isLoading ? <div className="flex justify-center items-center align-center">
