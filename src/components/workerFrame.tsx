@@ -115,7 +115,7 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
             <Accordion selectionMode="multiple" defaultExpandedKeys={"2"} isCompact>
                 <AccordionItem
                     isCompact
-                    className="border-2 border-solid border-red-200 rounded-md p-[10px]"
+                    className="shadow-lg border-2 border-solid border-red-200 rounded-md p-[10px]"
                     key="1"
                     aria-label="Filtros por fecha y hora"
                     startContent={
@@ -166,7 +166,7 @@ export default function WorkerFrame(props: Readonly<WFProps>): ReactElement{
                 </AccordionItem>
                 <AccordionItem
                     isCompact
-                    className="border-2 border-solid border-red-200 rounded-md p-[10px]"
+                    className="shadow-lg border-2 border-solid border-red-200 rounded-md p-[10px]"
                     key="2"
                     aria-label={props.tipo}
                     startContent={

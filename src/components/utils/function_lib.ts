@@ -66,7 +66,7 @@ export function timeOut(callback: VoidFunction, tiempo: number): void {
 export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number[], horaFinal: number[]): ingreso[]{
     const nuevosIngresos: ingreso[] = []
     for(let i of listaIngresos){
-        let horas: number = new Date(i.hora).getHours()
+        let horas: number = new Date(i.hora).getUTCHours()
         let minutos: number = new Date(i.hora).getMinutes()
         if((horas >= horaInicio[0] && minutos >= horaInicio[1]) && (horas <= horaFinal[0] && minutos <= horaFinal[1])){
             nuevosIngresos.push(i)

@@ -28,9 +28,12 @@ export default function DataSelector(): ReactElement{
     const [dataDocentes, setDataDocentes] = useState<worker[]>([])
     const [ingresos, setIngresos] = useState<ingreso[]>([])
     const [wType, setWType] = useState<string>()
+    const [isMapLoading, setIsMapLoading] = useState<boolean>(false)
 
     //metodos
     const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>) => {
+        setIsMapLoading(true)
+        setSSala(undefined)
         setSelectedSede(e.target.value)
         dataSedes.forEach( (s: sede) => {
             if(String(s.id) === e.target.value){
@@ -44,6 +47,7 @@ export default function DataSelector(): ReactElement{
                 setDataSalas(temp)
             }
         } )
+        timeOut(() => setIsMapLoading(false), 300)
     }
 
     const setSSandIL = (): void => {
@@ -58,13 +62,14 @@ export default function DataSelector(): ReactElement{
         setSelectedSala(e.target.value)
         dataSalas.forEach( (s: sala) => {
             if(String(s.id) === e.target.value){
+                console.log(s)
                 setSSala(s)
             }
         } )
         axios.get(`http://52.201.181.178:3000/api/ingreso/sala/${e.target.value}`).then( (res: AxiosResponse) => {
             if(res.status == 200){
                 const temp: ingreso[] = res.data
-                setIngresos(temp)
+                if(temp[0]) setIngresos(temp); else setSSandIL()
             }
         } )
         setIsSalaSelected(true)
@@ -167,9 +172,9 @@ export default function DataSelector(): ReactElement{
                 : isLoading ? <div className="flex justify-center align-center items-center"> <Spinner color="danger" size="sm" /> </div> : null
             }
             <hr/>
-            { isSedeSelected && sSede ? <div className="flex h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+            { isSedeSelected && sSede && !isMapLoading ? <div className="flex shadow-lg h-[500px] min-w-[200px] p-[5px] border-3 border-solid border-red-500 rounded-md">
                 
-                <Mapa dataSede={sSede} sala={sSala}/>
+                {!isMapLoading ? <Mapa dataSede={sSede} sala={sSala}/> : <Spinner color="danger" size="lg"/>}
                 
             </div> : null}
             { isLoading &&

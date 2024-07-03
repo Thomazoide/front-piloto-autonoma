@@ -51,11 +51,12 @@ export default function SedeManage(): ReactElement {
                     </div>
                     <div className="flex flex-wrap gap-3 justify-center min-h-[500px] w-full ">
                         {selectedSede && isSedeSelected ? 
-                            <>
+                            <div className="flex">
+                                <Map24Regular/>
                                 { !isMapLoading ? <div className="flex h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md">
                                     <Mapa dataSede={selectedSede}/>
                                 </div> : <Spinner color="danger" size="lg" />}
-                            </> : null}
+                            </div> : null}
                             <div className="flex flex-col">
                                 {
                                     salas ? 

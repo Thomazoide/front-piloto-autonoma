@@ -8,7 +8,7 @@ type Nprops = {
 
 export default function NavBar(props: Readonly<Nprops>): ReactElement{
     return(
-        <Navbar collapseOnSelect expand='lg' className="bg-ua-gray " data-bs-theme="dark" sticky="top">
+        <Navbar collapseOnSelect expand='lg' className="bg-ua-gray shadow-lg" data-bs-theme="dark" sticky="top">
             
                 <Navbar.Brand href='/home' className="max-h-[80px] ">
                     
@@ -23,7 +23,7 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
                     <Nav.Link eventKey={"2"} href='/sedes'>Sedes</Nav.Link>
                     <Nav.Link eventKey={"3"} href='#docentes'>Docentes</Nav.Link>
                     <Nav.Link eventKey={"4"} href='/guardias'>Guardias</Nav.Link>
-                    <PersonSquare32Regular className="bg-red-500 rounded-lg"/>
+                    <PersonSquare32Regular className="bg-red-500 rounded-lg cursor-pointer"/>
                 </Nav>
             </Navbar.Collapse>
             
