@@ -10,6 +10,7 @@ import Mapa from "./mapa";
 import { ArrowCounterclockwise32Regular, Filter32Regular } from "@fluentui/react-icons";
 import { Divider } from "@fluentui/react-components";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import AddWorker from "./addWorker";
 
 
 export default function MonitorGuardias(): ReactElement{
@@ -60,7 +61,7 @@ export default function MonitorGuardias(): ReactElement{
         <div className="flex justify-center flex-wrap gap-4">
             <div className="items-center flex flex-col shadow-lg border-double border-3 border-ua-gray rounded-lg p-[15px] max-h-[200px] lg:max-h-[400px]">
                 <h5>Guardias</h5>
-                {guardias ? <ScrollShadow className=" max-w-[370px] h-[200px]" style={{overflowY: "scroll"}}>
+                {guardias ? <ScrollShadow className=" max-w-[370px] h-[200px] lg:max-h-[400px]" style={{overflowY: "scroll"}}>
                     {
                         guardias.map( (g: worker) => (
                             <div key={g.id}>
@@ -76,15 +77,15 @@ export default function MonitorGuardias(): ReactElement{
                 selectedGuardia && ingresos && ingresos[0] && selectedSede && selectedSede && !workerLoading && ultimoIngreso && selectedSala ?
                 <div className="items-center flex flex-col shadow-lg p-[15px] border-double border-3 border-ua-gray rounded-lg">
                     <div className="flex w-[100%] justify-around">
-                        <div className="w-fit h-fit p-[5px] bg-zinc-300 border-double border-3 border-zinc-500 rounded-lg cursor-pointer ">
-                            <button onClick={() => setVerFiltros(!verFiltros)}>
+                        <div className="w-fit h-fit ">
+                            <Button color="danger" variant="flat" isIconOnly onClick={() => setVerFiltros(!verFiltros)}>
                                 <Filter32Regular />
-                            </button>
+                            </Button>
                         </div>
-                        <div className="w-fit h-fit p-[5px] bg-zinc-300 border-double border-3 border-zinc-500 rounded-lg cursor-pointer ">
-                            <button value={JSON.stringify(selectedGuardia)} onClick={handleGuardSelect} >
+                        <div className="w-fit h-fit ">
+                            <Button color="danger" variant="flat" isIconOnly value={JSON.stringify(selectedGuardia)} onClick={handleGuardSelect} >
                                 <ArrowCounterclockwise32Regular/>
-                            </button>
+                            </Button>
                         </div>
                     </div>
                     {
@@ -145,6 +146,7 @@ export default function MonitorGuardias(): ReactElement{
                     <div className="flex min-w-[300px] min-h-[300px] border-double border-2 border-red-300 rounded-lg p-[5px] ">
                         <Mapa dataSede={selectedSede} sala={selectedSala} />
                     </div>
+                    
                 </div>
                 : selectedGuardia && ingresos && !ingresos[0] && !workerLoading ?
                 <div className="items-center align-center flex justify-center min-w-[300px] min-h-[300px] border-solid border-2 border-red-300 rounded-lg p-[15px] ">
@@ -157,6 +159,7 @@ export default function MonitorGuardias(): ReactElement{
                 : null
 
             }
+            <AddWorker tipo="guardia"/>
         </div>
     )
 }
