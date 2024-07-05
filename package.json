@@ -25,6 +25,7 @@
     "@nextui-org/system": "2.2.1",
     "@nextui-org/theme": "2.2.5",
     "@react-aria/visually-hidden": "3.8.12",
+    "@tanstack/react-query": "^5.50.1",
     "@types/react-leaflet": "^3.0.0",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.12",
+    "@types/node": "^20.14.9",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.8.0",

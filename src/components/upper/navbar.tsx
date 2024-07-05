@@ -1,9 +1,10 @@
 import { PersonSquare32Regular } from "@fluentui/react-icons"
+import { Button } from "@nextui-org/button"
 import { ReactElement } from "react"
 import { Navbar, Nav, Image } from "react-bootstrap"
 
 type Nprops = {
-    llaveActiva: "1" | "2" | "3" | "4"
+    llaveActiva: "1" | "2" | "3" | "4" | "5"
 }
 
 export default function NavBar(props: Readonly<Nprops>): ReactElement{
@@ -23,7 +24,11 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
                     <Nav.Link eventKey={"2"} href='/sedes'>Sedes</Nav.Link>
                     <Nav.Link eventKey={"3"} href='#docentes'>Docentes</Nav.Link>
                     <Nav.Link eventKey={"4"} href='/guardias'>Guardias</Nav.Link>
-                    <PersonSquare32Regular className="bg-red-500 rounded-lg cursor-pointer"/>
+                    <Nav.Link eventKey={"5"} href="#user">
+                        <Button color="danger" variant="solid" isIconOnly>
+                            <PersonSquare32Regular/>
+                        </Button>
+                    </Nav.Link>
                 </Nav>
             </Navbar.Collapse>
             
