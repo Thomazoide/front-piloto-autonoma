@@ -39,6 +39,15 @@ export default function DashBoard(): ReactElement{
                 </div>
                 : null
             }
+            {
+                dataSedes.data ? 
+                <div className="align-center items-center w-full h-full p-[20px] flex flex-col ">
+                    <div className="w-full">
+                        <h5></h5>
+                    </div>
+                </div>
+                : null
+            }
         </div>
     )
 }
