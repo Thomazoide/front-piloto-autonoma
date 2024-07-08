@@ -3,9 +3,12 @@ import { MapContainer, GeoJSON, TileLayer, Marker, Popup } from "react-leaflet"
 import 'leaflet/dist/leaflet.css'
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
+import L from 'leaflet'
+
 interface PropsMapa {
     dataSede: sede,
-    sala: sala[]
+    sala: sala[],
+    tipo: 'guardias' | 'docentes'
 }
 
 export default function MapaMultiple(props: Readonly<PropsMapa>): ReactElement {
@@ -15,6 +18,13 @@ export default function MapaMultiple(props: Readonly<PropsMapa>): ReactElement {
             setSSala(props.sala)
         }
     }, [props] )
+
+    const miIcono = L.divIcon({
+        className: 'MiIcono',
+        iconSize: [38, 95],
+        iconUrl: props.tipo === "guardias" ? 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/PeopleIcons-16-1024.webp' : 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg'
+    })
+
     return(
         <>
         { props.dataSede ? 
@@ -28,7 +38,7 @@ export default function MapaMultiple(props: Readonly<PropsMapa>): ReactElement {
                 sSala ?
                 sSala.map( (s: sala, i: number) => (
                     //@ts-ignore
-                    <Marker key={i+1} position={s.ubicacion.features[0].geometry.coordinates[1], s.ubicacion.features[0].geometry.coordinates[0]} >
+                    <Marker key={i+1} position={s.ubicacion.features[0].geometry.coordinates[1], s.ubicacion.features[0].geometry.coordinates[0]} icon={miIcono}>
                         <Popup closeButton>
                             {`Sala: ${s.numero}`}
                         </Popup>
