@@ -1,4 +1,4 @@
-import { ChangeEvent, ReactElement, useEffect, useState } from "react";
+import { ChangeEvent, MouseEvent, ReactElement, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { sede } from "@/types/sede";
 import axios, { AxiosResponse } from "axios";
@@ -6,6 +6,8 @@ import { Button, Select, SelectItem, Spinner } from "@nextui-org/react";
 import { ErrorCircle24Regular } from "@fluentui/react-icons";
 import { sala } from "@/types/sala";
 import { Divider } from "@fluentui/react-components";
+import { timeOut } from "./utils/function_lib";
+import MapaMultiple from "./mapaMultiple";
 
 async function getSedes(): Promise<sede[] | undefined>{
     const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL}/sedes`)
@@ -27,24 +29,40 @@ export default function DashBoard(): ReactElement{
     //atributos
     const [selectedSede, setSelectedSede] = useState<sede>()
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [mapLoading, setMapLoading] = useState<boolean>(false)
     const [salas, setSalas] = useState<sala[]>()
     const [workerType, setWorkerType] = useState<'guardias' | 'docentes'>()
     //metodos
     const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>): void => {
         setIsLoading(true)
-        const selectedValue: sede = JSON.parse(e.target.value)
+        const selectedValue: sede = e.target.value ? JSON.parse(e.target.value) : undefined
         setSelectedSede(selectedValue)
-        axios.get(`${import.meta.env.VITE_API_URL}/sala/sede/${selectedValue.id}`).then( (res: AxiosResponse) => {
-            if(res.status === 200){
-                const resData: sala[] = res.data
-                setSalas(resData)
-            }
-        } )
+        if(selectedValue){
+            axios.get(`${import.meta.env.VITE_API_URL}/sala/sede/${selectedValue.id}`).then( (res: AxiosResponse) => {
+                if(res.status === 200){
+                    const resData: sala[] = res.data
+                    setSalas(resData)
+                }
+            } )
+            timeOut(() => setIsLoading(false), 300)
+        } else {
+            setSalas(undefined)
+            setWorkerType(undefined)
+            timeOut(() => setIsLoading(false), 300)
+        }
+    }
+
+    const handleWorkerSelection = (e: MouseEvent<HTMLButtonElement> ): void => {
+        setMapLoading(true)
+        const wt: 'guardias' | 'docentes' | undefined = e.currentTarget.value === 'guardias' || e.currentTarget.value === 'docentes' ? e.currentTarget.value : undefined
+        console.log(wt)
+        setWorkerType(wt)
+        timeOut(() => setMapLoading(false), 600)
     }
 
     useEffect( () => {
-        console.log(import.meta.env.VITE_API_URL)
-    }, [] )
+        console.log(workerType)
+    }, [workerType] )
 
     return(
         <div>
@@ -83,21 +101,32 @@ export default function DashBoard(): ReactElement{
                     {
                         selectedSede && salas ?
                         <div className="flex flex-row w-full justify-between">
-                            <div className="flex">
-                                <Button color='danger' variant='flat' value={'docentes'}>
+                            <div className="flex m-[15px] ">
+                                <Button isDisabled color='danger' variant='flat' value={'docentes'}>
                                     Docentes
                                 </Button>
                             </div>
-                            <div className="flex">
-                                <Button color='danger' variant="flat" value={'guardias'}>
+                            <div className="flex m-[15px] ">
+                                <Button color='danger' variant="flat" value={'guardias'} onClick={handleWorkerSelection}>
                                     Guardias
                                 </Button>
                             </div>
                         </div>
                         : null
                     }
+                    
                 </div>
                 : null
+            }
+            {
+                !isLoading && workerType !== undefined && selectedSede && salas ?
+                <div className="flex shadow-lg h-[500px] lg: w-[1024px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+                    { !mapLoading ? 
+                    <MapaMultiple dataSede={selectedSede} sala={salas} tipo={workerType}/>
+                    : null
+                    }
+                </div>
+                : isLoading ? <div> <Spinner color="danger" size="lg"/> </div> : null
             }
         </div>
     )
