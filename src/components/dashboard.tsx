@@ -23,8 +23,7 @@ export default function DashBoard(): ReactElement{
     //query
     const dataSedes = useQuery({
         queryKey: ['sedes'],
-        queryFn: getSedes,
-        refetchInterval: 30000
+        queryFn: getSedes
     })
     //atributos
     const [selectedSede, setSelectedSede] = useState<sede>()
@@ -122,7 +121,7 @@ export default function DashBoard(): ReactElement{
                 !isLoading && workerType !== undefined && selectedSede && salas ?
                 <div className="flex shadow-lg h-[500px] lg: w-[1024px] p-[5px] border-3 border-solid border-red-500 rounded-md">
                     { !mapLoading ? 
-                    <MapaMultiple dataSede={selectedSede} sala={salas} tipo={workerType}/>
+                    <MapaMultiple dataSede={selectedSede} tipo={workerType}/>
                     : null
                     }
                 </div>
