@@ -1,4 +1,4 @@
-import { ReactElement } from "react"
+import { ReactElement, useEffect, useState } from "react"
 import { MapContainer, GeoJSON, TileLayer, Marker, Popup } from "react-leaflet"
 import 'leaflet/dist/leaflet.css'
 import { sede } from "@/types/sede"
@@ -8,8 +8,7 @@ import L from 'leaflet'
 import axios, { AxiosResponse } from "axios"
 import { ingreso } from "@/types/ingreso"
 import { worker } from "@/types/worker"
-import { getLocalTimeZone, today } from "@internationalized/date"
-import { sortIngresosByHoras } from "./utils/function_lib"
+import { estuvoUltimaHora, timeOut } from "./utils/function_lib"
 
 interface PropsMapa {
     dataSede: sede,
@@ -19,9 +18,13 @@ interface PropsMapa {
 interface worker_ingreso {
     trabajador: worker
     ultimo_ingreso: ingreso
+    estuvo: boolean 
 }
 
 export default function MapaMultiple(props: Readonly<PropsMapa>): ReactElement {
+    const [idSalas, setIdSalas] = useState<number[]>([])
+    const [salasFiltradas, setSalasFiltradas] = useState<sala[]>([])
+    const [autorizarRefetch, setAutorizarRefetch] = useState<boolean>(true)
     const querySalas = useQuery({
         queryKey: ['salas'],
         queryFn: async function(): Promise<sala[]>{
@@ -48,21 +51,46 @@ export default function MapaMultiple(props: Readonly<PropsMapa>): ReactElement {
                 return []
             }
             const workerAndIngreso: worker_ingreso[] = []
+            let idsparamostrar: number[] = []
             queryGuardias.data.map( (g: worker) => {
                 axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last/${g.id}`).then( (res: AxiosResponse) => {
                     const result: ingreso = res.data
                     
                     const nuevaData: worker_ingreso = {
                         trabajador: g,
-                        ultimo_ingreso: result
+                        ultimo_ingreso: result,
+                        estuvo: result ? estuvoUltimaHora(result) : false
                     }
+                    nuevaData.estuvo ? idsparamostrar.push(nuevaData.ultimo_ingreso.id_gateway) : null
                     workerAndIngreso.push(nuevaData)
                 } )
             } )
+            console.log(idsparamostrar)
+            const listaSalasAuxiliar: sala[] | undefined = querySalas.data?.filter( (s: sala) => idsparamostrar.includes(s.id_gateway) )
+            setSalasFiltradas(listaSalasAuxiliar ? listaSalasAuxiliar : [])
+            console.log(listaSalasAuxiliar)
+            setIdSalas(idsparamostrar)
             return workerAndIngreso
         },
-        refetchInterval: 1000
+        refetchInterval: 100 
     })
+
+    const filtrarSalas = (): sala[] => {
+        if(querySalas.data && idSalas){
+            const listaSalasAuxiliar: sala[] = querySalas.data.filter( (s: sala) => idSalas.includes(s.id_gateway) )
+            console.log(listaSalasAuxiliar)
+            return listaSalasAuxiliar
+        }
+        return []
+    }
+
+    useEffect( () => {
+        if(!salasFiltradas[0] && idSalas[0]){
+            setSalasFiltradas(filtrarSalas())
+        }
+    }, [idSalas] )
+
+
 
     const iconoGuardia = L.icon({
         iconSize: [32, 32],
@@ -80,7 +108,7 @@ export default function MapaMultiple(props: Readonly<PropsMapa>): ReactElement {
 
     return(
         <>
-        { props.dataSede ? 
+        { props.dataSede && querySalas.data && queryIngresos.data && !queryIngresos.isLoading ?
         //@ts-ignore
         <MapContainer center={[props.dataSede.ubicacion.features[0].geometry.coordinates[1], props.dataSede.ubicacion.features[0].geometry.coordinates[0]]} 
         zoom={20} 
@@ -90,24 +118,13 @@ export default function MapaMultiple(props: Readonly<PropsMapa>): ReactElement {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Open StreetMap</a> contributors' />
             <GeoJSON data={props.dataSede.m2} style={{color: 'red'}}/>
             {
-                querySalas.data && queryIngresos.data ?
-                querySalas.data.map( (s: sala) => {
+                idSalas[0] && salasFiltradas[0] ?
+                salasFiltradas.map( (s: sala) => (
                     //@ts-ignore
-                    const ubicacion: any = [s.ubicacion.features[0].geometry.coordinates[1], s.ubicacion.features[0].geometry.coordinates[0]]
-                    const fechaActual: Date = new Date()
-                    const horaInicial: number[] = [fechaActual.getHours(), fechaActual.getMinutes()]
-                    const horaFinal: number[] = [fechaActual.getHours()-1, fechaActual.getMinutes()]
-                    const ingresos: ingreso[] = queryIngresos.data.map((wi: worker_ingreso) => wi.ultimo_ingreso)
-                    const ingresosOrdenados: ingreso[] = sortIngresosByHoras(ingresos, horaInicial, horaFinal)
-                    console.log(ingresosOrdenados)
-                    return !ubicacion  ? null : (
-                        <Marker key={s.id} position={ubicacion} icon={props.tipo === "guardias" ? iconoGuardia : iconoDocente}>
-                            <Popup closeButton>
-                                {`Sala ${s.numero}`}
-                            </Popup>
-                        </Marker>
-                    )
-                } )
+                    <Marker key={s.id} position={[s.ubicacion.features[0].geometry.coordinates[1], s.ubicacion.features[0].geometry.coordinates[0]]} icon={props.tipo === "guardias" ? iconoGuardia : iconoDocente}>
+                        <Popup closeButton></Popup>
+                    </Marker>
+                ) )
                 : null
             }
         </MapContainer> 

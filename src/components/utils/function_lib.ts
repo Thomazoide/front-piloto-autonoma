@@ -2,6 +2,7 @@ import axios from 'axios'
 import { worker } from "@/types/worker";
 import { beacon } from '@/types/beacon';
 import { ingreso } from '@/types/ingreso';
+import { CalendarDate, CalendarDateTime, getLocalTimeZone, today } from '@internationalized/date';
 
 //(EL NOMBRE ESTA MAL) dada una lista de ingresos, retorna los guardias que han registrado al menos un ingreso dentro de dicha lista
 export async function getGuardiasXsala(listaIngresos: ingreso[]): Promise<worker[]>{
@@ -73,4 +74,26 @@ export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number
         }
     }
     return nuevosIngresos
+}
+
+export function getLastHourIn(listaIngresos: ingreso[], fecha: Date): (ingreso | undefined)[]{
+    const fechaHoraAtras: Date = fecha
+    fechaHoraAtras.setHours(fechaHoraAtras.getHours()-1)
+    const ingresosFiltrados: (ingreso | undefined)[] = listaIngresos.map( (i: ingreso) => {
+        if(new Date(i.hora) >= fechaHoraAtras) return i
+    } )
+    return ingresosFiltrados
+}
+
+export function estuvoUltimaHora(ultimoIngreso?: ingreso): boolean{
+    try{if(ultimoIngreso){
+        const fechaHoyHoraMenos: Date = new Date()
+        const fechaIngreso: Date = new Date(ultimoIngreso.hora)
+        fechaIngreso.setHours(fechaIngreso.getHours()+4)
+        fechaHoyHoraMenos.setHours(fechaHoyHoraMenos.getHours()-1)
+        if(new Date(fechaIngreso.toISOString()).getTime() >= new Date(fechaHoyHoraMenos.toISOString()).getTime()){
+            return true
+        } else return false
+    }}catch(e){return false}
+    return false
 }

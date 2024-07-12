@@ -13,7 +13,6 @@ async function getSedes(): Promise<sede[] | undefined>{
     const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL}/sedes`)
     if (response.status === 200){
         const sedes: sede[] = response.data
-        console.log(sedes)
         return sedes
     }
     else return undefined
@@ -58,10 +57,6 @@ export default function DashBoard(): ReactElement{
         setWorkerType(wt)
         timeOut(() => setMapLoading(false), 600)
     }
-
-    useEffect( () => {
-        console.log(workerType)
-    }, [workerType] )
 
     return(
         <div>
