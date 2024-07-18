@@ -134,7 +134,7 @@ export default function MonitorGuardias(): ReactElement{
                                 Ultimo ingreso registrado:
                             </strong>
                             <br/>
-                            Fecha: {(new Date(ultimoIngreso.hora).getDay() < 10) ? "0" : null}{new Date(ultimoIngreso.hora).getDay()}/{(new Date(ultimoIngreso.hora).getMonth()+1) < 10 ? "0" : null}{new Date(ultimoIngreso.hora).getMonth()+1}/{new Date(ultimoIngreso.hora).getFullYear()}
+                            Fecha: {(new Date(ultimoIngreso.hora).getDate() < 10) ? "0" : null}{new Date(ultimoIngreso.hora).getDate()}/{(new Date(ultimoIngreso.hora).getMonth()+1) < 10 ? "0" : null}{new Date(ultimoIngreso.hora).getMonth()+1}/{new Date(ultimoIngreso.hora).getFullYear()}
                             <br/>
                             Hora: {(new Date(ultimoIngreso.hora).getUTCHours() < 10) ? "0" : null}{new Date(ultimoIngreso.hora).getUTCHours()}:{(new Date(ultimoIngreso.hora).getMinutes()) < 10 ? "0" : null}{new Date(ultimoIngreso.hora).getMinutes()}
                             <br/>
