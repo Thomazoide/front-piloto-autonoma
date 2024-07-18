@@ -49,8 +49,9 @@ export default function DashBoard(): ReactElement{
                         ultimo_ingreso: result,
                         estuvo: result ? estuvoUltimaHora(result) : false
                     }
-                    nuevaData.estuvo ? workerAndIngreso.push(nuevaData) : null
+                    
                     const auxSala: sala = (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${nuevaData.ultimo_ingreso.id_gateway}`)).data
+                    nuevaData.estuvo && (nuevaData.ultimo_ingreso.id_gateway === auxSala.id_gateway) ? workerAndIngreso.push(nuevaData) : null
                     nuevaData.estuvo && (selectedSede?.id === auxSala.id_sede) ? salasPresentes.push(auxSala) : null
                 } )
             } )
@@ -168,8 +169,8 @@ export default function DashBoard(): ReactElement{
             }
             {
                 !isLoading && workerType !== undefined && selectedSede && salas && queryIngresos.data ?
-                <div className="flex shadow-lg h-[500px] lg: w-[1024px] p-[5px] border-3 border-solid border-red-500 rounded-md">
-                    <div className="flex justify-end" >
+                <div className=" flex flex-col shadow-lg h-[500px] lg:w-[1024px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+                    <div className="flex justify-end " >
                         <Button className="shadow-lg" isIconOnly onClick={handleRefetch} color="danger"> <ArrowCounterclockwise24Regular/> </Button>
                     </div>
                     { !mapLoading && salas && lista ? 

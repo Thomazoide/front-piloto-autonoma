@@ -20,7 +20,7 @@ export default function InfoPresentWorkers(props: Readonly<IPWProps>): ReactElem
             <h5> {props.tipo[0].toUpperCase()}{props.tipo.slice(1)} </h5>
             {
                 props.workers.map( (wi: worker_ingreso, index: number) => (
-                    <div className="flex max-h-[25px] text-start justify-center ">
+                    <div key={index+1} className="flex max-h-[25px] text-start justify-center ">
                         <p>
                             {index+1}: {wi.trabajador.nombre}
                             <br/>
