@@ -2,14 +2,16 @@ import { ChangeEvent, MouseEvent, ReactElement, useEffect, useState } from "reac
 import { useQuery } from "@tanstack/react-query";
 import { sede } from "@/types/sede";
 import axios, { AxiosResponse } from "axios";
-import { Button, Select, SelectItem, Spinner } from "@nextui-org/react";
+import { Accordion, AccordionItem, Button, Select, SelectItem, Spinner } from "@nextui-org/react";
 import { ArrowCounterclockwise24Regular, ErrorCircle24Regular } from "@fluentui/react-icons";
 import { sala } from "@/types/sala";
 import { Divider } from "@fluentui/react-components";
-import { estuvoUltimaHora, timeOut } from "./utils/function_lib";
+import { estuvoUltimaHora, obtenerFechaFormatoI, obtenerHoradeFecha, timeOut } from "./utils/function_lib";
 import MapaMultiple from "./mapaMultiple";
 import { worker } from "@/types/worker";
 import { ingreso } from "@/types/ingreso";
+import IconoGuardiaSVG from "./svgComponents/IconoGuardiaSVG";
+import IconoDocentes from "./svgComponents/IconoDocentes";
 
 interface worker_ingreso {
     trabajador: worker
@@ -71,6 +73,7 @@ export default function DashBoard(): ReactElement{
     const [workerType, setWorkerType] = useState<'guardias' | 'docentes'>()
     const [workerData, setWorkerData] = useState<worker[]>()
     const [lista, setLista] = useState<worker_ingreso[]>()
+    const [isRefetching, setIsRefetching] = useState<boolean>(false)
     //metodos
     const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>): void => {
         setIsLoading(true)
@@ -78,6 +81,7 @@ export default function DashBoard(): ReactElement{
         setSelectedSede(selectedValue)
         setSalas(undefined)
         if(selectedValue){
+            handleRefetch()
             timeOut(() => setIsLoading(false), 300)
         } else {
             setSalas(undefined)
@@ -111,6 +115,14 @@ export default function DashBoard(): ReactElement{
         if(workerData && selectedSede){
             queryIngresos.refetch()
         }
+        const intervaloId: NodeJS.Timeout = setInterval( () => {
+            if(workerData && selectedSede){
+                setIsRefetching(true)
+                queryIngresos.refetch()
+                timeOut( () => setIsRefetching(false), 800 )
+            }
+        }, 10000 )
+        return () => clearInterval(intervaloId)
     }, [workerData, selectedSede] )
 
     return(
@@ -169,15 +181,69 @@ export default function DashBoard(): ReactElement{
             }
             {
                 !isLoading && workerType !== undefined && selectedSede && salas && queryIngresos.data ?
-                <div className=" flex flex-col shadow-lg h-[500px] lg:w-[1024px] p-[5px] border-3 border-solid border-red-500 rounded-md">
-                    <div className="flex justify-end " >
+                <>
+                    <div className=" p-[20px] ">
+                        <Accordion selectionMode="single" isCompact defaultExpandedKeys={"1"}>
+                            <AccordionItem key="1" className="shadow-lg border-2 border-solid border-red-200 rounded-md p-[10px] max-h-[400px] overflow-y-scroll "
+                            startContent={
+                                workerType === "guardias" ?
+                                <IconoGuardiaSVG/>
+                                : <IconoDocentes/>
+                            }
+                            title={`${workerType[0].toUpperCase()}${workerType.slice(1)} presentes en la ultima hora`}
+                            subtitle={`${new Date().getHours()-1 < 10 ? "0" : ""}${new Date().getHours()-1}:${new Date().getMinutes() < 10 ? "0" : ""}${new Date().getMinutes()} - ${new Date().getHours() < 10 ? "0" : ""}${new Date().getHours()}:${new Date().getMinutes() < 10 ? "0" : ""}${new Date().getMinutes()}`}>
+                                <hr className="p-[15px] " />
+                                <div className="items-center align-center flex flex-col gap-2 justify-center" >
+                                    {
+                                        !salas[0] && lista && !lista[0] ?
+                                        <>
+                                        <ErrorCircle24Regular/>
+                                        <h5 className="text-yellow-500">No Hay registros de la ultima hora...</h5>
+                                        </>
+                                        : salas[0] && lista && lista[0] ? <>
+                                        <p><strong className="text-zinc-400">Cantidad de {workerType} detectados la ultima hora: </strong>{lista?.length}</p>
+                                        <div className="flex flex-wrap gap-3">
+                                        {
+                                            lista?.map( (wi: worker_ingreso) => (
+                                                <div key={wi.trabajador.id} className="flex flex-col border-solid border-3 border-red-500 rounded-lg p-[5px] max-w-[200px] ">
+                                                    <h5>{workerType[0].toUpperCase()}{workerType.slice(1, workerType.length-1)}: {wi.trabajador.nombre}</h5>
+                                                    <p>
+                                                        <strong className="text-red-500">Sala: </strong>
+                                                        {salas.filter( (s: sala) => s.id_gateway === wi.ultimo_ingreso.id_gateway )[0].numero}
+                                                        <br/>
+                                                        <strong className="text-red-500">Fecha: </strong>
+                                                        {obtenerFechaFormatoI(new Date(wi.ultimo_ingreso.hora))}
+                                                        <br/>
+                                                        <strong className="text-red-500">Hora: </strong>
+                                                        {obtenerHoradeFecha(new Date(wi.ultimo_ingreso.hora))}
+                                                    </p>
+                                                </div>
+                                            ) )
+                                        }
+                                        </div>
+                                        </>
+                                        :
+                                        <>
+                                        <ErrorCircle24Regular/>
+                                        <h5 className="text-yellow-500">No Hay registros de la ultima hora...</h5>
+                                        </>
+                                    } 
+                                </div> 
+                            </AccordionItem>
+                        </Accordion>
+                    </div>
+                    <div className="flex justify-center p-[15px] " >
                         <Button className="shadow-lg" isIconOnly onClick={handleRefetch} color="danger"> <ArrowCounterclockwise24Regular/> </Button>
                     </div>
-                    { !mapLoading && salas && lista ? 
-                    <MapaMultiple dataSede={selectedSede} tipo={workerType} salas={salas} listaWorkers={lista}/>
-                    : null
-                    }
-                </div>
+                
+                    <div className=" flex justify-center shadow-lg h-[500px] lg:w-[1024px] w-[300px] p-[5px] lg:ml-[0px] ml-[15px] border-3 border-solid border-red-500 rounded-md">
+                        
+                        { !mapLoading && salas && lista && !isRefetching ? 
+                        <MapaMultiple dataSede={selectedSede} tipo={workerType} salas={salas} listaWorkers={lista}/>
+                        : isRefetching ? <Spinner color="danger" size="lg" label="Cargando datos nuevos..."/> : null
+                        }
+                    </div>
+                </>
                 : isLoading ? <div> <Spinner color="danger" size="lg"/> </div> : null
             }
         </div>

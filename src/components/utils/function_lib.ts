@@ -52,6 +52,7 @@ export function getIngresoByDate(listaIngresos: ingreso[], fecha: Date): ingreso
 }
 
 //Dada una lista de ingresos y los datos de un empleado, retorna los ingresos registrados por el empleado
+//DEPRECATED, FUNCION YA DISPONIBLE EN EL BACKEND
 export function getIngresoByWorker(listaIngresos: ingreso[], empleado: worker): ingreso[]{
     let nuevaListaIngreso: ingreso[] = listaIngresos.filter( (i: ingreso) => i.id_beacon === empleado.id_beacon )
     console.log(nuevaListaIngreso)
@@ -96,4 +97,16 @@ export function estuvoUltimaHora(ultimoIngreso?: ingreso): boolean{
         } else return false
     }}catch(e){return false}
     return false
+}
+
+//recibe una fecha y devuelve la hora en formato "HH:MM"
+export function obtenerHoradeFecha(fecha: Date): string{
+    const hora: string = `${fecha.getHours()+4 < 10 ? "0" : ""}${fecha.getHours()+4}:${fecha.getMinutes() < 10 ? "0" : ""}${fecha.getMinutes()}`
+    return hora
+}
+
+//recibe una fecha y devuelve la fecha en formato "DD/MM/YYYY"
+export function obtenerFechaFormatoI(fecha: Date): string{
+    const nuevaFecha: string = `${fecha.getDate() < 10 ? "0":""}${fecha.getDate()}/${fecha.getMonth() < 10 ? "0":""}${fecha.getMonth()}/${fecha.getFullYear()}`
+    return nuevaFecha
 }

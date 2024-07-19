@@ -28,14 +28,16 @@ export default function MonitorGuardias(): ReactElement{
     const [tipoDatePicker, setTipoDatePicker] = useState<"1" | "2">()
     const [workerLoading, setWorkerLoading] = useState<boolean>(false)
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
+    const [refreshMap, setRefreshMap] = useState<boolean>(false)
 
     const handleGuardSelect = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
         setWorkerLoading(true)
         const guardia: worker = JSON.parse(e.currentTarget.value)
-        const ingresosGuardia: ingreso[] = (await axios.get(`http://52.201.181.178:3000/api/ingreso/guardia/${guardia.id}`)).data
-        const ultimoIngresoR: ingreso = ingresosGuardia[ingresosGuardia.length-1]
-        const salaIngreso: sala = ultimoIngresoR ? (await axios.get(`http://52.201.181.178:3000/api/sala/gateway/${ultimoIngresoR.id_gateway}`)).data : undefined
-        const sedeIngreso: sede = salaIngreso ? (await axios.get(`http://52.201.181.178:3000/api/sedes/${salaIngreso.id_sede}`)).data : undefined
+        localStorage.setItem("id_worker", String(guardia.id))
+        const ingresosGuardia: ingreso[] = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/${guardia.id}`)).data
+        const ultimoIngresoR: ingreso = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last/${guardia.id}`)).data
+        const salaIngreso: sala = ultimoIngresoR ? (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${ultimoIngresoR.id_gateway}`)).data : undefined
+        const sedeIngreso: sede = salaIngreso ? (await axios.get(`${import.meta.env.VITE_API_URL}/sedes/${salaIngreso.id_sede}`)).data : undefined
         console.log(ultimoIngreso)
         setSelectedGuardia(guardia)
         setIngresos(ingresosGuardia)
@@ -47,6 +49,23 @@ export default function MonitorGuardias(): ReactElement{
         }, 300 )
     }
 
+    const handleRefetch = async (): Promise<void> => {
+        setRefreshMap(true)
+        const id_worker: number = Number(localStorage.getItem("id_worker"))
+        const ingresosGuardia: ingreso[] = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/${id_worker}`)).data
+        const ultimoIngresoR: ingreso = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last/${selectedGuardia?.id}`)).data
+        const salaIngreso: sala = ultimoIngresoR ? (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${ultimoIngresoR.id_gateway}`)).data : undefined
+        const sedeIngreso: sede = salaIngreso ? (await axios.get(`${import.meta.env.VITE_API_URL}/sedes/${salaIngreso.id_sede}`)).data : undefined
+        console.log(ultimoIngreso)
+        setIngresos(ingresosGuardia)
+        setSelectedSala(salaIngreso)
+        setSelectedSede(sedeIngreso)
+        setUltimoIngreso(ultimoIngresoR)
+        timeOut( () => {
+            setRefreshMap(false)
+        }, 300 )
+    }
+
     const handleSelectTipoDate = (e: ChangeEvent<HTMLSelectElement>) => {
         if(e.target.value === "1" || e.target.value === "2") setTipoDatePicker(e.target.value); else setTipoDatePicker(undefined)
     }
@@ -55,7 +74,16 @@ export default function MonitorGuardias(): ReactElement{
         if(!guardias){
             axios.get("http://52.201.181.178:3000/api/guardia").then( (res: AxiosResponse) => setGuardias(res.data) )
         }
-    }, [ingresos, selectedGuardia] )
+        
+        const idIntervalo: NodeJS.Timeout = setInterval(() => {
+            if(guardias && selectedGuardia){
+                handleRefetch()
+                console.log('REFETCH')
+            }
+        }, 10000)
+        
+        return () => clearInterval(idIntervalo)
+    }, [selectedGuardia] )
 
     return(
         <div className="flex justify-center flex-wrap gap-4">
@@ -143,8 +171,8 @@ export default function MonitorGuardias(): ReactElement{
                             Sala: {selectedSala.numero}
                         </p>
                     </div> : null}
-                    <div className="flex min-w-[300px] min-h-[300px] border-double border-2 border-red-300 rounded-lg p-[5px] ">
-                        <Mapa dataSede={selectedSede} sala={selectedSala} />
+                    <div className="flex justify-center min-w-[300px] min-h-[300px] border-double border-2 border-red-300 rounded-lg p-[5px] ">
+                        {!refreshMap ? <Mapa dataSede={selectedSede} sala={selectedSala} /> : <Spinner color="danger" size="lg"/>}
                     </div>
                     
                 </div>
