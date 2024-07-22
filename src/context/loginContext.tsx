@@ -1,44 +1,44 @@
-import { Context, createContext, Dispatch, FC, ReactNode, useReducer } from "react"
+import { createContext, Dispatch, ReactElement, ReactNode, useReducer } from "react"
 
-
-type estado = {
-    isAuthenticated: boolean
-    user?: {userId: string, token: string}
-    token: string | null
-}
-
-type action = {
-    type: authActionType
-    payload?: {user: {userId: string, token: string}}
-}
-
-enum authActionType {
+enum actionTypes {
     LOGIN = 'LOGIN',
     LOGOUT = 'LOGOUT'
 }
 
-interface authContextType {
-    state: estado
-    dispatch: Dispatch<action>
+interface State{
+    user?: User | null
 }
 
-const AuthContext: Context<authContextType | undefined> = createContext<authContextType | undefined>(undefined)
+interface Action {
+    type: actionTypes
+    payload?: User
+}
 
-const authReducer = (state: estado, action: action): estado => {
+interface User{
+    token: string
+}
+
+const estadoInicial: State = {user: null}
+
+const authReducer = (state: State, action: Action): State => {
     switch(action.type){
-        case authActionType.LOGIN:
-            return {
-                ...state,
-                isAuthenticated: true,
-                user: action.payload?.user
-            }
-        case authActionType.LOGOUT:
-            return {
-                ...state,
-                isAuthenticated: false,
-                user: undefined
-            }
+        case actionTypes.LOGIN:
+            return {...state, user: action.payload}
+        case actionTypes.LOGOUT:
+            return {...state, user: null}
         default:
             return state
     }
+}
+
+export const AuthContext = createContext<{state: State; dispatch: Dispatch<Action>} | undefined>(undefined)
+
+export const AuthContextProvider = ({children}: Readonly<{children: ReactNode}>): ReactElement => {
+    const [state, dispatch] = useReducer(authReducer, estadoInicial)
+
+    return(
+        <AuthContext.Provider value={{state, dispatch}}>
+            {children}
+        </AuthContext.Provider>
+    )
 }

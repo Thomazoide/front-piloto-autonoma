@@ -232,9 +232,6 @@ export default function DashBoard(): ReactElement{
                             </AccordionItem>
                         </Accordion>
                     </div>
-                    <div className="flex justify-center p-[15px] " >
-                        <Button className="shadow-lg" isIconOnly onClick={handleRefetch} color="danger"> <ArrowCounterclockwise24Regular/> </Button>
-                    </div>
                 
                     <div className=" flex justify-center shadow-lg h-[500px] lg:w-[1024px] w-[300px] p-[5px] lg:ml-[0px] ml-[15px] border-3 border-solid border-red-500 rounded-md">
                         
