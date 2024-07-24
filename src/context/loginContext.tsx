@@ -1,6 +1,6 @@
-import { createContext, Dispatch, ReactElement, ReactNode, useReducer } from "react"
+import { createContext, Dispatch, ReactElement, ReactNode, useEffect, useReducer } from "react"
 
-enum actionTypes {
+export enum actionTypes {
     LOGIN = 'LOGIN',
     LOGOUT = 'LOGOUT'
 }
@@ -15,7 +15,9 @@ interface Action {
 }
 
 interface User{
+    data?: any
     token: string
+    mensaje?: string
 }
 
 const estadoInicial: State = {user: null}
@@ -35,6 +37,14 @@ export const AuthContext = createContext<{state: State; dispatch: Dispatch<Actio
 
 export const AuthContextProvider = ({children}: Readonly<{children: ReactNode}>): ReactElement => {
     const [state, dispatch] = useReducer(authReducer, estadoInicial)
+
+    useEffect(() => {
+        const userData = localStorage.getItem('userData')
+        if(userData){
+            dispatch({type: actionTypes.LOGIN, payload: JSON.parse(userData)})
+            console.log('SESION ACTIVA')
+        }
+    }, [])
 
     return(
         <AuthContext.Provider value={{state, dispatch}}>

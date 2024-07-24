@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { sede } from "@/types/sede";
 import axios, { AxiosResponse } from "axios";
 import { Accordion, AccordionItem, Button, Select, SelectItem, Spinner } from "@nextui-org/react";
-import { ArrowCounterclockwise24Regular, ErrorCircle24Regular } from "@fluentui/react-icons";
+import { ErrorCircle24Regular } from "@fluentui/react-icons";
 import { sala } from "@/types/sala";
 import { Divider } from "@fluentui/react-components";
 import { estuvoUltimaHora, obtenerFechaFormatoI, obtenerHoradeFecha, timeOut } from "./utils/function_lib";
@@ -12,6 +12,8 @@ import { worker } from "@/types/worker";
 import { ingreso } from "@/types/ingreso";
 import IconoGuardiaSVG from "./svgComponents/IconoGuardiaSVG";
 import IconoDocentes from "./svgComponents/IconoDocentes";
+import { useAuthContext } from "@/hooks/useLoginContext";
+import { useNavigate } from "react-router-dom";
 
 interface worker_ingreso {
     trabajador: worker
@@ -19,20 +21,19 @@ interface worker_ingreso {
     estuvo: boolean 
 }
 
-async function getSedes(): Promise<sede[] | undefined>{
-    const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL}/sedes`)
-    if (response.status === 200){
-        const sedes: sede[] = response.data
-        return sedes
-    }
-    else return undefined
-}
-
 export default function DashBoard(): ReactElement{
     //query
     const dataSedes = useQuery({
         queryKey: ['sedes'],
-        queryFn: getSedes
+        queryFn: async (): Promise<sede[]> => {
+            const response: AxiosResponse = await axios.get(`${import.meta.env.VITE_API_URL}/sedes`, {
+                headers: {
+                    Authorization: `Bearer ${state.user?.token}`
+                }
+            })
+            const sedes: sede[] = response.data
+            return sedes
+        }
     })
     const queryIngresos = useQuery({
         queryKey: ['ingresos'],
@@ -43,7 +44,11 @@ export default function DashBoard(): ReactElement{
             let workerAndIngreso: worker_ingreso[] = []
             let salasPresentes: sala[] = []
             workerData.map( (w: worker) => {
-                axios.get(`${import.meta.env.VITE_API_URL}/ingreso/${workerType?.slice(0, workerType.length-1)}/last/${w.id}`)
+                axios.get(`${import.meta.env.VITE_API_URL}/ingreso/${workerType?.slice(0, workerType.length-1)}/last/${w.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${state.user?.token}`
+                    }
+                })
                 .then( async (res: AxiosResponse) => {
                     const result: ingreso = res.data
                     const nuevaData: worker_ingreso = {
@@ -52,7 +57,11 @@ export default function DashBoard(): ReactElement{
                         estuvo: result ? estuvoUltimaHora(result) : false
                     }
                     
-                    const auxSala: sala = (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${nuevaData.ultimo_ingreso.id_gateway}`)).data
+                    const auxSala: sala = (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${nuevaData.ultimo_ingreso.id_gateway}`,{
+                        headers: {
+                            Authorization: `Bearer ${state.user?.token}`
+                        }
+                    })).data
                     nuevaData.estuvo && (nuevaData.ultimo_ingreso.id_gateway === auxSala.id_gateway) ? workerAndIngreso.push(nuevaData) : null
                     nuevaData.estuvo && (selectedSede?.id === auxSala.id_sede) ? salasPresentes.push(auxSala) : null
                 } )
@@ -74,6 +83,8 @@ export default function DashBoard(): ReactElement{
     const [workerData, setWorkerData] = useState<worker[]>()
     const [lista, setLista] = useState<worker_ingreso[]>()
     const [isRefetching, setIsRefetching] = useState<boolean>(false)
+    const {state} = useAuthContext()
+    const navegar = useNavigate()
     //metodos
     const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>): void => {
         setIsLoading(true)
@@ -94,7 +105,11 @@ export default function DashBoard(): ReactElement{
     const handleWorkerSelection = (e: MouseEvent<HTMLButtonElement> ): void => {
         setMapLoading(true)
         const wt: 'guardias' | 'docentes' | undefined = e.currentTarget.value === 'guardias' || e.currentTarget.value === 'docentes' ? e.currentTarget.value : undefined
-        wt === "guardias" ? axios.get(`${import.meta.env.VITE_API_URL}/guardia`).then( (res: AxiosResponse) => setWorkerData(res.data) ).catch( (err) => console.error(err) ) : null
+        wt === "guardias" ? axios.get(`${import.meta.env.VITE_API_URL}/guardia`, {
+            headers: {
+                Authorization: `Bearer ${state.user?.token}`
+            }
+        }).then( (res: AxiosResponse) => setWorkerData(res.data) ).catch( (err) => console.error(err) ) : null
         setWorkerType(wt)
         timeOut(() => setMapLoading(false), 600)
     }
@@ -112,6 +127,9 @@ export default function DashBoard(): ReactElement{
     }
 
     useEffect( () => {
+        if(!state.user){
+            navegar('/')
+        }
         if(workerData && selectedSede){
             queryIngresos.refetch()
         }

@@ -11,6 +11,8 @@ import { ArrowCounterclockwise32Regular, Filter32Regular } from "@fluentui/react
 import { Divider } from "@fluentui/react-components";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import AddWorker from "./addWorker";
+import { useAuthContext } from "@/hooks/useLoginContext";
+import { useNavigate } from "react-router-dom";
 
 
 export default function MonitorGuardias(): ReactElement{
@@ -29,6 +31,8 @@ export default function MonitorGuardias(): ReactElement{
     const [workerLoading, setWorkerLoading] = useState<boolean>(false)
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
     const [refreshMap, setRefreshMap] = useState<boolean>(false)
+    const {state} = useAuthContext()
+    const navegar = useNavigate()
 
     const handleGuardSelect = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
         setWorkerLoading(true)
@@ -52,10 +56,26 @@ export default function MonitorGuardias(): ReactElement{
     const handleRefetch = async (): Promise<void> => {
         setRefreshMap(true)
         const id_worker: number = Number(localStorage.getItem("id_worker"))
-        const ingresosGuardia: ingreso[] = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/${id_worker}`)).data
-        const ultimoIngresoR: ingreso = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last/${selectedGuardia?.id}`)).data
-        const salaIngreso: sala = ultimoIngresoR ? (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${ultimoIngresoR.id_gateway}`)).data : undefined
-        const sedeIngreso: sede = salaIngreso ? (await axios.get(`${import.meta.env.VITE_API_URL}/sedes/${salaIngreso.id_sede}`)).data : undefined
+        const ingresosGuardia: ingreso[] = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/${id_worker}`, {
+            headers: {
+                Authorization: `Bearer ${state.user?.token}`
+            }
+        })).data
+        const ultimoIngresoR: ingreso = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last/${selectedGuardia?.id}`, {
+            headers: {
+                Authorization: `Bearer ${state.user?.token}`
+            }
+        })).data
+        const salaIngreso: sala = ultimoIngresoR ? (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${ultimoIngresoR.id_gateway}`, {
+            headers: {
+                Authorization: `Bearer ${state.user?.token}`
+            }
+        })).data : undefined
+        const sedeIngreso: sede = salaIngreso ? (await axios.get(`${import.meta.env.VITE_API_URL}/sedes/${salaIngreso.id_sede}`, {
+            headers: {
+                Authorization: `Bearer ${state.user?.token}`
+            }
+        })).data : undefined
         console.log(ultimoIngreso)
         setIngresos(ingresosGuardia)
         setSelectedSala(salaIngreso)
@@ -71,8 +91,14 @@ export default function MonitorGuardias(): ReactElement{
     }
 
     useEffect( () => {
+        
         if(!guardias){
-            axios.get("http://52.201.181.178:3000/api/guardia").then( (res: AxiosResponse) => setGuardias(res.data) )
+            state.user ? axios.get("http://52.201.181.178:3000/api/guardia", {
+                headers: {
+                    Authorization: `Bearer ${state.user?.token}`
+                }
+            }).then( (res: AxiosResponse) => setGuardias(res.data) )
+            : null
         }
         
         const idIntervalo: NodeJS.Timeout = setInterval(() => {
@@ -81,7 +107,9 @@ export default function MonitorGuardias(): ReactElement{
                 console.log('REFETCH')
             }
         }, 10000)
-        
+        if(!state.user?.token){
+            navegar('/')
+        }
         return () => clearInterval(idIntervalo)
     }, [selectedGuardia] )
 

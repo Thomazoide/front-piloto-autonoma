@@ -1,11 +1,31 @@
 import { Image } from "@fluentui/react-components"
-import { ReactElement, useState } from "react"
+import { ReactElement, useEffect, useState } from "react"
 import { Input } from "@nextui-org/input"
 import { Button } from "@nextui-org/button"
+import { loginPayload, useLogin } from "@/hooks/useLogin"
+import { useAuthContext } from "@/hooks/useLoginContext"
+import { NavigateFunction, useNavigate } from "react-router-dom"
 
 export default function Landing(): ReactElement{
-    const [rut, setRut] = useState<string>()
-    const [password, setPassword] = useState<string>()
+    const [username, setUsername] = useState<string>('')
+    const [password, setPassword] = useState<string>('')
+    const {login} = useLogin()
+    const {state} = useAuthContext()
+    const navegar: NavigateFunction = useNavigate()
+    const handleLogin = async () => {
+        const payload: loginPayload = {
+            username,
+            password
+        }
+        await login(payload)
+    }
+
+    useEffect( () => {
+        if(state.user){
+            navegar('/home')
+        }
+    }, [] )
+
     return(
         <div className=" justify-center h-full">
             <div className="flex justify-center align-center items-center">
@@ -19,13 +39,13 @@ export default function Landing(): ReactElement{
             <div className="flex justify-center">
                 <div className="w-full shadow-lg lg:ml-[250px] lg:mr-[250px] p-[15px] bg-zinc-300 flex flex-col border-solid border-2 border-red-300 rounded-lg">
                     <div className="flex justify-center">
-                        <Input color="danger" onValueChange={setRut} label="Rut" placeholder="Rut sin puntos y con guion" className="max-w-[1024px]"/>
+                        <Input color="danger" onValueChange={setUsername} label="Nombre de usuario" placeholder="usuario" className="max-w-[1024px]"/>
                     </div>
                     <div className="flex justify-center mt-[15px] ">
                         <Input color="danger" onValueChange={setPassword} label="Contraseña" placeholder="******" type="password" className="max-w-[1024px]"/>
                     </div>
                     <div className="flex justify-center">
-                        <Button className="mt-[15px] " color="danger">
+                        <Button className="mt-[15px] " color="danger" onClick={handleLogin}>
                             Iniciar sesión
                         </Button>
                     </div>
