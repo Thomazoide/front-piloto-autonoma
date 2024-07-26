@@ -1,8 +1,6 @@
 import MonitorGuardias from "@/components/monitorGuardia";
-import { useAuthContext } from "@/hooks/useLoginContext";
 import DefaultLayout from "@/layouts/default";
-import { ReactElement, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { ReactElement } from "react";
 
 
 export default function ManageGuardias(): ReactElement{

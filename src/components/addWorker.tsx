@@ -19,10 +19,16 @@ export default function AddWorker(props: Readonly<AWProps>): ReactElement{
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     //METODOS
-    const crearBeacon = async function(): Promise<void>{
-    }
+    
 
     const handleButton = (): void => {
+        console.log({
+            1: nombre,
+            2: rut,
+            3: email,
+            4: celular,
+            5: mac
+        })
         setIsLoading(true)
         timeOut( () => setIsLoading(false), 300 )
     }
@@ -37,7 +43,7 @@ export default function AddWorker(props: Readonly<AWProps>): ReactElement{
             <Input type="text" label="MAC beacon" color="danger" placeholder="Sin los puntos dobles y en mayusculas"onValueChange={setMac}/>
             <Divider />
             <Button color="danger" variant="solid" isLoading={isLoading} onClick={handleButton}>
-                Agregar guardia
+                Agregar {props.tipo}
             </Button>
         </div>
     )

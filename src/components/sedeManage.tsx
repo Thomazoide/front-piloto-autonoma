@@ -6,6 +6,7 @@ import { sala } from "@/types/sala"
 import { Map24Regular } from "@fluentui/react-icons"
 import Mapa from "./mapa"
 import { timeOut } from "./utils/function_lib"
+import { useAuthContext } from "@/hooks/useLoginContext"
 
 
 export default function SedeManage(): ReactElement {
@@ -14,17 +15,26 @@ export default function SedeManage(): ReactElement {
     const [salas, setSalas] = useState<sala[]>()
     const [isSedeSelected, setIsSedeSelected] = useState<boolean>(false)
     const [isMapLoading, setIsMapLoading] = useState<boolean>(false)
+    const { state } = useAuthContext()
 
     const handleSedeSelection = function(e: ChangeEvent<HTMLSelectElement>): void{
         setIsMapLoading(true)
-        axios.get(`http://52.201.181.178:3000/api/sala/sede/${e.target.value}`).then( (res: AxiosResponse) => setSalas(res.data) )
+        axios.get(`http://52.201.181.178:3000/api/sala/sede/${e.target.value}`, {
+            headers: {
+                Authorization: `Bearer ${state.user?.token}`
+            }
+        }).then( (res: AxiosResponse) => setSalas(res.data) )
         setIsSedeSelected(true)
         if(sedes) setSelectedSede( sedes.filter( (s: sede) => s.id === Number(e.target.value) )[0] )
         timeOut( () => setIsMapLoading(false), 1500 )
     }
 
     useEffect( () => {
-        axios.get("http://52.201.181.178:3000/api/sedes").then( (res: AxiosResponse) => {setSedes(res.data); setSelectedSede(res.data[0])} )
+        axios.get("http://52.201.181.178:3000/api/sedes", {
+            headers: {
+                Authorization: `Bearer ${state.user?.token}`
+            }
+        }).then( (res: AxiosResponse) => {setSedes(res.data); setSelectedSede(res.data[0])} )
     }, [] )
 
     return(

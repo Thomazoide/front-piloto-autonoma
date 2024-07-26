@@ -25,7 +25,6 @@ export default function DataSelector(): ReactElement{
     const [isSalaSelected, setIsSalaSelected] = useState<boolean>(false)
     const [selectedSala, setSelectedSala] = useState<string>('')
     const [dataWorkers, setDataWorkers] = useState<worker[]>([])
-    const [dataDocentes, setDataDocentes] = useState<worker[]>([])
     const [ingresos, setIngresos] = useState<ingreso[]>([])
     const [wType, setWType] = useState<string>()
     const [isMapLoading, setIsMapLoading] = useState<boolean>(false)

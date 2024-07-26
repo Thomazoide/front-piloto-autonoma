@@ -31,7 +31,7 @@ const authReducer = (state: State, action: Action): State => {
             return {...state, user: action.payload}
         case actionTypes.LOGOUT:
             localStorage.clear()
-            return {...state, user: null}
+            return estadoInicial
         case actionTypes.CHANGE_PAGE:
             localStorage.setItem('userData', JSON.stringify(state.user))
             return {...state, user: action.payload}
