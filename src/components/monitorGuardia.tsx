@@ -36,22 +36,26 @@ export default function MonitorGuardias(): ReactElement{
         setWorkerLoading(true)
         const guardia: worker = JSON.parse(e.currentTarget.value)
         localStorage.setItem("id_worker", String(guardia.id))
-        const ingresosGuardia: ingreso[] = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/${guardia.id}`, {
+        const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia/findOne`, guardia, {
+            headers: {
+                Authorization: `Bearer ${state.user?.token}`
+            },
+        })).data
+        const ultimoIngresoR: ingreso = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last`, guardia ,{
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
         })).data
-        const ultimoIngresoR: ingreso = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last/${guardia.id}`,  {
-            headers: {
-                Authorization: `Bearer ${state.user?.token}`
-            }
-        })).data
-        const salaIngreso: sala = ultimoIngresoR ? (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${ultimoIngresoR.id_gateway}`, {
+        const salaIngreso: sala = ultimoIngresoR ? (await axios.post(`${import.meta.env.VITE_API_URL}/sala/gateway`, {
+            id: ultimoIngresoR.id_gateway
+        }, {
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
         })).data : undefined
-        const sedeIngreso: sede = salaIngreso ? (await axios.get(`${import.meta.env.VITE_API_URL}/sedes/${salaIngreso.id_sede}`, {
+        const sedeIngreso: sede = salaIngreso ? (await axios.post(`${import.meta.env.VITE_API_URL}/sedes`, {
+            id: salaIngreso.id_sede
+        }, {
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
@@ -70,22 +74,28 @@ export default function MonitorGuardias(): ReactElement{
     const handleRefetch = async (): Promise<void> => {
         setRefreshMap(true)
         const id_worker: number = Number(localStorage.getItem("id_worker"))
-        const ingresosGuardia: ingreso[] = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/${id_worker}`, {
+        const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia`,{
+            id: id_worker
+        } ,{
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
         })).data
-        const ultimoIngresoR: ingreso = (await axios.get(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last/${selectedGuardia?.id}`, {
+        const ultimoIngresoR: ingreso = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last`,selectedGuardia ,{
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
         })).data
-        const salaIngreso: sala = ultimoIngresoR ? (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${ultimoIngresoR.id_gateway}`, {
+        const salaIngreso: sala = ultimoIngresoR ? (await axios.post(`${import.meta.env.VITE_API_URL}/sala/gateway`,{
+            id: ultimoIngresoR.id_gateway
+        } ,{
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
         })).data : undefined
-        const sedeIngreso: sede = salaIngreso ? (await axios.get(`${import.meta.env.VITE_API_URL}/sedes/${salaIngreso.id_sede}`, {
+        const sedeIngreso: sede = salaIngreso ? (await axios.post(`${import.meta.env.VITE_API_URL}/sedes`,{
+            id: salaIngreso.id_sede
+        } ,{
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }

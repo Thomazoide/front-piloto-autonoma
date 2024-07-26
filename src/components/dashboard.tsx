@@ -222,7 +222,7 @@ export default function DashBoard(): ReactElement{
                                                     <h5>{workerType[0].toUpperCase()}{workerType.slice(1, workerType.length-1)}: {wi.trabajador.nombre}</h5>
                                                     <p>
                                                         <strong className="text-red-500">Sala: </strong>
-                                                        {salas.filter( (s: sala) => s.id_gateway === wi.ultimo_ingreso.id_gateway )[0].numero}
+                                                        {salas.filter( (s: sala) => s.id_gateway === wi.ultimo_ingreso.id_gateway )[0]?.numero}
                                                         <br/>
                                                         <strong className="text-red-500">Fecha: </strong>
                                                         {obtenerFechaFormatoI(new Date(wi.ultimo_ingreso.hora))}
