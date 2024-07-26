@@ -13,7 +13,6 @@ import { ingreso } from "@/types/ingreso";
 import IconoGuardiaSVG from "./svgComponents/IconoGuardiaSVG";
 import IconoDocentes from "./svgComponents/IconoDocentes";
 import { useAuthContext } from "@/hooks/useLoginContext";
-import { useNavigate } from "react-router-dom";
 
 interface worker_ingreso {
     trabajador: worker
@@ -84,7 +83,6 @@ export default function DashBoard(): ReactElement{
     const [lista, setLista] = useState<worker_ingreso[]>()
     const [isRefetching, setIsRefetching] = useState<boolean>(false)
     const {state} = useAuthContext()
-    const navegar = useNavigate()
     //metodos
     const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>): void => {
         setIsLoading(true)
@@ -127,9 +125,6 @@ export default function DashBoard(): ReactElement{
     }
 
     useEffect( () => {
-        if(!state.user){
-            navegar('/')
-        }
         if(workerData && selectedSede){
             queryIngresos.refetch()
         }

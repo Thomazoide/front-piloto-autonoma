@@ -12,7 +12,6 @@ import { Divider } from "@fluentui/react-components";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import AddWorker from "./addWorker";
 import { useAuthContext } from "@/hooks/useLoginContext";
-import { useNavigate } from "react-router-dom";
 
 
 export default function MonitorGuardias(): ReactElement{
@@ -32,7 +31,6 @@ export default function MonitorGuardias(): ReactElement{
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
     const [refreshMap, setRefreshMap] = useState<boolean>(false)
     const {state} = useAuthContext()
-    const navegar = useNavigate()
 
     const handleGuardSelect = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
         setWorkerLoading(true)
@@ -107,9 +105,6 @@ export default function MonitorGuardias(): ReactElement{
                 console.log('REFETCH')
             }
         }, 10000)
-        if(!state.user?.token){
-            navegar('/')
-        }
         return () => clearInterval(idIntervalo)
     }, [selectedGuardia] )
 

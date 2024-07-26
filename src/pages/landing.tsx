@@ -22,9 +22,9 @@ export default function Landing(): ReactElement{
 
     useEffect( () => {
         if(state.user){
-            navegar('/home')
+            navegar(state.user.page)
         }
-    }, [] )
+    }, [state] )
 
     return(
         <div className=" justify-center h-full">

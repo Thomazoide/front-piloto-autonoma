@@ -2,7 +2,8 @@ import { createContext, Dispatch, ReactElement, ReactNode, useEffect, useReducer
 
 export enum actionTypes {
     LOGIN = 'LOGIN',
-    LOGOUT = 'LOGOUT'
+    LOGOUT = 'LOGOUT',
+    CHANGE_PAGE = 'PAGE'
 }
 
 interface State{
@@ -14,9 +15,10 @@ interface Action {
     payload?: User
 }
 
-interface User{
+export interface User{
     data?: any
     token: string
+    page: string
     mensaje?: string
 }
 
@@ -25,9 +27,14 @@ const estadoInicial: State = {user: null}
 const authReducer = (state: State, action: Action): State => {
     switch(action.type){
         case actionTypes.LOGIN:
+            localStorage.setItem('userData', JSON.stringify(state.user))
             return {...state, user: action.payload}
         case actionTypes.LOGOUT:
+            localStorage.clear()
             return {...state, user: null}
+        case actionTypes.CHANGE_PAGE:
+            localStorage.setItem('userData', JSON.stringify(state.user))
+            return {...state, user: action.payload}
         default:
             return state
     }

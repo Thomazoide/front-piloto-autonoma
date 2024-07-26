@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuthContext } from "./useLoginContext";
 import axios from "axios";
 import * as jwt from 'jwt-decode'
-import { actionTypes } from "@/context/loginContext";
+import { actionTypes, User } from "@/context/loginContext";
 
 interface responsePayload {
     data?: any
@@ -25,11 +25,14 @@ export const useLogin = () => {
         setError(null)
         const response: responsePayload = (await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, payload)).data
         if(response.token){
-            localStorage.setItem('userData', JSON.stringify(response))
-            dispatch({type: actionTypes.LOGIN, payload: {
+            const payload: User = {
                 token: response.token,
+                page: '/home',
                 data: jwt.jwtDecode(response.token)
-            }})
+            }
+            console.log(payload)
+            localStorage.setItem('userData', JSON.stringify(payload))
+            dispatch({type: actionTypes.LOGIN, payload: payload})
             console.log('Sesion iniciada')
             setLoading(false)
         }else{
