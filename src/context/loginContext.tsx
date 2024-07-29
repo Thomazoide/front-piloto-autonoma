@@ -28,10 +28,10 @@ const estadoInicial: State = {user: null}
 const authReducer = (state: State, action: Action): State => {
     switch(action.type){
         case actionTypes.LOGIN:
-            localStorage.setItem('userData', JSON.stringify(state.user))
+            
             return {...state, user: action.payload}
         case actionTypes.LOGOUT:
-            localStorage.clear()
+            localStorage.setItem('userData', '')
             return estadoInicial
         case actionTypes.CHANGE_PAGE:
             localStorage.setItem('userData', JSON.stringify(state.user))
@@ -53,6 +53,7 @@ interface verifyTokenRequest{
 
 async function verificarToken(payload: verifyTokenRequest): Promise<boolean>{
     const response: verifyResponse = (await axios.post(`${import.meta.env.VITE_API_URL}/auth/verify`, payload)).data
+    console.log(response)
     return response.isValid
 }
 
@@ -61,19 +62,24 @@ export const AuthContextProvider = ({children}: Readonly<{children: ReactNode}>)
 
     useEffect(() => {
         const userData: string | null = localStorage.getItem('userData')
-        if(userData){
-            const auxData: User = JSON.parse(userData)
-            const request: verifyTokenRequest = {
-                token: auxData.token
-            }
-            verificarToken(request).then( (isValid) => {
-                if(isValid){
-                    dispatch({type: actionTypes.LOGIN, payload: auxData})
-                    console.log('SESION ACTIVA')
-                } else {
-                    localStorage.removeItem('userData')
+        try{
+            if(userData){
+                const auxData: User = JSON.parse(userData)
+                const request: verifyTokenRequest = {
+                    token: auxData.token
                 }
-            } )
+                verificarToken(request).then( (isValid) => {
+                    if(isValid){
+                        dispatch({type: actionTypes.LOGIN, payload: auxData})
+                        console.log('SESION ACTIVA')
+                    } else {
+                        dispatch({type: actionTypes.LOGOUT})
+                    }
+                } )
+            }
+        }catch(err){
+            console.log(err)
+            dispatch({type: actionTypes.LOGOUT})
         }
     }, [])
 

@@ -31,7 +31,6 @@ export const useLogin = () => {
                 data: jwt.jwtDecode(response.token)
             }
             console.log(payload)
-            localStorage.setItem('userData', JSON.stringify(payload))
             dispatch({type: actionTypes.LOGIN, payload: payload})
             console.log('Sesion iniciada')
             setLoading(false)
