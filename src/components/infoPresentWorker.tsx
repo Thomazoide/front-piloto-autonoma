@@ -26,7 +26,7 @@ export default function InfoPresentWorkers(props: Readonly<IPWProps>): ReactElem
                             <br/>
                             Ultimo ingreso: <br/>
                             Fecha: {new Date(wi.ultimo_ingreso.hora).getDate()}/{new Date(wi.ultimo_ingreso.hora).getMonth()}/{new Date(wi.ultimo_ingreso.hora).getFullYear()} <br/>
-                            Hora: {new Date(wi.ultimo_ingreso.hora).getHours()+4}:{new Date(wi.ultimo_ingreso.hora).getMinutes()}
+                            Hora: {new Date(wi.ultimo_ingreso.hora).getHours()+4 < 10 ? `0${new Date(wi.ultimo_ingreso.hora).getHours()+4}` : new Date(wi.ultimo_ingreso.hora).getHours()+4}:{new Date(wi.ultimo_ingreso.hora).getMinutes() < 10 ? `0${new Date(wi.ultimo_ingreso.hora).getMinutes()}` : new Date(wi.ultimo_ingreso.hora).getMinutes()}
                         </p>
                     </div>
                 ) )

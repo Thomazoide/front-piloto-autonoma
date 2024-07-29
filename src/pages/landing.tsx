@@ -12,6 +12,7 @@ export default function Landing(): ReactElement{
     const {login} = useLogin()
     const {state} = useAuthContext()
     const navegar: NavigateFunction = useNavigate()
+    const background: string = "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/edificio-nuevo-providencia-autonoma-1.png"
     const handleLogin = async () => {
         const payload: loginPayload = {
             username,
@@ -27,9 +28,15 @@ export default function Landing(): ReactElement{
     }, [state] )
 
     return(
-        <div className=" justify-center h-full">
+        <div className=" justify-center h-full" style={{
+            backgroundImage: `url(${background})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            width: '100%',
+            height: '100vh'
+        }}>
             <div className="flex justify-center align-center items-center">
-                <Image className="border-solid border-2 border-zinc-300" src="https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/autonoma-logo.png" alt="logo-uautonoma" shadow shape="rounded"/>
+                <Image className="" src="https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/autonoma-logo.png" alt="logo-uautonoma" shadow shape="rounded"/>
             </div>
             <div className="w-full p-[15px]">
                 <div className="flex justify-center">
@@ -37,7 +44,7 @@ export default function Landing(): ReactElement{
                 </div>
             </div>
             <div className="flex justify-center">
-                <div className="w-full shadow-lg lg:ml-[250px] lg:mr-[250px] p-[15px] bg-zinc-300 flex flex-col border-solid border-2 border-red-300 rounded-lg">
+                <div className="w-full  shadow-lg lg:ml-[250px] lg:mr-[250px] p-[15px] bg-zinc-300 flex flex-col border-solid border-2 border-red-300 rounded-lg">
                     <div className="flex justify-center">
                         <Input color="danger" onValueChange={setUsername} label="Nombre de usuario" placeholder="usuario" className="max-w-[1024px]"/>
                     </div>

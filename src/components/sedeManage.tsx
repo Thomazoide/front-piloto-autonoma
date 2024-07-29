@@ -19,7 +19,9 @@ export default function SedeManage(): ReactElement {
 
     const handleSedeSelection = function(e: ChangeEvent<HTMLSelectElement>): void{
         setIsMapLoading(true)
-        axios.get(`http://52.201.181.178:3000/api/sala/sede/${e.target.value}`, {
+        axios.post(`${import.meta.env.VITE_API_URL}/sala/sede`, {
+            id: e.target.value
+        }, {
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
@@ -30,7 +32,7 @@ export default function SedeManage(): ReactElement {
     }
 
     useEffect( () => {
-        axios.get("http://52.201.181.178:3000/api/sedes", {
+        axios.get(`${import.meta.env.VITE_API_URL}/sedes`, {
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }

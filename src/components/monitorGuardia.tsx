@@ -1,24 +1,20 @@
 import { ingreso } from "@/types/ingreso";
 import { worker } from "@/types/worker";
-import { Button, DatePicker, DateRangePicker, DateValue, RangeValue, ScrollShadow, Select, SelectItem, Spinner } from "@nextui-org/react";
+import { Button, DatePicker, DateValue, ScrollShadow, Spinner } from "@nextui-org/react";
 import axios, { AxiosResponse } from "axios";
-import { ReactElement, useState, useEffect, MouseEvent, ChangeEvent } from "react";
+import { ReactElement, useState, useEffect, MouseEvent } from "react";
 import { timeOut } from "./utils/function_lib";
 import { sala } from "@/types/sala";
 import { sede } from "@/types/sede";
 import Mapa from "./mapa";
 import { ArrowCounterclockwise32Regular, Filter32Regular } from "@fluentui/react-icons";
 import { Divider } from "@fluentui/react-components";
-import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { parseDate } from "@internationalized/date";
 import AddWorker from "./addWorker";
 import { useAuthContext } from "@/hooks/useLoginContext";
 
 
 export default function MonitorGuardias(): ReactElement{
-    const [fecha, setFecha] = useState<RangeValue<DateValue>>({
-        start: today(getLocalTimeZone()),
-        end: today(getLocalTimeZone()).add({days: 1})
-    })
     const [fechaExacta, setFechaExacta] = useState<DateValue>(parseDate(new Date().toISOString().slice(0,10)))
     const [guardias, setGuardias] = useState<worker[]>()
     const [selectedGuardia, setSelectedGuardia] = useState<worker>()
@@ -26,7 +22,6 @@ export default function MonitorGuardias(): ReactElement{
     const [selectedSede, setSelectedSede] = useState<sede>()
     const [selectedSala, setSelectedSala] = useState<sala>()
     const [ultimoIngreso, setUltimoIngreso] = useState<ingreso>()
-    const [tipoDatePicker, setTipoDatePicker] = useState<"1" | "2">()
     const [workerLoading, setWorkerLoading] = useState<boolean>(false)
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
     const [refreshMap, setRefreshMap] = useState<boolean>(false)
@@ -36,7 +31,7 @@ export default function MonitorGuardias(): ReactElement{
         setWorkerLoading(true)
         const guardia: worker = JSON.parse(e.currentTarget.value)
         localStorage.setItem("id_worker", String(guardia.id))
-        const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia/findOne`, guardia, {
+        const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia`, guardia, {
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             },
@@ -53,7 +48,7 @@ export default function MonitorGuardias(): ReactElement{
                 Authorization: `Bearer ${state.user?.token}`
             }
         })).data : undefined
-        const sedeIngreso: sede = salaIngreso ? (await axios.post(`${import.meta.env.VITE_API_URL}/sedes`, {
+        const sedeIngreso: sede = salaIngreso ? (await axios.post(`${import.meta.env.VITE_API_URL}/sedes/findOne`, {
             id: salaIngreso.id_sede
         }, {
             headers: {
@@ -93,7 +88,7 @@ export default function MonitorGuardias(): ReactElement{
                 Authorization: `Bearer ${state.user?.token}`
             }
         })).data : undefined
-        const sedeIngreso: sede = salaIngreso ? (await axios.post(`${import.meta.env.VITE_API_URL}/sedes`,{
+        const sedeIngreso: sede = salaIngreso ? (await axios.post(`${import.meta.env.VITE_API_URL}/sedes/findOne`,{
             id: salaIngreso.id_sede
         } ,{
             headers: {
@@ -110,14 +105,10 @@ export default function MonitorGuardias(): ReactElement{
         }, 300 )
     }
 
-    const handleSelectTipoDate = (e: ChangeEvent<HTMLSelectElement>) => {
-        if(e.target.value === "1" || e.target.value === "2") setTipoDatePicker(e.target.value); else setTipoDatePicker(undefined)
-    }
-
     useEffect( () => {
         
         if(!guardias){
-            state.user ? axios.get("http://52.201.181.178:3000/api/guardia", {
+            state.user ? axios.get(`${import.meta.env.VITE_API_URL}/guardia`, {
                 headers: {
                     Authorization: `Bearer ${state.user?.token}`
                 }
@@ -169,29 +160,7 @@ export default function MonitorGuardias(): ReactElement{
                         verFiltros ?
                         <div>
                             <div>
-                                <Select
-                                    label="Fecha unica o rango"
-                                    color="danger"
-                                    variant="bordered"
-                                    placeholder="Seleccionar tipo de filtro"
-                                    className="max-w-xs m-[10px]"
-                                    onChange={handleSelectTipoDate}>
-                                    <SelectItem key="1" value={1}>
-                                        Por fecha exacta
-                                    </SelectItem>
-                                    <SelectItem key="2" value={2}>
-                                        Por rango de fechas
-                                    </SelectItem>
-                                </Select>
-                            </div>
-                            <div>
-                                {
-                                    tipoDatePicker === "1" ?
-                                    <DatePicker color="danger" label="Seleccionar fecha" value={fechaExacta} onChange={setFechaExacta}/>
-                                    : tipoDatePicker === "2" ?
-                                    <DateRangePicker color="danger" label="Seleccionar rango de fechas" value={fecha} onChange={setFecha}/>
-                                    : null
-                                }
+                                <DatePicker color="danger" label="Seleccionar fecha" value={fechaExacta} onChange={setFechaExacta}/>
                             </div>
                         </div>
                         : null

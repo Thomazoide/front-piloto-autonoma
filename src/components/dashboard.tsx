@@ -43,7 +43,9 @@ export default function DashBoard(): ReactElement{
             let workerAndIngreso: worker_ingreso[] = []
             let salasPresentes: sala[] = []
             workerData.map( (w: worker) => {
-                axios.get(`${import.meta.env.VITE_API_URL}/ingreso/${workerType?.slice(0, workerType.length-1)}/last/${w.id}`, {
+                axios.post(`${import.meta.env.VITE_API_URL}/ingreso/${workerType?.slice(0, workerType.length-1)}/last`,{
+                    id: w.id
+                } ,{
                     headers: {
                         Authorization: `Bearer ${state.user?.token}`
                     }
@@ -56,13 +58,15 @@ export default function DashBoard(): ReactElement{
                         estuvo: result ? estuvoUltimaHora(result) : false
                     }
                     
-                    const auxSala: sala = (await axios.get(`${import.meta.env.VITE_API_URL}/sala/gateway/${nuevaData.ultimo_ingreso.id_gateway}`,{
+                    const auxSala: sala = (await axios.post(`${import.meta.env.VITE_API_URL}/sala/gateway`, {
+                        id: nuevaData.ultimo_ingreso.id_gateway
+                    },{
                         headers: {
                             Authorization: `Bearer ${state.user?.token}`
                         }
                     })).data
-                    nuevaData.estuvo && (nuevaData.ultimo_ingreso.id_gateway === auxSala.id_gateway) ? workerAndIngreso.push(nuevaData) : null
-                    nuevaData.estuvo && (selectedSede?.id === auxSala.id_sede) ? salasPresentes.push(auxSala) : null
+                    nuevaData.estuvo && (nuevaData.ultimo_ingreso.id_gateway === auxSala.id_gateway) && (selectedSede?.id === auxSala.id_sede) ? workerAndIngreso.push(nuevaData) : null
+                    nuevaData.estuvo && selectedSede && (selectedSede.id === auxSala.id_sede) ? salasPresentes.push(auxSala) : null
                 } )
             } )
             console.log(workerAndIngreso)
