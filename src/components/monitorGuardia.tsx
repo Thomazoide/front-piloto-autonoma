@@ -1,15 +1,15 @@
 import { ingreso } from "@/types/ingreso";
 import { worker } from "@/types/worker";
-import { Button, DatePicker, DateValue, ScrollShadow, Spinner } from "@nextui-org/react";
+import { Button, DatePicker, DateValue, ScrollShadow, Spinner, TimeInput, TimeInputValue } from "@nextui-org/react";
 import axios, { AxiosResponse } from "axios";
 import { ReactElement, useState, useEffect, MouseEvent } from "react";
-import { timeOut } from "./utils/function_lib";
+import { getIngresoByDate, timeOut, sortIngresosByHoras, sortIngresosByHoraFinal } from "./utils/function_lib";
 import { sala } from "@/types/sala";
 import { sede } from "@/types/sede";
 import Mapa from "./mapa";
-import { ArrowCounterclockwise32Regular, Filter32Regular } from "@fluentui/react-icons";
+import { ArrowCounterclockwise32Regular, CatchUp24Regular, Filter32Regular } from "@fluentui/react-icons";
 import { Divider } from "@fluentui/react-components";
-import { parseDate } from "@internationalized/date";
+import { parseAbsoluteToLocal, parseDate } from "@internationalized/date";
 import AddWorker from "./addWorker";
 import { useAuthContext } from "@/hooks/useLoginContext";
 
@@ -25,6 +25,8 @@ export default function MonitorGuardias(): ReactElement{
     const [workerLoading, setWorkerLoading] = useState<boolean>(false)
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
     const [refreshMap, setRefreshMap] = useState<boolean>(false)
+    const [horaInicial, setHoraInicial] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()))
+    const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()).add({hours: 1}))
     const {state} = useAuthContext()
 
     const handleGuardSelect = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
@@ -105,6 +107,19 @@ export default function MonitorGuardias(): ReactElement{
         }, 300 )
     }
 
+    const handleFilterState = () => {
+        setVerFiltros(!verFiltros)
+        setWorkerLoading(true)
+        timeOut( () => setWorkerLoading(false), 100 )
+    }
+
+    const handleFilters = () => {
+        const ingresosEnFecha: ingreso[] = ingresos ? getIngresoByDate(ingresos, new Date(fechaExacta.toString())) : []
+        const ingresosEnHoras: ingreso[] = sortIngresosByHoras(ingresosEnFecha, [horaInicial.hour, horaInicial.minute])
+        const ingresosFinal: ingreso[] = sortIngresosByHoraFinal(ingresosEnHoras, [horaFinal.hour, horaFinal.minute])
+        console.log(ingresosFinal)
+    }
+
     useEffect( () => {
         
         if(!guardias){
@@ -115,15 +130,18 @@ export default function MonitorGuardias(): ReactElement{
             }).then( (res: AxiosResponse) => setGuardias(res.data) )
             : null
         }
-        
-        const idIntervalo: NodeJS.Timeout = setInterval(() => {
-            if(guardias && selectedGuardia){
-                handleRefetch()
-                console.log('REFETCH')
-            }
-        }, 10000)
-        return () => clearInterval(idIntervalo)
+        if(verFiltros == false){
+            const idIntervalo: NodeJS.Timeout = setInterval(() => {
+                if(guardias && selectedGuardia){
+                    handleRefetch()
+                    console.log('REFETCH')
+                } 
+            }, 10000)
+            return () => clearInterval(idIntervalo)
+        }
     }, [selectedGuardia] )
+
+    
 
     return(
         <div className="flex justify-center flex-wrap gap-4">
@@ -146,7 +164,7 @@ export default function MonitorGuardias(): ReactElement{
                 <div className="items-center flex flex-col shadow-lg p-[15px] border-double border-3 border-ua-gray rounded-lg">
                     <div className="flex w-[100%] justify-around">
                         <div className="w-fit h-fit ">
-                            <Button color="danger" variant="flat" isIconOnly onClick={() => setVerFiltros(!verFiltros)}>
+                            <Button color="danger" variant="flat" isIconOnly onClick={handleFilterState}>
                                 <Filter32Regular />
                             </Button>
                         </div>
@@ -159,8 +177,22 @@ export default function MonitorGuardias(): ReactElement{
                     {
                         verFiltros ?
                         <div>
+                            <hr className="p-[5px]"/>
                             <div>
                                 <DatePicker color="danger" label="Seleccionar fecha" value={fechaExacta} onChange={setFechaExacta}/>
+                            </div>
+                            <div className="mt-[10px] flex flex-row align-center items-center justify-center gap-2" >
+                                <TimeInput color="danger" label="Hora inicial" value={horaInicial} onChange={setHoraInicial}/>
+                                <span>
+                                    <CatchUp24Regular/>
+                                </span>
+                                <TimeInput color="danger" label="Hora final" value={horaFinal} onChange={setHoraFinal}/>
+                            </div>
+                            <hr className="p-[5px]"/>
+                            <div className="flex justify-center align-center items-center">
+                                <Button color="danger" variant="bordered" onClick={handleFilters}>
+                                    Filtrar
+                                </Button>
                             </div>
                         </div>
                         : null

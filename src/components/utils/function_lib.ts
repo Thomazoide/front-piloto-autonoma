@@ -64,16 +64,30 @@ export function timeOut(callback: VoidFunction, tiempo: number): void {
     setTimeout(callback, tiempo)
 }
 
-export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number[], horaFinal: number[]): ingreso[]{
-    const nuevosIngresos: ingreso[] = []
+export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number[]): ingreso[]{
+    const ingresosPorHora: ingreso[] = []
     for(let i of listaIngresos){
-        let horas: number = new Date(i.hora).getUTCHours()
+        let horas: number = new Date(i.hora).getHours()+4
         let minutos: number = new Date(i.hora).getMinutes()
-        if((horas >= horaInicio[0] && minutos >= horaInicio[1]) && (horas <= horaFinal[0] && minutos <= horaFinal[1])){
-            nuevosIngresos.push(i)
+        if(horas >= horaInicio[0] && minutos >= horaInicio[1]){
+            ingresosPorHora.push(i)
         }
     }
-    return nuevosIngresos
+    return ingresosPorHora
+}
+
+export function sortIngresosByHoraFinal(listaIngresos: ingreso[], horaFinal: number[]): ingreso[]{
+    const ingresosPorHoraFinal: ingreso[] = []
+    for(let i of listaIngresos){
+        let horas: number = new Date(i.hora).getHours()+4
+        let minutos: number = new Date(i.hora).getMinutes()
+        console.log(`Hora ingreso: ${horas} | Hora de filtro: ${horaFinal[0]}`)
+        if( horaFinal[0] >= horas && horaFinal[1] >= minutos ){
+            console.log(i)
+            ingresosPorHoraFinal.push(i)
+        }
+    }
+    return ingresosPorHoraFinal
 }
 
 export function getLastHourIn(listaIngresos: ingreso[], fecha: Date): (ingreso | undefined)[]{
