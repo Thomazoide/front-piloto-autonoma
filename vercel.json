@@ -1,27 +1,22 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "index.html",
-        "use": "@vercel/static"
-      }
-    ],
     "routes": [
-      {
-        "src": "/",
-        "dest": "/index.html"
-      },
-      {
-        "src": "/home",
-        "dest": "/index.html"
-      },
-      {
-        "src": "/sedes",
-        "dest": "/index.html"
-      },
-      {
-        "src": "/guardias",
-        "dest": "/index.html"
-      }
+        {
+            "src": "/(.*).html",
+            "dest": "/index.html"
+        }
+    ],
+    "rewrites": [{
+        "source": "/(.*)", "destination": "/index.html"
+    }],
+    "headers": [
+        {
+            "source": "/(.*).(html|js|css)",
+            "headers": [
+                {
+                    "key": "Cache-control",
+                    "value": "no-store"
+                }
+            ]
+        }
     ]
-  }
+}
