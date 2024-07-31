@@ -1,9 +1,11 @@
 import { useAuthContext } from "@/hooks/useLoginContext"
-import { PersonSquare32Regular } from "@fluentui/react-icons"
-import { Button } from "@nextui-org/button"
+import { DoorArrowLeft24Regular, PersonSquare32Regular } from "@fluentui/react-icons"
+import { Button, Dropdown, DropdownTrigger, DropdownItem, DropdownMenu } from "@nextui-org/react"
 import { ReactElement } from "react"
 import { Navbar, Nav, Image } from "react-bootstrap"
 import { actionTypes, User } from "@/context/loginContext"
+import { useLogout } from "@/hooks/useLogout"
+import { useNavigate } from "react-router-dom"
 
 type Nprops = {
     llaveActiva: "1" | "2" | "3" | "4" | "5"
@@ -11,6 +13,8 @@ type Nprops = {
 
 export default function NavBar(props: Readonly<Nprops>): ReactElement{
     const { state, dispatch } = useAuthContext()
+    const {logout} = useLogout()
+    const navegar = useNavigate()
 
     const handleNavigate = (e: any): void => {
         if(state.user){
@@ -22,6 +26,11 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
             }
             dispatch( {type: actionTypes.CHANGE_PAGE, payload: newUserData} )
         }
+    }
+
+    const handleLogout = () => {
+        logout()
+        navegar('/')
     }
 
     return(
@@ -41,9 +50,18 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
                     <Nav.Link eventKey={"3"} href='#docentes'>Docentes</Nav.Link>
                     <Nav.Link eventKey={"4"} accessKey="/guardias" href='/guardias' onClick={handleNavigate} >Guardias</Nav.Link>
                     <Nav.Link eventKey={"5"} href="#user">
-                        <Button color="danger" variant="solid" isIconOnly>
-                            <PersonSquare32Regular/>
-                        </Button>
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <Button color="danger" variant="solid" isIconOnly>
+                                    <PersonSquare32Regular/>
+                                </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu>
+                                <DropdownItem startContent={<DoorArrowLeft24Regular/>} onClick={handleLogout}>
+                                    Cerrar sesion
+                                </DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
                     </Nav.Link>
                 </Nav>
             </Navbar.Collapse>
