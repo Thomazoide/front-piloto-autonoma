@@ -3,11 +3,11 @@ import { worker } from "@/types/worker";
 import { Button, DatePicker, DateValue, ScrollShadow, Spinner, TimeInput, TimeInputValue } from "@nextui-org/react";
 import axios, { AxiosResponse } from "axios";
 import { ReactElement, useState, useEffect, MouseEvent } from "react";
-import { getIngresoByDate, timeOut, sortIngresosByHoras, sortIngresosByHoraFinal } from "./utils/function_lib";
+import { getIngresoByDate, timeOut, sortIngresosByHoras, obtenerHoradeFecha, getSalasByIngresos, getSedesBySalas, getSedeNameBySala } from "./utils/function_lib";
 import { sala } from "@/types/sala";
 import { sede } from "@/types/sede";
 import Mapa from "./mapa";
-import { ArrowCounterclockwise32Regular, CatchUp24Regular, Filter32Regular } from "@fluentui/react-icons";
+import { ArrowCounterclockwise32Regular, CatchUp24Regular, ErrorCircle24Regular, Filter32Regular } from "@fluentui/react-icons";
 import { Divider } from "@fluentui/react-components";
 import { parseAbsoluteToLocal, parseDate } from "@internationalized/date";
 import AddWorker from "./addWorker";
@@ -19,12 +19,16 @@ export default function MonitorGuardias(): ReactElement{
     const [guardias, setGuardias] = useState<worker[]>()
     const [selectedGuardia, setSelectedGuardia] = useState<worker>()
     const [ingresos, setIngresos] = useState<ingreso[]>()
+    const [ingresosFiltrados, setIngresosFiltrados] = useState<ingreso[]>()
+    const [salas, setSalas] = useState<sala[]>()
+    const [sedes, setSedes] = useState<sede[]>()
     const [selectedSede, setSelectedSede] = useState<sede>()
     const [selectedSala, setSelectedSala] = useState<sala>()
     const [ultimoIngreso, setUltimoIngreso] = useState<ingreso>()
     const [workerLoading, setWorkerLoading] = useState<boolean>(false)
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
     const [refreshMap, setRefreshMap] = useState<boolean>(false)
+    const [loadingFilters, setLoadingFilters] = useState<boolean>(false)
     const [horaInicial, setHoraInicial] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()))
     const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()).add({hours: 1}))
     const {state} = useAuthContext()
@@ -113,11 +117,16 @@ export default function MonitorGuardias(): ReactElement{
         timeOut( () => setWorkerLoading(false), 100 )
     }
 
-    const handleFilters = () => {
+    const handleFilters = async () => {
+        setLoadingFilters(true)
         const ingresosEnFecha: ingreso[] = ingresos ? getIngresoByDate(ingresos, new Date(fechaExacta.toString())) : []
-        const ingresosEnHoras: ingreso[] = sortIngresosByHoras(ingresosEnFecha, [horaInicial.hour, horaInicial.minute])
-        const ingresosFinal: ingreso[] = sortIngresosByHoraFinal(ingresosEnHoras, [horaFinal.hour, horaFinal.minute])
-        console.log(ingresosFinal)
+        const ingresosEnHoras: ingreso[] = sortIngresosByHoras(ingresosEnFecha, [horaInicial.hour, horaInicial.minute], [horaFinal.hour, horaFinal.minute])
+        const salasDeIngreso: sala[] = state.user ? await getSalasByIngresos(ingresosEnHoras, state.user.token) : []
+        const sedesDeIngreso: sede[] = state.user ? await getSedesBySalas(salasDeIngreso, state.user.token) : []
+        setIngresosFiltrados(ingresosEnHoras)
+        setSalas(salasDeIngreso)
+        setSedes(sedesDeIngreso)
+        timeOut( () => setLoadingFilters(false), 300 )
     }
 
     useEffect( () => {
@@ -220,6 +229,28 @@ export default function MonitorGuardias(): ReactElement{
                             <br/>
                             Sala: {selectedSala.numero}
                         </p>
+                    </div> : verFiltros && ingresosFiltrados && !loadingFilters && salas && salas[0] && sedes && sedes[0] ? <div>
+                        <h5>ingresos filtrados:</h5>
+                        <ScrollShadow className="w-[100%] h-[250px] overflow-y-scroll">
+                            {
+                                ingresosFiltrados.map( (i: ingreso, index: number) => (
+                                    <div key={i.id} className="p-[10px]">
+                                        <p>
+                                            Fecha: {`${new Date(i.hora).getDate()}/${new Date(i.hora).getMonth()}/${new Date(i.hora).getFullYear()}`}
+                                            <br/>
+                                            Hora: {obtenerHoradeFecha(new Date(i.hora))}
+                                            <br/>
+                                            Sede: {getSedeNameBySala(sedes, salas.find( (s: sala) => s.id_gateway === i.id_gateway ))}
+                                            <br/>
+                                            Sala: {salas.find( (s: sala) => s.id_gateway === i.id_gateway )?.numero}
+                                        </p>
+                                        { index < ingresosFiltrados.length ? <hr/> : null }
+                                    </div>
+                                ) )
+                            }
+                        </ScrollShadow> 
+                    </div> : loadingFilters ? <Spinner color="danger" size="sm"/> : salas && !salas[0] && sedes && !sedes[0] ? <div>
+                        <p><ErrorCircle24Regular/> No existen datos para los filtros solicitados...</p>
                     </div> : null}
                     <div className="flex justify-center min-w-[300px] min-h-[300px] border-double border-2 border-red-300 rounded-lg p-[5px] ">
                         {!refreshMap ? <Mapa dataSede={selectedSede} sala={selectedSala} /> : <Spinner color="danger" size="lg"/>}

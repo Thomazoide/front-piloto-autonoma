@@ -2,8 +2,12 @@ import axios from 'axios'
 import { worker } from "@/types/worker";
 import { beacon } from '@/types/beacon';
 import { ingreso } from '@/types/ingreso';
+import moment from 'moment'
+import { sala } from '@/types/sala';
+import { sede } from '@/types/sede';
 
 //(EL NOMBRE ESTA MAL) dada una lista de ingresos, retorna los guardias que han registrado al menos un ingreso dentro de dicha lista
+//DEPRECATED
 export async function getGuardiasXsala(listaIngresos: ingreso[]): Promise<worker[]>{
     const guardias: worker[] = (await axios.get('http://52.201.181.178:3000/api/guardia')).data
     const beacons: beacon[] = (await axios.get('http://52.201.181.178:3000/api/beacon')).data
@@ -64,30 +68,14 @@ export function timeOut(callback: VoidFunction, tiempo: number): void {
     setTimeout(callback, tiempo)
 }
 
-export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number[]): ingreso[]{
-    const ingresosPorHora: ingreso[] = []
-    for(let i of listaIngresos){
-        let horas: number = new Date(i.hora).getHours()+4
-        let minutos: number = new Date(i.hora).getMinutes()
-        if(horas >= horaInicio[0] && minutos >= horaInicio[1]){
-            ingresosPorHora.push(i)
-        }
-    }
+export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number[], horaFinal: number[]): ingreso[]{
+    const ingresosPorHora: ingreso[] = listaIngresos.filter( (i: ingreso) => {
+        const inicio = moment(`${new Date(i.hora).toISOString().slice(0,10)}T${horaInicio[0]}:${horaInicio[1]}:00Z`, 'YYYY-MM-DDTHH:mm:ssZ')
+        const final = moment(`${new Date(i.hora).toISOString().slice(0,10)}T${horaFinal[0]}:${horaFinal[1]}:00Z`, 'YYYY-MM-DDTHH:mm:ssZ')
+        const fechaMomento = moment(i.hora, 'YYYY-MM-DDTHH:mm:ssZ')
+        return fechaMomento.isBetween(inicio, final, null, '(]')
+    } )
     return ingresosPorHora
-}
-
-export function sortIngresosByHoraFinal(listaIngresos: ingreso[], horaFinal: number[]): ingreso[]{
-    const ingresosPorHoraFinal: ingreso[] = []
-    for(let i of listaIngresos){
-        let horas: number = new Date(i.hora).getHours()+4
-        let minutos: number = new Date(i.hora).getMinutes()
-        console.log(`Hora ingreso: ${horas} | Hora de filtro: ${horaFinal[0]}`)
-        if( horaFinal[0] >= horas && horaFinal[1] >= minutos ){
-            console.log(i)
-            ingresosPorHoraFinal.push(i)
-        }
-    }
-    return ingresosPorHoraFinal
 }
 
 export function getLastHourIn(listaIngresos: ingreso[], fecha: Date): (ingreso | undefined)[]{
@@ -123,4 +111,36 @@ export function obtenerHoradeFecha(fecha: Date): string{
 export function obtenerFechaFormatoI(fecha: Date): string{
     const nuevaFecha: string = `${fecha.getDate() < 10 ? "0":""}${fecha.getDate()}/${fecha.getMonth() < 10 ? "0":""}${fecha.getMonth()}/${fecha.getFullYear()}`
     return nuevaFecha
+}
+
+export async function getSalasByIngresos(listaIngresos: ingreso[], token: string): Promise<sala[]>{
+    const salas: sala[] = []
+    for(const ingreso of listaIngresos){
+        salas.push( (await axios.post(`${import.meta.env.VITE_API_URL}/sala/gateway`, {
+            id: ingreso.id_gateway
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })).data)
+    }
+    return salas
+}
+
+export async function getSedesBySalas(listaSalas: sala[], token: string): Promise<sede[]>{
+    const sedes: sede[] = []
+    for(const sala of listaSalas){
+        sedes.push( (await axios.post(`${import.meta.env.VITE_API_URL}/sedes/findOne`, {
+            id: sala.id_sede
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })).data )
+    }
+    return sedes
+}
+
+export function getSedeNameBySala(listaSedes: sede[], salaIngreso?: sala): string | undefined{
+    return listaSedes.find( (s: sede) => s.id === salaIngreso?.id_sede )?.nombre
 }
