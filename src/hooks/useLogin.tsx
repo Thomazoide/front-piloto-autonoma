@@ -38,6 +38,7 @@ export const useLogin = () => {
             setError(new Error(response.mensaje))
             setLoading(false)
             console.log('error')
+            console.log(response.mensaje)
         }
     }
     return {login, loading, error}

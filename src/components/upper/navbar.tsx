@@ -44,12 +44,12 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             
             <Navbar.Collapse id='rsponsive-navbar-nav' >
-                <Nav className='me-auto justify-evenly w-[100%]' defaultActiveKey={props.llaveActiva}>
+                <Nav className='me-auto justify-evenly items-center align-center w-[100%]' defaultActiveKey={props.llaveActiva}>
                     <Nav.Link eventKey={"1"} accessKey="/home" href='/home' onClick={handleNavigate}>Inicio</Nav.Link>
                     <Nav.Link eventKey={"2"} accessKey="/sedes" href='/sedes' onClick={handleNavigate}>Sedes</Nav.Link>
                     <Nav.Link eventKey={"3"} href='#docentes'>Docentes</Nav.Link>
                     <Nav.Link eventKey={"4"} accessKey="/guardias" href='/guardias' onClick={handleNavigate} >Guardias</Nav.Link>
-                    <Nav.Link eventKey={"5"} href="#user">
+                    <Nav.Link eventKey={"5"} href="#user" className="text-center" >
                         <Dropdown>
                             <DropdownTrigger>
                                 <Button color="danger" variant="solid" isIconOnly>
@@ -62,6 +62,7 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
+                        <p className="italic" > {state.user?.data?.nombre} </p>
                     </Nav.Link>
                 </Nav>
             </Navbar.Collapse>
