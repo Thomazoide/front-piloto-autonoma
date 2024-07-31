@@ -8,7 +8,19 @@
     ],
     "routes": [
       {
-        "src": "/(.*)",
+        "src": "/",
+        "dest": "/index.html"
+      },
+      {
+        "src": "/home",
+        "dest": "/index.html"
+      },
+      {
+        "src": "/sedes",
+        "dest": "/index.html"
+      },
+      {
+        "src": "/guardias",
         "dest": "/index.html"
       }
     ]
