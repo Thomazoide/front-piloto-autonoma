@@ -4,7 +4,7 @@ import { ReactElement } from "react";
 
 export default function DefaultLayout({children, llave}: Readonly<{
   children: React.ReactNode;
-  llave: "1" | "2" | "3" | "4"
+  llave: "1" | "2" | "3" | "4" | "5"
 }>): ReactElement {
   return (
     <div className="relative flex flex-col h-screen">

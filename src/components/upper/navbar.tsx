@@ -1,5 +1,5 @@
 import { useAuthContext } from "@/hooks/useLoginContext"
-import { DoorArrowLeft24Regular, PersonSquare32Regular } from "@fluentui/react-icons"
+import { DoorArrowLeft24Regular, LaptopPerson24Regular, PersonSquare32Regular } from "@fluentui/react-icons"
 import { Button, Dropdown, DropdownTrigger, DropdownItem, DropdownMenu } from "@nextui-org/react"
 import { ReactElement } from "react"
 import { Navbar, Nav, Image } from "react-bootstrap"
@@ -28,6 +28,10 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
         }
     }
 
+    const handleMyCuenta = () => {
+        navegar(`/account/${state.user?.token.split('.')[0]}`)
+    }
+
     const handleLogout = () => {
         logout()
         navegar('/')
@@ -49,20 +53,22 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
                     <Nav.Link eventKey={"2"} accessKey="/sedes" href='/sedes' onClick={handleNavigate}>Sedes</Nav.Link>
                     <Nav.Link eventKey={"3"} href='#docentes'>Docentes</Nav.Link>
                     <Nav.Link eventKey={"4"} accessKey="/guardias" href='/guardias' onClick={handleNavigate} >Guardias</Nav.Link>
-                    <Nav.Link eventKey={"5"} href="#user" className="text-center" >
+                    <Nav.Link eventKey={"5"} href="#user" className="text-center">
                         <Dropdown>
                             <DropdownTrigger>
-                                <Button color="danger" variant="solid" isIconOnly>
-                                    <PersonSquare32Regular/>
+                                <Button color="danger" variant="flat" startContent={<PersonSquare32Regular/>} >
+                                    {state.user?.data?.nombre}
                                 </Button>
                             </DropdownTrigger>
                             <DropdownMenu>
+                                <DropdownItem startContent={<LaptopPerson24Regular/>} onClick={handleMyCuenta} >
+                                    Mi cuenta
+                                </DropdownItem>
                                 <DropdownItem startContent={<DoorArrowLeft24Regular/>} onClick={handleLogout}>
                                     Cerrar sesion
                                 </DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
-                        <p className="italic" > {state.user?.data?.nombre} </p>
                     </Nav.Link>
                 </Nav>
             </Navbar.Collapse>
