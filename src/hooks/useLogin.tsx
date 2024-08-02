@@ -16,8 +16,9 @@ export interface loginPayload{
 }
 
 export const useLogin = () => {
-    const [error, setError] = useState<Error | null>(null)
+    const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
+    const [successMessage, setSuccessMessage] = useState<string>()
     const {dispatch} = useAuthContext()
 
     const login = async (payload: loginPayload) => {
@@ -28,18 +29,20 @@ export const useLogin = () => {
             const payload: User = {
                 token: response.token,
                 page: '/home',
-                data: jwt.jwtDecode(response.token)
+                data: jwt.jwtDecode(response.token),
+                mensaje: response.mensaje
             }
+            setSuccessMessage(response.mensaje)
             console.log(payload)
             dispatch({type: actionTypes.LOGIN, payload: payload})
             console.log('Sesion iniciada')
             setLoading(false)
         }else{
-            setError(new Error(response.mensaje))
+            setError(response.mensaje)
             setLoading(false)
             console.log('error')
             console.log(response.mensaje)
         }
     }
-    return {login, loading, error}
+    return {login, loading, error, successMessage}
 }

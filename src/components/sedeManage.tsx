@@ -1,9 +1,9 @@
 import { ChangeEvent, ReactElement, useEffect, useState } from "react"
 import { sede } from "@/types/sede"
 import axios, { AxiosResponse } from "axios"
-import { Button, Select, SelectItem, Spinner } from "@nextui-org/react"
+import { Accordion, AccordionItem, Button, ScrollShadow, Select, SelectItem, Spinner } from "@nextui-org/react"
 import { sala } from "@/types/sala"
-import { Map24Regular } from "@fluentui/react-icons"
+import { ConferenceRoom24Regular, Map24Regular } from "@fluentui/react-icons"
 import Mapa from "./mapa"
 import { timeOut } from "./utils/function_lib"
 import { useAuthContext } from "@/hooks/useLoginContext"
@@ -69,28 +69,37 @@ export default function SedeManage(): ReactElement {
                                     <Mapa dataSede={selectedSede}/>
                                 </div> : <Spinner color="danger" size="lg" />}
                             </div> : null}
-                            <div className="flex flex-col">
+                            <div className="flex flex-col lg:h-[400px] h-[200px]">
                                 {
                                     salas ? 
                                     <>
-                                        <h5>
-                                            Salas de la sede:
-                                        </h5>
-                                        <ul className="max-h-[500px]" style={{overflowY: "scroll"}}>
-                                            {
-                                                salas.map( (s: sala) => (
-                                                    <Button color="danger" variant="light" key={s.id} className="flex border-solid border-2 border-red-300 rounded-lg mb-[8px]  h-fit ">
-                                                        <p>
-                                                            Numero: {s.numero} <br/>
-                                                            ID: {s.id}
-                                                        </p>
-                                                    </Button>
-                                                ) )
-                                            }
-                                        </ul>
+                                        <ScrollShadow>
+                                            <Accordion
+                                            title="Salas de la sede"
+                                            selectionMode="single"
+                                            defaultExpandedKeys={'0'}
+                                            isCompact>
+                                                {
+                                                    salas.map( (sala, index) => (
+                                                        <AccordionItem
+                                                        key={index}
+                                                        isCompact
+                                                        startContent={ <ConferenceRoom24Regular/> }
+                                                        title={ `Sala ${sala.numero}` }
+                                                        className="shadow-lg border-2 border-solid border-red-200 rounded-md p-[10px] max-h-[400px] overflow-y-scroll mb-[10px] ">
+                                                            gateway
+                                                            <br/>
+                                                            <Button className=" m-[10px] " color='danger' size="sm">
+                                                                Ver en el mapa
+                                                            </Button>
+                                                        </AccordionItem>
+                                                    ) )
+                                                }
+                                            </Accordion> 
+                                        </ScrollShadow>
                                     </>
                                 : null} 
-                                <Button color="danger" variant="shadow">
+                                <Button color="danger" variant="flat">
                                     Crear sala
                                 </Button>       
                             </div>

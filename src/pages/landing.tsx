@@ -5,11 +5,12 @@ import { Button } from "@nextui-org/button"
 import { loginPayload, useLogin } from "@/hooks/useLogin"
 import { useAuthContext } from "@/hooks/useLoginContext"
 import { NavigateFunction, useNavigate } from "react-router-dom"
+import { Chip, Spinner } from "@nextui-org/react"
 
 export default function Landing(): ReactElement{
     const [username, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
-    const {login} = useLogin()
+    const {login, error, loading, successMessage} = useLogin()
     const {state} = useAuthContext()
     const navegar: NavigateFunction = useNavigate()
     const background: string = "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/edificio-nuevo-providencia-autonoma-1.png"
@@ -57,8 +58,27 @@ export default function Landing(): ReactElement{
                         </Button>
                     </div>
                 </div>
+                
             </div>
-            
+            {
+                error ?
+                <div className="flex justify-center m-[15px] " >
+                    <Chip size="lg" color="danger" variant="solid">
+                        {error}
+                    </Chip>
+                </div>
+                : loading ?
+                <div className="flex justify-center m-[15px] " >
+                    <Spinner color="danger" labelColor="warning" label="Comprobando datos..."/>
+                </div>
+                : successMessage ?
+                <div className="flex justify-center m-[15px] " >
+                    <Chip size="lg" color="success" variant="solid">
+                        {successMessage}
+                    </Chip>
+                </div>
+                : null
+            }
         </div>
     )
 }
