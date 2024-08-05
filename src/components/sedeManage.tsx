@@ -1,4 +1,4 @@
-import { ChangeEvent, ReactElement, useEffect, useState } from "react"
+import { ChangeEvent, MouseEvent, ReactElement, useEffect, useState } from "react"
 import { sede } from "@/types/sede"
 import axios, { AxiosResponse } from "axios"
 import { Accordion, AccordionItem, Button, ScrollShadow, Select, SelectItem, Spinner } from "@nextui-org/react"
@@ -15,12 +15,25 @@ export default function SedeManage(): ReactElement {
     const [selectedSede, setSelectedSede] = useState<sede>()
     const [salas, setSalas] = useState<sala[]>()
     const [gateways, setGateways] = useState<gateway[]>()
+    const [gwDataLoading, setGwDataLoading] = useState<boolean>(false)
     const [isSedeSelected, setIsSedeSelected] = useState<boolean>(false)
     const [isMapLoading, setIsMapLoading] = useState<boolean>(false)
+    const [selectedSala, setSelectedSala] = useState<sala>()
     const { state } = useAuthContext()
 
-    const handleSedeSelection = function(e: ChangeEvent<HTMLSelectElement>): void{
+    const handleSalaButton = (e: MouseEvent<HTMLButtonElement>) => {
         setIsMapLoading(true)
+        const valor: sala = JSON.parse(e.currentTarget.value)
+        setSelectedSala(valor)
+        timeOut( () => setIsMapLoading(false), 800 )
+    }
+
+    const handleSedeSelection = function(e: ChangeEvent<HTMLSelectElement>): void{
+        setIsSedeSelected(false)
+        setIsMapLoading(true)
+        setSalas(undefined)
+        setGateways(undefined)
+        setSelectedSala(undefined)
         axios.post(`${import.meta.env.VITE_API_URL}/sala/sede`, {
             id: e.target.value
         }, {
@@ -42,6 +55,7 @@ export default function SedeManage(): ReactElement {
             }).then( (res: AxiosResponse) => {setSedes(res.data); setSelectedSede(res.data[0])} )
         }
         if(salas && salas[0]){
+            setGwDataLoading(true)
             const gatwayRequest: gateway[] = []
             for(const sala of salas){
                 axios.post(`${import.meta.env.VITE_API_URL}/gateway/findOne`, {
@@ -58,6 +72,7 @@ export default function SedeManage(): ReactElement {
             }
             console.log(gatwayRequest)
             setGateways(gatwayRequest)
+            timeOut( () => setGwDataLoading(false), 500 )
         }
     }, [salas] )
 
@@ -87,9 +102,12 @@ export default function SedeManage(): ReactElement {
                         {selectedSede && isSedeSelected ? 
                             <div className="flex">
                                 <Map24Regular/>
-                                { !isMapLoading ? <div className="flex h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+                                { !isMapLoading && !selectedSala ? <div className="flex h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md">
                                     <Mapa dataSede={selectedSede}/>
-                                </div> : <Spinner color="danger" size="lg" />}
+                                </div> : !isMapLoading && selectedSala ?
+                                <div className="flex h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md ">
+                                    <Mapa dataSede={selectedSede} sala={selectedSala}/>
+                                </div> : isMapLoading  && <Spinner size="lg" color="danger"/> }
                             </div> : null}
                             <div className="flex flex-col lg:h-[400px] h-[200px]">
                                 {
@@ -109,11 +127,13 @@ export default function SedeManage(): ReactElement {
                                                         startContent={ <ConferenceRoom24Regular/> }
                                                         title={ `Sala ${sala.numero}` }
                                                         className="shadow-lg border-2 border-solid border-red-200 rounded-md p-[10px] max-h-[400px] overflow-y-scroll mb-[10px] ">
-                                                            { gateways && gateways[0] ?
+                                                            { gateways && gateways[0] && !gwDataLoading ?
                                                                 `Gateway: ${gateways.filter( gw => gw.id === sala.id_gateway )[0].mac}`
-                                                            : "Sin gateway asignado" }
+                                                            : gwDataLoading ?
+                                                            <Spinner size="sm" color="danger" label="Cargando datos..." labelColor="warning"/> : gateways && !gateways[0] ?
+                                                            "Sin gateway asignado..." : null }
                                                             <br/>
-                                                            <Button className=" m-[10px] " color='danger' size="sm">
+                                                            <Button className=" m-[10px] " color='danger' size="sm" value={JSON.stringify(sala)} onClick={handleSalaButton} >
                                                                 Ver en el mapa
                                                             </Button>
                                                         </AccordionItem>

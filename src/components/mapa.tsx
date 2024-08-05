@@ -5,14 +5,15 @@ import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
 import { icon } from 'leaflet'
 interface PropsMapa {
-    dataSede: sede,
+    tipo?: "guardia" | "docente"
+    dataSede: sede
     sala?: sala
 }
 
 export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
     const [sSala, setSSala] = useState<sala | undefined>(props.sala)
     const miIcono = icon({
-        iconUrl: 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/PeopleIcons-16-1024.webp',
+        iconUrl: props.tipo === "guardia" ? 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/PeopleIcons-16-1024.webp' : 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg',
         iconSize: [32, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -34]
