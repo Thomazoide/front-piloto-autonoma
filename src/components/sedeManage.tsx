@@ -7,12 +7,14 @@ import { ConferenceRoom24Regular, Map24Regular } from "@fluentui/react-icons"
 import Mapa from "./mapa"
 import { timeOut } from "./utils/function_lib"
 import { useAuthContext } from "@/hooks/useLoginContext"
+import { gateway } from "@/types/gateway"
 
 
 export default function SedeManage(): ReactElement {
     const [sedes, setSedes] = useState<sede[]>()
     const [selectedSede, setSelectedSede] = useState<sede>()
     const [salas, setSalas] = useState<sala[]>()
+    const [gateways, setGateways] = useState<gateway[]>()
     const [isSedeSelected, setIsSedeSelected] = useState<boolean>(false)
     const [isMapLoading, setIsMapLoading] = useState<boolean>(false)
     const { state } = useAuthContext()
@@ -32,12 +34,32 @@ export default function SedeManage(): ReactElement {
     }
 
     useEffect( () => {
-        axios.get(`${import.meta.env.VITE_API_URL}/sedes`, {
-            headers: {
-                Authorization: `Bearer ${state.user?.token}`
+        if(!sedes){
+            axios.get(`${import.meta.env.VITE_API_URL}/sedes`, {
+                headers: {
+                    Authorization: `Bearer ${state.user?.token}`
+                }
+            }).then( (res: AxiosResponse) => {setSedes(res.data); setSelectedSede(res.data[0])} )
+        }
+        if(salas && salas[0]){
+            const gatwayRequest: gateway[] = []
+            for(const sala of salas){
+                axios.post(`${import.meta.env.VITE_API_URL}/gateway/findOne`, {
+                    id: sala.id_gateway
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${state.user?.token}`
+                    }
+                }).then( (response: AxiosResponse<gateway>) => {
+                    if(response.data){
+                        gatwayRequest.push(response.data)
+                    }
+                } )
             }
-        }).then( (res: AxiosResponse) => {setSedes(res.data); setSelectedSede(res.data[0])} )
-    }, [] )
+            console.log(gatwayRequest)
+            setGateways(gatwayRequest)
+        }
+    }, [salas] )
 
     return(
         <>
@@ -87,7 +109,9 @@ export default function SedeManage(): ReactElement {
                                                         startContent={ <ConferenceRoom24Regular/> }
                                                         title={ `Sala ${sala.numero}` }
                                                         className="shadow-lg border-2 border-solid border-red-200 rounded-md p-[10px] max-h-[400px] overflow-y-scroll mb-[10px] ">
-                                                            gateway
+                                                            { gateways && gateways[0] ?
+                                                                `Gateway: ${gateways.filter( gw => gw.id === sala.id_gateway )[0].mac}`
+                                                            : "Sin gateway asignado" }
                                                             <br/>
                                                             <Button className=" m-[10px] " color='danger' size="sm">
                                                                 Ver en el mapa

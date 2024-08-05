@@ -12,7 +12,9 @@ export default function MyAccount(): ReactElement{
     const [newUsername, setNewUsername] = useState<string>()
     const [isNewUsernameValid, setIsNewUsernameValid] = useState<boolean>(false)
     const [newEmail, setNewEmail] = useState<string>()
+    const [isNewEmailValid, setIsNewEmailValid] = useState<boolean>(false)
     const [newPass, setNewPass] = useState<string>()
+    const [newPassConfirm, setNewPassConfirm] = useState<string>()
 
     return(
         <div className="flex justify-center">
@@ -44,7 +46,13 @@ export default function MyAccount(): ReactElement{
                         cambiarUsername ?
                         <>
                             <div>
-                                <Input color="danger" variant="bordered" label="Nuevo nombre de usuario" placeholder="username123" endContent={<Button size="sm" color="danger" variant="solid" >Comprobar <br/> disponibilidad</Button> }/>
+                                <Input color="danger" variant="bordered" label="Nuevo nombre de usuario" placeholder="username123" endContent={
+                                    <Button size="sm" color="danger" variant="solid" >
+                                        Comprobar 
+                                        <br/> 
+                                        disponibilidad
+                                        </Button> 
+                                    } onValueChange={setNewUsername} />
                             </div>
                             <div className="flex justify-center" >
                                 <Button size="sm" color="danger" variant="solid" isDisabled={ isNewUsernameValid ? false : true } >
@@ -65,21 +73,47 @@ export default function MyAccount(): ReactElement{
                             }
                         </p>
                     </div>
-                    <Button color="danger" size="sm" variant="flat">
+                    <Button color="danger" size="sm" variant="flat" onClick={() => setCambiarEmail(!cambiarEmail)}>
                         Cambiar correo electrónico
                     </Button>
                     {
                         cambiarEmail ?
-                        <div></div>
+                        <>
+                            <div>
+                                <Input label="Nuevo correo electrónico" variant="bordered" color="danger" placeholder="ejemplo@correo.com" endContent={
+                                    <Button size="sm" color="danger" variant="solid">
+                                        Comprobar
+                                        <br/>
+                                        disponibilidad
+                                    </Button>
+                                } onValueChange={setNewEmail} />
+                            </div>
+                            <div className="flex justify-center" >
+                                <Button color="danger" size="sm" variant="solid" isDisabled={ isNewEmailValid ? false : true }>
+                                    Efectuar cambio
+                                </Button>
+                            </div>
+                        </>
                         : null
                     }
                     <hr/>
-                    <Button color="danger" size="sm" variant="flat">
+                    <Button color="danger" size="sm" variant="flat" onClick={ () => setCambiarPass(!cambiarPass) } >
                         Cambiar contraseña
                     </Button>
                     {
                         cambiarPass ?
-                        <div></div>
+                        <>
+                            <div className="flex flex-col items-center align-center p-[15px] ">
+                                <Input label="Nueva contraseña" color="danger" variant="bordered" placeholder="****" onValueChange={setNewPass}/>
+                                <hr/>
+                                <Input label="Confirmar nueva contraseña" color="danger" variant="bordered" placeholder="****" onValueChange={setNewPassConfirm} />
+                            </div>
+                            <div className="flex justify-center" >
+                                <Button color="danger" size="sm" variant="solid">
+                                    Efectuar cambio
+                                </Button>
+                            </div>
+                        </>
                         : null
                     }
                 </div>
