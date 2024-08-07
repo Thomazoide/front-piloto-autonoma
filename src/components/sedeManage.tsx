@@ -109,7 +109,7 @@ export default function SedeManage(): ReactElement {
                                     <Mapa dataSede={selectedSede} sala={selectedSala}/>
                                 </div> : isMapLoading  && <Spinner size="lg" color="danger"/> }
                             </div> : null}
-                            <div className="flex flex-col lg:h-[400px] h-[200px]">
+                            <div className="flex flex-col lg:h-[400px] h-[200px] w-[200px] ">
                                 {
                                     salas ? 
                                     <>
