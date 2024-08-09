@@ -8,6 +8,8 @@ import Mapa from "./mapa"
 import { timeOut } from "./utils/function_lib"
 import { useAuthContext } from "@/hooks/useLoginContext"
 import { gateway } from "@/types/gateway"
+import AddSede from "./addSede"
+import { Divider } from "@fluentui/react-components"
 
 
 export default function SedeManage(): ReactElement {
@@ -19,6 +21,7 @@ export default function SedeManage(): ReactElement {
     const [isSedeSelected, setIsSedeSelected] = useState<boolean>(false)
     const [isMapLoading, setIsMapLoading] = useState<boolean>(false)
     const [selectedSala, setSelectedSala] = useState<sala>()
+    const [verSalaForm, setVerSalaForm] = useState<boolean>(false)
     const { state } = useAuthContext()
 
     const handleSalaButton = (e: MouseEvent<HTMLButtonElement>) => {
@@ -109,43 +112,53 @@ export default function SedeManage(): ReactElement {
                                     <Mapa dataSede={selectedSede} sala={selectedSala}/>
                                 </div> : isMapLoading  && <Spinner size="lg" color="danger"/> }
                             </div> : null}
-                            <div className="flex flex-col lg:h-[400px] h-[200px] w-[200px] ">
+                            <div className="flex flex-col h-fit w-[200px] ">
                                 {
                                     salas ? 
                                     <>
-                                        <ScrollShadow>
-                                            <Accordion
-                                            title="Salas de la sede"
-                                            selectionMode="single"
-                                            defaultExpandedKeys={'0'}
-                                            isCompact>
-                                                {
-                                                    salas.map( (sala, index) => (
-                                                        <AccordionItem
-                                                        key={index}
-                                                        isCompact
-                                                        startContent={ <ConferenceRoom24Regular/> }
-                                                        title={ `Sala ${sala.numero}` }
-                                                        className="shadow-lg border-2 border-solid border-red-200 rounded-md p-[10px] max-h-[400px] overflow-y-scroll mb-[10px] ">
-                                                            { gateways && gateways[0] && !gwDataLoading ?
-                                                                `Gateway: ${gateways.filter( gw => gw.id === sala.id_gateway )[0].mac}`
-                                                            : gwDataLoading ?
-                                                            <Spinner size="sm" color="danger" label="Cargando datos..." labelColor="warning"/> : gateways && !gateways[0] ?
-                                                            "Sin gateway asignado..." : null }
-                                                            <br/>
-                                                            <Button className=" m-[10px] " color='danger' size="sm" value={JSON.stringify(sala)} onClick={handleSalaButton} >
-                                                                Ver en el mapa
-                                                            </Button>
-                                                        </AccordionItem>
-                                                    ) )
-                                                }
-                                            </Accordion> 
-                                        </ScrollShadow>
+                                        <div className=" flex max-h-[400px] min-h-[200px] w-full p-[10px] border-double border-2 border-red-300 rounded-lg " >
+                                            <ScrollShadow>
+                                                <Accordion
+                                                title="Salas de la sede"
+                                                selectionMode="single"
+                                                defaultExpandedKeys={'0'}
+                                                isCompact>
+                                                    {
+                                                        salas.map( (sala, index) => (
+                                                            <AccordionItem
+                                                            key={index}
+                                                            isCompact
+                                                            startContent={ <ConferenceRoom24Regular/> }
+                                                            title={ `Sala ${sala.numero}` }
+                                                            className="shadow-lg border-2 border-solid border-red-200 rounded-md p-[10px] max-h-[400px] overflow-y-scroll mb-[10px] ">
+                                                                { gateways && gateways[0] && !gwDataLoading ?
+                                                                    `Gateway: ${gateways.filter( gw => gw.id === sala.id_gateway )[0].mac}`
+                                                                : gwDataLoading ?
+                                                                <Spinner size="sm" color="danger" label="Cargando datos..." labelColor="warning"/> : gateways && !gateways[0] ?
+                                                                "Sin gateway asignado..." : null }
+                                                                <br/>
+                                                                <Button className=" m-[10px] " color='danger' size="sm" value={JSON.stringify(sala)} onClick={handleSalaButton} >
+                                                                    Ver en el mapa
+                                                                </Button>
+                                                            </AccordionItem>
+                                                        ) )
+                                                    }
+                                                </Accordion> 
+                                            </ScrollShadow>
+                                        </div>
+                                        <Divider className="mt-[10px] mb-[10px] " />
+                                        <Button color="danger" variant="flat" onClick={ () => setVerSalaForm(!verSalaForm) } >
+                                            Crear sala
+                                        </Button>
+                                        <Divider className="mt-[10px] mb-[10px] " />
+                                        {
+                                            verSalaForm && selectedSede ?
+                                            <AddSede id_sede={selectedSede?.id}/>
+                                            : null
+                                        } 
                                     </>
                                 : null} 
-                                <Button color="danger" variant="flat">
-                                    Crear sala
-                                </Button>       
+                                      
                             </div>
                             
                     </div>
