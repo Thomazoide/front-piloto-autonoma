@@ -1,5 +1,5 @@
 import { Image } from "@fluentui/react-components"
-import { ReactElement, useEffect, useState } from "react"
+import { KeyboardEvent, ReactElement, useEffect, useState } from "react"
 import { Input } from "@nextui-org/input"
 import { Button } from "@nextui-org/button"
 import { loginPayload, useLogin } from "@/hooks/useLogin"
@@ -14,6 +14,14 @@ export default function Landing(): ReactElement{
     const {state} = useAuthContext()
     const navegar: NavigateFunction = useNavigate()
     const background: string = "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/edificio-nuevo-providencia-autonoma-1.png"
+
+    const handleSubmit = async (e: KeyboardEvent<HTMLButtonElement | HTMLInputElement>) => {
+        
+        if(e.code === "Enter"){
+            handleLogin()
+        }
+    }
+
     const handleLogin = async () => {
         const payload: loginPayload = {
             username,
@@ -50,7 +58,7 @@ export default function Landing(): ReactElement{
                         <Input color="danger" onValueChange={setUsername} label="Nombre de usuario" placeholder="usuario" className="max-w-[1024px]"/>
                     </div>
                     <div className="flex justify-center mt-[15px] ">
-                        <Input color="danger" onValueChange={setPassword} label="Contraseña" placeholder="******" type="password" className="max-w-[1024px]"/>
+                        <Input color="danger" onValueChange={setPassword} label="Contraseña" placeholder="******" type="password" className="max-w-[1024px]" onKeyDown={handleSubmit} />
                     </div>
                     <div className="flex justify-center">
                         <Button className="mt-[15px] " color="danger" onClick={handleLogin}>

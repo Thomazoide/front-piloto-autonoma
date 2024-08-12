@@ -249,13 +249,14 @@ export default function DashBoard(): ReactElement{
                             </AccordionItem>
                         </Accordion>
                     </div>
-                
-                    <div className=" flex justify-center shadow-lg h-[500px] lg:w-[1024px] w-[300px] p-[5px] lg:ml-[0px] ml-[15px] border-3 border-solid border-red-500 rounded-md">
-                        
-                        { !mapLoading && salas && lista && !isRefetching ? 
-                        <MapaMultiple dataSede={selectedSede} tipo={workerType} salas={salas} listaWorkers={lista}/>
-                        : isRefetching ? <Spinner color="danger" size="lg" label="Cargando datos nuevos..."/> : null
-                        }
+                    <div className="flex justify-center w-full" >
+                        <div className=" flex justify-center shadow-lg h-[500px] lg:w-[1024px] w-[300px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+                            
+                            { !mapLoading && salas && lista && !isRefetching ? 
+                            <MapaMultiple dataSede={selectedSede} tipo={workerType} salas={salas} listaWorkers={lista}/>
+                            : isRefetching ? <Spinner color="danger" size="lg" label="Cargando datos nuevos..."/> : null
+                            }
+                        </div>
                     </div>
                 </>
                 : isLoading ? <div> <Spinner color="danger" size="lg"/> </div> : null

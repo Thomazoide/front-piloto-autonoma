@@ -3,7 +3,7 @@ import { GeoJson } from "./sede"
 
 export type sala = {
     id: number,
-    numero: number,
+    numero: string,
     ubicacion: GeoJson<LatLngExpression>,
     id_gateway: number,
     id_sede: number

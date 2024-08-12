@@ -154,7 +154,7 @@ export default function MonitorGuardias(): ReactElement{
 
     return(
         <div className="flex justify-center flex-wrap gap-4">
-            <div className="items-center flex flex-col shadow-lg border-double border-3 border-ua-gray rounded-lg p-[15px] max-h-[200px] lg:max-h-[400px]">
+            <div className="items-center flex flex-col shadow-lg border-double border-2 border-red-300 rounded-lg p-[15px] max-h-[200px] lg:max-h-[400px]">
                 <h5>Guardias</h5>
                 {guardias ? <ScrollShadow className=" max-w-[370px] h-[200px] lg:max-h-[400px]" style={{overflowY: "scroll"}}>
                     {
@@ -170,7 +170,7 @@ export default function MonitorGuardias(): ReactElement{
             </div>
             {
                 selectedGuardia && ingresos && ingresos[0] && selectedSede && selectedSede && !workerLoading && ultimoIngreso && selectedSala ?
-                <div className="items-center flex flex-col shadow-lg p-[15px] border-double border-3 border-ua-gray rounded-lg">
+                <div className="items-center flex flex-col shadow-lg p-[15px] border-double border-2 border-red-300 rounded-lg">
                     <div className="flex w-[100%] justify-around">
                         <div className="w-fit h-fit ">
                             <Button color="danger" variant="flat" isIconOnly onClick={handleFilterState}>
@@ -253,7 +253,7 @@ export default function MonitorGuardias(): ReactElement{
                         <p><ErrorCircle24Regular/> No existen datos para los filtros solicitados...</p>
                     </div> : null}
                     <div className="flex justify-center min-w-[300px] min-h-[300px] border-double border-2 border-red-300 rounded-lg p-[5px] ">
-                        {!refreshMap ? <Mapa dataSede={selectedSede} sala={selectedSala} /> : <Spinner color="danger" size="lg"/>}
+                        {!refreshMap ? <Mapa dataSede={selectedSede} sala={selectedSala} tipo="guardia" /> : <Spinner color="danger" size="lg"/>}
                     </div>
                     
                 </div>
