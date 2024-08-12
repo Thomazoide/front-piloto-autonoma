@@ -152,8 +152,8 @@ export default function SedeManage(): ReactElement {
                                         </Button>
                                         <Divider className="mt-[10px] mb-[10px] " />
                                         {
-                                            verSalaForm && selectedSede ?
-                                            <AddSede id_sede={selectedSede?.id}/>
+                                            verSalaForm && selectedSede && state.user ?
+                                            <AddSede id_sede={selectedSede?.id} token={state.user.token}/>
                                             : null
                                         } 
                                     </>
