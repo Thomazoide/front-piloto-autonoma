@@ -6,3 +6,7 @@
     border-width: 2px;
     border-color: lightgrey;
 }
+
+.sombra-texto{
+    text-shadow: 2px 2px 4px #565353;
+}

@@ -1,22 +1,24 @@
 import { ingreso } from "@/types/ingreso";
 import { worker } from "@/types/worker";
-import { Button, DatePicker, DateValue, ScrollShadow, Spinner, TimeInput, TimeInputValue } from "@nextui-org/react";
+import { Button, DatePicker, DateValue, Input, ScrollShadow, Spinner, TimeInput, TimeInputValue } from "@nextui-org/react";
 import axios, { AxiosResponse } from "axios";
 import { ReactElement, useState, useEffect, MouseEvent } from "react";
 import { getIngresoByDate, timeOut, sortIngresosByHoras, obtenerHoradeFecha, getSalasByIngresos, getSedesBySalas, getSedeNameBySala } from "./utils/function_lib";
 import { sala } from "@/types/sala";
 import { sede } from "@/types/sede";
 import Mapa from "./mapa";
-import { ArrowCounterclockwise32Regular, CatchUp24Regular, ErrorCircle24Regular, Filter32Regular } from "@fluentui/react-icons";
+import { ArrowCounterclockwise32Regular, CatchUp24Regular, EditPerson24Regular, ErrorCircle24Regular, Filter32Regular, PeopleSearch20Regular } from "@fluentui/react-icons";
 import { Divider } from "@fluentui/react-components";
 import { parseAbsoluteToLocal, parseDate } from "@internationalized/date";
 import AddWorker from "./addWorker";
 import { useAuthContext } from "@/hooks/useLoginContext";
-
+import EditWorker from "./editWorker";
 
 export default function MonitorGuardias(): ReactElement{
     const [fechaExacta, setFechaExacta] = useState<DateValue>(parseDate(new Date().toISOString().slice(0,10)))
+    const [filter, setFilter] = useState<string>()
     const [guardias, setGuardias] = useState<worker[]>()
+    const [filteredGuards, setFilteredGuards] = useState<worker[]>()
     const [selectedGuardia, setSelectedGuardia] = useState<worker>()
     const [ingresos, setIngresos] = useState<ingreso[]>()
     const [ingresosFiltrados, setIngresosFiltrados] = useState<ingreso[]>()
@@ -25,10 +27,12 @@ export default function MonitorGuardias(): ReactElement{
     const [selectedSede, setSelectedSede] = useState<sede>()
     const [selectedSala, setSelectedSala] = useState<sala>()
     const [ultimoIngreso, setUltimoIngreso] = useState<ingreso>()
+    const [verGuardiaForm, setVerGuardiaForm] = useState<boolean>(false)
     const [workerLoading, setWorkerLoading] = useState<boolean>(false)
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
     const [refreshMap, setRefreshMap] = useState<boolean>(false)
     const [loadingFilters, setLoadingFilters] = useState<boolean>(false)
+    const [editarGuardia, setEditarGuardia] = useState<boolean>(false)
     const [horaInicial, setHoraInicial] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()))
     const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()).add({hours: 1}))
     const {state} = useAuthContext()
@@ -111,6 +115,12 @@ export default function MonitorGuardias(): ReactElement{
         }, 300 )
     }
 
+    const handleGuardFilter = (e: string) => {
+        setFilter(e)
+        console.log(e)
+        setFilteredGuards( guardias?.filter( (w) => ( w.nombre.toLowerCase().includes(e) || w.rut.includes(e) || w.email.toLowerCase().includes(e))))
+    }
+
     const handleFilterState = () => {
         setVerFiltros(!verFiltros)
         setWorkerLoading(true)
@@ -136,10 +146,13 @@ export default function MonitorGuardias(): ReactElement{
                 headers: {
                     Authorization: `Bearer ${state.user?.token}`
                 }
-            }).then( (res: AxiosResponse) => setGuardias(res.data) )
+            }).then( (res: AxiosResponse<worker[]>) => {
+                setGuardias(res.data)
+                setFilteredGuards(res.data)
+            } )
             : null
         }
-        if(verFiltros == false){
+        if(!verFiltros){
             const idIntervalo: NodeJS.Timeout = setInterval(() => {
                 if(guardias && selectedGuardia){
                     handleRefetch()
@@ -148,25 +161,34 @@ export default function MonitorGuardias(): ReactElement{
             }, 10000)
             return () => clearInterval(idIntervalo)
         }
-    }, [selectedGuardia] )
+    }, [selectedGuardia, filter] )
 
     
 
     return(
         <div className="flex justify-center flex-wrap gap-4">
-            <div className="items-center flex flex-col shadow-lg border-double border-2 border-red-300 rounded-lg p-[15px] max-h-[200px] lg:max-h-[400px]">
+            <div className="items-center flex flex-col shadow-lg border-double border-2 border-red-300 rounded-lg p-[15px] max-h-[200px] lg:max-h-[700px]">
                 <h5>Guardias</h5>
-                {guardias ? <ScrollShadow className=" max-w-[370px] h-[200px] lg:max-h-[400px]" style={{overflowY: "scroll"}}>
-                    {
-                        guardias.map( (g: worker) => (
+                {guardias && filteredGuards ? <ScrollShadow className=" max-w-[370px] h-full" style={{overflowY: "scroll"}}>
+                    <Input isClearable onClear={ () => setFilteredGuards(guardias) } type="text" color="danger" variant="bordered" size="sm" label="Buscar" startContent={ <PeopleSearch20Regular/> } placeholder="nombre | rut | email" onValueChange={ handleGuardFilter }  />
+                    <Divider className=" my-[10px] " />
+                    { filteredGuards[0] ?
+                        filteredGuards.map( (g: worker) => (
                             <div key={g.id}>
                                 <Button className="m-[5px] " color="danger" variant="bordered" value={JSON.stringify(g)} onClick={handleGuardSelect}>
                                     {g.nombre} | {g.rut}
                                 </Button>
                             </div>
                         ) )
-                    }
+                    : <div>
+                        <p>
+                            <strong>
+                                <ErrorCircle24Regular/> No hay datos que coincidan con la busqueda...
+                            </strong>
+                        </p>
+                    </div> }
                 </ScrollShadow> : null}
+                
             </div>
             {
                 selectedGuardia && ingresos && ingresos[0] && selectedSede && selectedSede && !workerLoading && ultimoIngreso && selectedSala ?
@@ -175,6 +197,11 @@ export default function MonitorGuardias(): ReactElement{
                         <div className="w-fit h-fit ">
                             <Button color="danger" variant="flat" isIconOnly onClick={handleFilterState}>
                                 <Filter32Regular />
+                            </Button>
+                        </div>
+                        <div className="w-fit h-fit">
+                            <Button color="danger" variant="flat" isIconOnly onClick={ () => setEditarGuardia(!editarGuardia) }>
+                                <EditPerson24Regular/>
                             </Button>
                         </div>
                         <div className="w-fit h-fit ">
@@ -251,14 +278,40 @@ export default function MonitorGuardias(): ReactElement{
                         </ScrollShadow> 
                     </div> : loadingFilters ? <Spinner color="danger" size="sm"/> : salas && !salas[0] && sedes && !sedes[0] ? <div>
                         <p><ErrorCircle24Regular/> No existen datos para los filtros solicitados...</p>
-                    </div> : null}
+                    </div> : !verFiltros && editarGuardia && state.user ?
+                    <EditWorker token={state.user.token} entity={selectedGuardia} tipo="guardia" />
+                    : null
+                    }
                     <div className="flex justify-center min-w-[300px] min-h-[300px] border-double border-2 border-red-300 rounded-lg p-[5px] ">
                         {!refreshMap ? <Mapa dataSede={selectedSede} sala={selectedSala} tipo="guardia" /> : <Spinner color="danger" size="lg"/>}
                     </div>
                     
                 </div>
                 : selectedGuardia && ingresos && !ingresos[0] && !workerLoading ?
-                <div className="items-center align-center flex justify-center min-w-[300px] min-h-[300px] border-solid border-2 border-red-300 rounded-lg p-[15px] ">
+                <div className="items-center flex flex-col justify-center min-w-[300px] min-h-[300px] border-solid border-2 border-red-300 rounded-lg p-[15px] ">
+                    <div className="flex flex-col items-center justify-center" >
+                        <Button color="danger" variant="flat" isIconOnly onClick={ () => setEditarGuardia(!editarGuardia) } >
+                            <EditPerson24Regular/>
+                        </Button>
+                        {
+                            editarGuardia && state.user ?
+                            <EditWorker token={state.user.token} entity={selectedGuardia} tipo='guardia'/>
+                            : null
+                        }
+                        <Divider className="my-[15px] "/>
+                        <div className="flex flex-col gap-2 items-center p-[15px] text-start">
+                            <p className="">
+                                Nombre: {selectedGuardia.nombre}
+                                <br/>
+                                Rut: {selectedGuardia.rut}
+                                <br/>
+                                Email: {selectedGuardia.email}
+                                <br/>
+                                Celular: {selectedGuardia.celular}
+                                <br/>
+                            </p>
+                        </div> 
+                    </div>
                     <h4>
                         Sin ingresos registrados...
                     </h4>
@@ -268,7 +321,15 @@ export default function MonitorGuardias(): ReactElement{
                 : null
 
             }
-            <AddWorker tipo="guardia"/>
+            <div className=" flex item-center flex-col gap-2 " >
+                <Button variant="solid" color="danger" size="sm" onClick={ () => setVerGuardiaForm(!verGuardiaForm) } >Agregar guardia</Button>
+                { verGuardiaForm && state.user ?
+                <>
+                    <AddWorker tipo="guardia" token={state.user.token}/>
+                </>
+                : null
+                }
+            </div>
         </div>
     )
 }
