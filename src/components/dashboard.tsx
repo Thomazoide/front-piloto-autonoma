@@ -107,11 +107,11 @@ export default function DashBoard(): ReactElement{
     const handleWorkerSelection = (e: MouseEvent<HTMLButtonElement> ): void => {
         setMapLoading(true)
         const wt: 'guardias' | 'docentes' | undefined = e.currentTarget.value === 'guardias' || e.currentTarget.value === 'docentes' ? e.currentTarget.value : undefined
-        wt === "guardias" ? axios.get(`${import.meta.env.VITE_API_URL}/guardia`, {
+        axios.get(`${import.meta.env.VITE_API_URL}/${wt?.slice(0, wt.length - 1)}`, {
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
-        }).then( (res: AxiosResponse) => setWorkerData(res.data) ).catch( (err) => console.error(err) ) : null
+        }).then( (res: AxiosResponse) => setWorkerData(res.data) ).catch( (err) => console.error(err) )
         setWorkerType(wt)
         timeOut(() => setMapLoading(false), 600)
     }
@@ -180,7 +180,7 @@ export default function DashBoard(): ReactElement{
                         selectedSede ?
                         <div className="flex flex-row w-full justify-between">
                             <div className="flex m-[15px] ">
-                                <Button isDisabled color='danger' variant='flat' value={'docentes'}>
+                                <Button color='danger' variant='flat' value={'docentes'} onClick={handleWorkerSelection}>
                                     Docentes
                                 </Button>
                             </div>

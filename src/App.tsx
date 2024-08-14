@@ -5,6 +5,7 @@ import Sedes from "./pages/sedes";
 import ManageGuardias from "./pages/guardias";
 import { useAuthContext } from "./hooks/useLoginContext";
 import Account from "./pages/account";
+import Docentes from "./pages/docentes";
 
 function App() {
   const {state} = useAuthContext()
@@ -13,9 +14,10 @@ function App() {
   return (
     <Routes>
       <Route element={<Landing />} path="/" />
-      <Route element={state.user ? <IndexPage /> : <Landing/>} path={"/home"} />
+      <Route element={state.user ? <IndexPage /> : <Landing/>} path="/home" />
       <Route element={state.user ? <Sedes /> : <Landing/>} path="/sedes" />
       <Route element={state.user ? <ManageGuardias /> : <Landing/>} path="/guardias" />
+      <Route element={state.user ? <Docentes/> : <Landing/>} path="/docentes" />
       <Route element={state.user ? <Account/> : <Landing/>} path={accountPath}/>
     </Routes>
   );

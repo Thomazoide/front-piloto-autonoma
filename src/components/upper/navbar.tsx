@@ -51,7 +51,7 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
                 <Nav className='me-auto justify-evenly items-center align-center w-[100%]' defaultActiveKey={props.llaveActiva}>
                     <Nav.Link eventKey={"1"} accessKey="/home" href='/home' onClick={handleNavigate}>Inicio</Nav.Link>
                     <Nav.Link eventKey={"2"} accessKey="/sedes" href='/sedes' onClick={handleNavigate}>Sedes</Nav.Link>
-                    <Nav.Link eventKey={"3"} href='#docentes'>Docentes</Nav.Link>
+                    <Nav.Link eventKey={"3"} href='/docentes'>Docentes</Nav.Link>
                     <Nav.Link eventKey={"4"} accessKey="/guardias" href='/guardias' onClick={handleNavigate} >Guardias</Nav.Link>
                     <Nav.Link eventKey={"5"} href="#user" className="text-center">
                         <Dropdown>
