@@ -21,6 +21,7 @@ export default function EditWorker(props: Readonly<EWProps>): ReactElement{
     const [error, setError] = useState<boolean>(false)
     const [success, setSuccess] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [errorMessage, setErrorMessage] = useState<string>()
 
     const config: AxiosRequestConfig = {
         headers: {
@@ -31,12 +32,12 @@ export default function EditWorker(props: Readonly<EWProps>): ReactElement{
     const handleSubmit = () => {
         setIsLoading(true)
         if(!nombre && !rut && !email && !celular){
-            console.log("Se debe rellenar por lo menos un campo")
+            setErrorMessage("Se debe rellenar por lo menos un campo")
             setError(true)
             setIsLoading(false)
             return
         }
-        axios.put(`${import.meta.env.VITE_API_URL}/guardia`, {
+        axios.put(`${import.meta.env.VITE_API_URL}/${props.tipo}`, {
             id: props.entity.id,
             nombre,
             rut: rut ? format(rut, {dots: false}) : undefined,
@@ -47,7 +48,7 @@ export default function EditWorker(props: Readonly<EWProps>): ReactElement{
             setSuccess(true)
             setIsLoading(false)
         } ).catch( (err: Error) => {
-            console.log(err.message)
+            setErrorMessage(err.message)
             setError(true)
             setIsLoading(false)
         } )
@@ -69,7 +70,7 @@ export default function EditWorker(props: Readonly<EWProps>): ReactElement{
             </div>
             {
                 success ?
-                <div className="flex flex-col gap-2 p-[10px] bg-green-500 border-double border-2 border-yellow-300 rounded-lg ">
+                <div className="flex flex-col gap-2 h-fit w-fit p-[10px] bg-green-500 border-double border-2 border-yellow-300 rounded-lg ">
                     <div className="flex justify-end">
                         <CloseButton onClick={() => window.location.reload()}/>
                     </div>
@@ -80,13 +81,13 @@ export default function EditWorker(props: Readonly<EWProps>): ReactElement{
                     </div>
                 </div>
                 : error ?
-                <div className="flex flex-col gap-2 p-[10px] bg-red-500 border-double border-2 border-yellow-300 rounded-lg ">
+                <div className="flex flex-col gap-2 h-fit w-fit p-[10px] bg-red-500 border-double border-2 border-yellow-300 rounded-lg ">
                     <div className="flex justify-end">
                         <CloseButton onClick={() => setError(false)}/>
                     </div>
                     <div className="flex justify-center">
                         <p className="text-neutral-50">
-                            Error en la petición...
+                            { errorMessage ? errorMessage : 'Error en la petición...'}
                         </p>
                     </div>
                 </div>
