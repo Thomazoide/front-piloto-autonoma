@@ -18,6 +18,7 @@ export default function ManageUsers(): ReactElement{
     const [selectedUser, setSelectedUser] = useState<user>()
     const [editarUsuario, setEditarUsuario] = useState<boolean>(false)
     const [crearUsuario, setCrearUsuario] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const {state} = useAuthContext()
     const config: AxiosRequestConfig = {
@@ -38,6 +39,24 @@ export default function ManageUsers(): ReactElement{
         setUsuariosFiltrados(filtro)
     }
 
+    const handleDelete = function(){
+        setIsLoading(true)
+        axios.delete(`${import.meta.env.VITE_API_URL}/user/delete`, {
+            data: selectedUser,
+            headers: {
+                Authorization: `Bearer ${state.user?.token}`
+            }
+        }).then( (res: AxiosResponse) => {
+            console.log(res)
+            setSelectedUser(undefined)
+            setIsLoading(false)
+            setUsuarios(undefined)
+        } ).catch( (err: Error) => {
+            console.log(err)
+            setIsLoading(false)
+        } )
+    }
+
     useEffect( () => {
         if(!usuarios){
             axios.get(`${import.meta.env.VITE_API_URL}/user`, config).then( (res: AxiosResponse<user[]>) => {
@@ -45,7 +64,7 @@ export default function ManageUsers(): ReactElement{
                 setUsuariosFiltrados(res.data)
             } )
         }
-    }, [] )
+    }, [usuarios] )
 
     return (
         <div className="flex flex-wrap gap-4 justify-center" >
@@ -77,7 +96,7 @@ export default function ManageUsers(): ReactElement{
                         <Button isIconOnly color="danger" variant="flat" size="sm" onClick={ () => setEditarUsuario(!editarUsuario) } >
                             <PersonEdit24Regular/>
                         </Button>
-                        <Button isIconOnly color="danger" variant="flat" size="sm">
+                        <Button isIconOnly isLoading={isLoading} color="danger" variant="flat" size="sm" onClick={handleDelete} >
                             <Delete24Regular/>
                         </Button>
                         <Button isIconOnly color="danger" variant="flat" size="sm" onClick={() => setSelectedUser(undefined)} >
