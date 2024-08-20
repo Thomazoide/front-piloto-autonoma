@@ -14,12 +14,12 @@ import AddWorker from "./addWorker";
 import { useAuthContext } from "@/hooks/useLoginContext";
 import EditWorker from "./editWorker";
 
-export default function MonitorGuardias(): ReactElement{
+export default function MonitorDocentes(): ReactElement{
     const [fechaExacta, setFechaExacta] = useState<DateValue>(parseDate(new Date().toISOString().slice(0,10)))
     const [filter, setFilter] = useState<string>()
-    const [guardias, setGuardias] = useState<worker[]>()
-    const [filteredGuards, setFilteredGuards] = useState<worker[]>()
-    const [selectedGuardia, setSelectedGuardia] = useState<worker>()
+    const [docentes, setDocentes] = useState<worker[]>()
+    const [filteredDocentes, setFilteredDocentes] = useState<worker[]>()
+    const [selectedDocente, setSelectedDocente] = useState<worker>()
     const [ingresos, setIngresos] = useState<ingreso[]>()
     const [ingresosFiltrados, setIngresosFiltrados] = useState<ingreso[]>()
     const [salas, setSalas] = useState<sala[]>()
@@ -27,26 +27,26 @@ export default function MonitorGuardias(): ReactElement{
     const [selectedSede, setSelectedSede] = useState<sede>()
     const [selectedSala, setSelectedSala] = useState<sala>()
     const [ultimoIngreso, setUltimoIngreso] = useState<ingreso>()
-    const [verGuardiaForm, setVerGuardiaForm] = useState<boolean>(false)
+    const [verDocenteForm, setVerDocenteForm] = useState<boolean>(false)
     const [workerLoading, setWorkerLoading] = useState<boolean>(false)
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
     const [refreshMap, setRefreshMap] = useState<boolean>(false)
     const [loadingFilters, setLoadingFilters] = useState<boolean>(false)
-    const [editarGuardia, setEditarGuardia] = useState<boolean>(false)
+    const [editarDocente, setEditarDocente] = useState<boolean>(false)
     const [horaInicial, setHoraInicial] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()))
     const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()).add({hours: 1}))
     const {state} = useAuthContext()
 
-    const handleGuardSelect = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
+    const handleDocenteSelect = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
         setWorkerLoading(true)
-        const guardia: worker = JSON.parse(e.currentTarget.value)
-        localStorage.setItem("id_worker", String(guardia.id))
-        const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia`, guardia, {
+        const docente: worker = JSON.parse(e.currentTarget.value)
+        localStorage.setItem("id_worker", String(docente.id))
+        const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/docente`, docente, {
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             },
         })).data
-        const ultimoIngresoR: ingreso = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last`, guardia ,{
+        const ultimoIngresoR: ingreso = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/docente/last`, docente ,{
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
@@ -66,7 +66,7 @@ export default function MonitorGuardias(): ReactElement{
             }
         })).data : undefined
         console.log(ultimoIngreso)
-        setSelectedGuardia(guardia)
+        setSelectedDocente(docente)
         setIngresos(ingresosGuardia)
         setSelectedSala(salaIngreso)
         setSelectedSede(sedeIngreso)
@@ -79,14 +79,14 @@ export default function MonitorGuardias(): ReactElement{
     const handleRefetch = async (): Promise<void> => {
         setRefreshMap(true)
         const id_worker: number = Number(localStorage.getItem("id_worker"))
-        const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia`,{
+        const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/docente`,{
             id: id_worker
         } ,{
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
         })).data
-        const ultimoIngresoR: ingreso = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia/last`,selectedGuardia ,{
+        const ultimoIngresoR: ingreso = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/docente/last`,selectedDocente ,{
             headers: {
                 Authorization: `Bearer ${state.user?.token}`
             }
@@ -115,10 +115,10 @@ export default function MonitorGuardias(): ReactElement{
         }, 300 )
     }
 
-    const handleGuardFilter = (e: string) => {
+    const handleDocenteFilter = (e: string) => {
         setFilter(e)
         console.log(e)
-        setFilteredGuards( guardias?.filter( (w) => ( w.nombre.toLowerCase().includes(e) || w.rut.includes(e) || w.email.toLowerCase().includes(e))))
+        setFilteredDocentes( docentes?.filter( (w) => ( w.nombre.toLowerCase().includes(e) || w.rut.includes(e) || w.email.toLowerCase().includes(e))))
     }
 
     const handleFilterState = () => {
@@ -128,11 +128,11 @@ export default function MonitorGuardias(): ReactElement{
     }
 
     const handleEdit = () => {
-        if(!editarGuardia){
-            setEditarGuardia(true)
+        if(!editarDocente){
+            setEditarDocente(true)
             console.log(true)
         } else {
-            setEditarGuardia(false)
+            setEditarDocente(false)
             console.log(false)
         }
     }
@@ -151,41 +151,41 @@ export default function MonitorGuardias(): ReactElement{
 
     useEffect( () => {
         
-        if(!guardias){
-            state.user ? axios.get(`${import.meta.env.VITE_API_URL}/guardia`, {
+        if(!docentes){
+            state.user ? axios.get(`${import.meta.env.VITE_API_URL}/docente`, {
                 headers: {
                     Authorization: `Bearer ${state.user?.token}`
                 }
             }).then( (res: AxiosResponse<worker[]>) => {
-                setGuardias(res.data)
-                setFilteredGuards(res.data)
+                setDocentes(res.data)
+                setFilteredDocentes(res.data)
             } )
             : null
         }
         if(!verFiltros){
             const idIntervalo: NodeJS.Timeout = setInterval(() => {
-                if(guardias && selectedGuardia){
+                if(docentes && selectedDocente){
                     handleRefetch()
                     console.log('REFETCH')
                 } 
             }, 10000)
             return () => clearInterval(idIntervalo)
         }
-    }, [selectedGuardia, filter] )
+    }, [selectedDocente, filter] )
 
     
 
     return(
         <div className="flex justify-center flex-wrap gap-4">
             <div className="items-center flex flex-col shadow-lg border-double border-2 border-red-300 rounded-lg p-[15px] max-h-[200px] lg:max-h-[700px]">
-                <h5>Guardias</h5>
-                {guardias && filteredGuards ? <ScrollShadow className=" max-w-[370px] h-full" style={{overflowY: "scroll"}}>
-                    <Input isClearable onClear={ () => setFilteredGuards(guardias) } type="text" color="danger" variant="bordered" size="sm" label="Buscar" startContent={ <PeopleSearch20Regular/> } placeholder="nombre | rut | email" onValueChange={ handleGuardFilter }  />
+                <h5>Docentes</h5>
+                {docentes && filteredDocentes ? <ScrollShadow className=" max-w-[370px] h-full" style={{overflowY: "scroll"}}>
+                    <Input isClearable onClear={ () => setFilteredDocentes(docentes) } type="text" color="danger" variant="bordered" size="sm" label="Buscar" startContent={ <PeopleSearch20Regular/> } placeholder="nombre | rut | email" onValueChange={ handleDocenteFilter }  />
                     <Divider className=" my-[10px] " />
-                    { filteredGuards[0] ?
-                        filteredGuards.map( (g: worker) => (
+                    { filteredDocentes[0] ?
+                        filteredDocentes.map( (g: worker) => (
                             <div key={g.id}>
-                                <Button className="m-[5px] " color="danger" variant="bordered" value={JSON.stringify(g)} onClick={handleGuardSelect}>
+                                <Button className="m-[5px] " color="danger" variant="bordered" value={JSON.stringify(g)} onClick={handleDocenteSelect}>
                                     {g.nombre} | {g.rut}
                                 </Button>
                             </div>
@@ -201,7 +201,7 @@ export default function MonitorGuardias(): ReactElement{
                 
             </div>
             {
-                selectedGuardia && ingresos && ingresos[0] && selectedSede && selectedSede && !workerLoading && ultimoIngreso && selectedSala ?
+                selectedDocente && ingresos && ingresos[0] && selectedSede && selectedSede && !workerLoading && ultimoIngreso && selectedSala ?
                 <div className="items-center flex flex-col shadow-lg p-[15px] border-double border-2 border-red-300 rounded-lg">
                     <div className="flex w-[100%] justify-around">
                         <div className="w-fit h-fit ">
@@ -215,7 +215,7 @@ export default function MonitorGuardias(): ReactElement{
                             </Button>
                         </div>
                         <div className="w-fit h-fit ">
-                            <Button color="danger" variant="flat" isIconOnly value={JSON.stringify(selectedGuardia)} onClick={handleGuardSelect} >
+                            <Button color="danger" variant="flat" isIconOnly value={JSON.stringify(selectedDocente)} onClick={handleDocenteSelect} >
                                 <ArrowCounterclockwise32Regular/>
                             </Button>
                         </div>
@@ -246,13 +246,13 @@ export default function MonitorGuardias(): ReactElement{
                     <Divider className="mt-[10px] mb-[10px] "/>
                     <p>
                         <strong className="text-ua-grey">
-                            Guardia: {selectedGuardia.nombre}
+                            Docente: {selectedDocente.nombre}
                         </strong>
                     </p>
                     {!verFiltros ? <div className="flex flex-col items-center">
                         <p>
                             <br/>
-                            Rut: {selectedGuardia.rut}
+                            Rut: {selectedDocente.rut}
                             <br/>
                             <strong>
                                 Ultimo ingreso registrado:
@@ -267,8 +267,8 @@ export default function MonitorGuardias(): ReactElement{
                             Sala: {selectedSala.numero}
                         </p>
                         {
-                            editarGuardia && state.user ?
-                                <EditWorker token={state.user.token} entity={selectedGuardia} tipo='guardia'/>
+                            editarDocente && state.user ?
+                                <EditWorker token={state.user.token} entity={selectedDocente} tipo='docente'/>
                             : null
                         }
                     </div> : verFiltros && ingresosFiltrados && !loadingFilters && salas && salas[0] && sedes && sedes[0] ? <div>
@@ -288,8 +288,8 @@ export default function MonitorGuardias(): ReactElement{
                                         </p>
                                         { index < ingresosFiltrados.length ? <hr/> : null }
                                         {
-                                            editarGuardia && state.user ?
-                                                <EditWorker token={state.user.token} entity={selectedGuardia} tipo='guardia'/>
+                                            editarDocente && state.user ?
+                                                <EditWorker token={state.user.token} entity={selectedDocente} tipo='docente'/>
                                             : null
                                         }
                                     </div>
@@ -303,33 +303,33 @@ export default function MonitorGuardias(): ReactElement{
                     : null
                     }
                     <div className="flex justify-center min-w-[300px] min-h-[300px] border-double border-2 border-red-300 rounded-lg p-[5px] ">
-                        {!refreshMap ? <Mapa dataSede={selectedSede} sala={selectedSala} tipo="guardia" /> : <Spinner color="danger" size="lg"/>}
+                        {!refreshMap ? <Mapa dataSede={selectedSede} sala={selectedSala} tipo="docente" /> : <Spinner color="danger" size="lg"/>}
                     </div>
                     
                 </div>
-                : selectedGuardia && ingresos && !ingresos[0] && !workerLoading ?
+                : selectedDocente && ingresos && !ingresos[0] && !workerLoading ?
                 <div className="items-center flex flex-col justify-center min-w-[300px] min-h-[300px] border-solid border-2 border-red-300 rounded-lg p-[15px] ">
                     <div className="flex flex-col items-center justify-center" >
-                        <Button color="danger" variant="flat" isIconOnly onClick={ () => setEditarGuardia(!editarGuardia) } >
+                        <Button color="danger" variant="flat" isIconOnly onClick={ () => setEditarDocente(!editarDocente) } >
                             <EditPerson24Regular/>
                         </Button>
                         
                         <Divider className="my-[15px] "/>
                         <div className="flex flex-col gap-2 items-center p-[15px] text-start">
                             <p className="">
-                                Nombre: {selectedGuardia.nombre}
+                                Nombre: {selectedDocente.nombre}
                                 <br/>
-                                Rut: {selectedGuardia.rut}
+                                Rut: {selectedDocente.rut}
                                 <br/>
-                                Email: {selectedGuardia.email}
+                                Email: {selectedDocente.email}
                                 <br/>
-                                Celular: {selectedGuardia.celular}
+                                Celular: {selectedDocente.celular}
                                 <br/>
                             </p>
                         </div> 
                         {
-                            editarGuardia && state.user ?
-                                <EditWorker token={state.user.token} entity={selectedGuardia} tipo="guardia" /> 
+                            editarDocente && state.user ?
+                                <EditWorker token={state.user.token} entity={selectedDocente} tipo="docente" /> 
                             : null
                         }
                     </div>
@@ -343,8 +343,8 @@ export default function MonitorGuardias(): ReactElement{
 
             }
             <div className=" flex item-center flex-col gap-2 " >
-                <Button variant="solid" color="danger" size="sm" onClick={ () => setVerGuardiaForm(!verGuardiaForm) } >Agregar guardia</Button>
-                { verGuardiaForm && state.user ?
+                <Button variant="solid" color="danger" size="sm" onClick={ () => setVerDocenteForm(!verDocenteForm) } >Agregar guardia</Button>
+                { verDocenteForm && state.user ?
                 <>
                     <AddWorker tipo="guardia" token={state.user.token}/>
                 </>

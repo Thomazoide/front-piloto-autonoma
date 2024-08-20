@@ -6,6 +6,7 @@ import { loginPayload, useLogin } from "@/hooks/useLogin"
 import { useAuthContext } from "@/hooks/useLoginContext"
 import { NavigateFunction, useNavigate } from "react-router-dom"
 import { Chip, Spinner } from "@nextui-org/react"
+import "@/styles/generic_styles.css"
 
 export default function Landing(): ReactElement{
     const [username, setUsername] = useState<string>('')
@@ -48,8 +49,8 @@ export default function Landing(): ReactElement{
                 <Image className="" src="https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/autonoma-logo.png" alt="logo-uautonoma" shadow shape="rounded"/>
             </div>
             <div className="w-full p-[15px]">
-                <div className="flex justify-center">
-                    <h3>Sistema de ingreso docentes/guardias</h3>
+                <div className="flex justify-center text-center">
+                    <h3 className="text-4xl w-fit h-fit font-bold text-gray-800 bg-white bg-opacity-50 p-4 rounded-md transform hover:-translate-y-1 transition duration-300 sombra-texto"  >Sistema de ingreso docentes/guardias</h3>
                 </div>
             </div>
             <div className="flex justify-center">
