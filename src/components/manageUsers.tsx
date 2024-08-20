@@ -8,6 +8,7 @@ import { Divider } from "@fluentui/react-components";
 import { CloseButton } from "react-bootstrap";
 import EditUser from "./editUser";
 import "@/styles/generic_styles.css"
+import AddUser from "./addUser";
 
 
 export default function ManageUsers(): ReactElement{
@@ -112,6 +113,11 @@ export default function ManageUsers(): ReactElement{
                 <Button variant="solid" color="danger" size="sm" onClick={() => setCrearUsuario(!crearUsuario)}>
                     Crear usuario
                 </Button>
+                {
+                    crearUsuario  && state.user ?
+                    <AddUser token={state.user.token} />
+                    : null
+                }
             </div>
         </div>
     )
