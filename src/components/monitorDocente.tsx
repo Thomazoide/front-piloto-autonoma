@@ -30,7 +30,6 @@ export default function MonitorDocentes(): ReactElement{
     const [verDocenteForm, setVerDocenteForm] = useState<boolean>(false)
     const [workerLoading, setWorkerLoading] = useState<boolean>(false)
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
-    const [refreshMap, setRefreshMap] = useState<boolean>(false)
     const [loadingFilters, setLoadingFilters] = useState<boolean>(false)
     const [editarDocente, setEditarDocente] = useState<boolean>(false)
     const [horaInicial, setHoraInicial] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()))
@@ -77,7 +76,6 @@ export default function MonitorDocentes(): ReactElement{
     }
 
     const handleRefetch = async (): Promise<void> => {
-        setRefreshMap(true)
         const id_worker: number = Number(localStorage.getItem("id_worker"))
         const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/docente`,{
             id: id_worker
@@ -110,9 +108,6 @@ export default function MonitorDocentes(): ReactElement{
         setSelectedSala(salaIngreso)
         setSelectedSede(sedeIngreso)
         setUltimoIngreso(ultimoIngresoR)
-        timeOut( () => {
-            setRefreshMap(false)
-        }, 300 )
     }
 
     const handleDocenteFilter = (e: string) => {
@@ -303,7 +298,7 @@ export default function MonitorDocentes(): ReactElement{
                     : null
                     }
                     <div className="flex justify-center min-w-[300px] min-h-[300px] border-double border-2 border-red-300 rounded-lg p-[5px] ">
-                        {!refreshMap ? <Mapa dataSede={selectedSede} sala={selectedSala} tipo="docente" /> : <Spinner color="danger" size="lg"/>}
+                        <Mapa dataSede={selectedSede} sala={selectedSala} tipo="docente" entidad={selectedDocente} />
                     </div>
                     
                 </div>

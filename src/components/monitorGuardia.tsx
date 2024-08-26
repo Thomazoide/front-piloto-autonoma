@@ -30,7 +30,6 @@ export default function MonitorGuardias(): ReactElement{
     const [verGuardiaForm, setVerGuardiaForm] = useState<boolean>(false)
     const [workerLoading, setWorkerLoading] = useState<boolean>(false)
     const [verFiltros, setVerFiltros] = useState<boolean>(false)
-    const [refreshMap, setRefreshMap] = useState<boolean>(false)
     const [loadingFilters, setLoadingFilters] = useState<boolean>(false)
     const [editarGuardia, setEditarGuardia] = useState<boolean>(false)
     const [horaInicial, setHoraInicial] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()))
@@ -77,7 +76,6 @@ export default function MonitorGuardias(): ReactElement{
     }
 
     const handleRefetch = async (): Promise<void> => {
-        setRefreshMap(true)
         const id_worker: number = Number(localStorage.getItem("id_worker"))
         const ingresosGuardia: ingreso[] = (await axios.post(`${import.meta.env.VITE_API_URL}/ingreso/guardia`,{
             id: id_worker
@@ -110,9 +108,6 @@ export default function MonitorGuardias(): ReactElement{
         setSelectedSala(salaIngreso)
         setSelectedSede(sedeIngreso)
         setUltimoIngreso(ultimoIngresoR)
-        timeOut( () => {
-            setRefreshMap(false)
-        }, 300 )
     }
 
     const handleGuardFilter = (e: string) => {
@@ -162,15 +157,13 @@ export default function MonitorGuardias(): ReactElement{
             } )
             : null
         }
-        if(!verFiltros){
-            const idIntervalo: NodeJS.Timeout = setInterval(() => {
-                if(guardias && selectedGuardia){
-                    handleRefetch()
-                    console.log('REFETCH')
-                } 
-            }, 10000)
-            return () => clearInterval(idIntervalo)
-        }
+        const idIntervalo: NodeJS.Timeout = setInterval(() => {
+            if(guardias && selectedGuardia){
+                handleRefetch()
+                console.log('REFETCH')
+            } 
+        }, 5000)
+        return () => clearInterval(idIntervalo)
     }, [selectedGuardia, filter] )
 
     
@@ -303,7 +296,7 @@ export default function MonitorGuardias(): ReactElement{
                     : null
                     }
                     <div className="flex justify-center min-w-[300px] min-h-[300px] border-double border-2 border-red-300 rounded-lg p-[5px] ">
-                        {!refreshMap ? <Mapa dataSede={selectedSede} sala={selectedSala} tipo="guardia" /> : <Spinner color="danger" size="lg"/>}
+                        <Mapa dataSede={selectedSede} sala={selectedSala} tipo="guardia" entidad={selectedGuardia} />
                     </div>
                     
                 </div>

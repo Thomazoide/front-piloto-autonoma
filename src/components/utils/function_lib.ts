@@ -78,6 +78,12 @@ export function sortIngresosByHoras(listaIngresos: ingreso[], horaInicio: number
     return ingresosPorHora
 }
 
+export function isDateBetween(fecha: Date): boolean{
+    const inicio = moment(new Date()).subtract({hours: 1})
+    const final = moment(new Date())
+    return moment(fecha).isBetween(inicio, final, null, '(]')
+}
+
 export function getLastHourIn(listaIngresos: ingreso[], fecha: Date): (ingreso | undefined)[]{
     const fechaHoraAtras: Date = fecha
     fechaHoraAtras.setHours(fechaHoraAtras.getHours()-1)
