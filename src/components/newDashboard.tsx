@@ -14,6 +14,7 @@ import moment from "moment";
 import { MapContainer, TileLayer, GeoJSON, Popup } from "react-leaflet";
 import { icon } from "leaflet";
 import { ingreso } from "@/types/ingreso";
+import IconoSalas from "./svgComponents/iconoSalas";
 
 export default function NewDashboard(): ReactElement{
     const [sedes, setSedes] = useState<sede[]>()
@@ -23,6 +24,7 @@ export default function NewDashboard(): ReactElement{
     const [workerType, setWorkerType] = useState<string>()
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [mapCenter, setMapCenter] = useState<number[]>()
+    const [mostrarSimbologia, setMostrarSimbologia] = useState<boolean>(false)
     const { state } = useAuthContext()
 
     const config: AxiosRequestConfig = {
@@ -165,21 +167,61 @@ export default function NewDashboard(): ReactElement{
                 }
             </div>
             { selectedSede && workers && workerType && salas && mapCenter &&
-            <div className="flex flex-col gap-3 items-center w-full h-[500px] p-[15px] border-solid border-3 border-red-300 rounded-lg shadow-md" key={mapCenter.toString()}>
+            <div className="flex flex-col gap-3 items-center w-full h-[500px] p-[15px] border-solid border-3 border-red-300 rounded-lg shadow-md" key={mapCenter[0].toString()}>
                 <div className="flex w-full justify-end">
                     <Button isIconOnly startContent={
                     <ErrorCircle24Regular/>
-                    } color="danger" variant="flat"/>
+                    } color="danger" variant="flat" onClick={() => setMostrarSimbologia(!mostrarSimbologia)} />
                 </div>
+                {
+                    mostrarSimbologia &&
+                    <>
+                    <div className="flex justify-center w-full h-fit">
+                        <h5>Simbología</h5>
+                    </div>
+                    <div className="flex flex-wrap justify-evenly w-full h-fit">
+                        <div className="flex flex-col items-center w-fit h-fit">
+                            <div>
+                                <IconoDocentes/>
+                            </div>
+                            <div>
+                                <p>
+                                    Docentes
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex flex-col items-center w-fit h-fit">
+                            <div>
+                                <IconoGuardiaSVG/>
+                            </div>
+                            <div>
+                                <p>
+                                    Guardias
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex flex-col items-center w-fit h-fit">
+                            <div>
+                                <IconoSalas/>
+                            </div>
+                            <div>
+                                <p>
+                                    Salas
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    </>
+                }
                 {/*@ts-ignore*/}
-                <MapContainer center={ mapCenter } zoom={20} style={{ height: "100%", width: "100%" }} key={mapCenter.toString()} >
+                <MapContainer center={ mapCenter } zoom={20} style={{ height: "100%", width: "100%" }} key={mapCenter[0].toString()} >
                 <TileLayer 
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Open StreetMap</a> contributors' />
                     <GeoJSON data={selectedSede.m2} style={{color: "red"}}/>
                     {
                         workers.map( (w) => w.ubicacion && (
-                            <ReactLeafletDriftMarker duration={1000} key={w.ubicacion.locations[0].coords.latitude.toString()} position={[w.ubicacion.locations[0].coords.latitude, w.ubicacion.locations[0].coords.longitude]} icon={workerIcon} >
+                            <ReactLeafletDriftMarker duration={500} key={w.ubicacion.locations[0].coords.latitude.toString()} position={[w.ubicacion.locations[0].coords.latitude, w.ubicacion.locations[0].coords.longitude]} icon={workerIcon} >
                                 <Popup closeButton>
                                     <strong> {w.nombre} </strong>
                                 </Popup>
