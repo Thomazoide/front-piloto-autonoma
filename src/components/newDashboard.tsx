@@ -113,7 +113,7 @@ export default function NewDashboard(): ReactElement{
         <div className="flex flex-col gap-3 items-center w-full" >
             <div className="flex justify-center w-[300px] ">
                 { sedes &&
-                    <Select placeholder="Seleccionar sede" size="md" selectionMode="single" color="danger" variant="bordered" startContent={<BuildingRegular/>} onChange={handleSelect} >
+                    <Select label="Sedes" placeholder="Seleccionar sede" size="md" selectionMode="single" color="danger" variant="bordered" startContent={<BuildingRegular/>} onChange={handleSelect} >
                     {
                         sedes.map((sede) => (
                             <SelectItem color="danger" variant="light" key={JSON.stringify(sede)} value={JSON.stringify(sede)}>

@@ -147,7 +147,7 @@ export default function MonitorGuardias(): ReactElement{
     useEffect( () => {
         
         if(!guardias){
-            state.user ? axios.get(`${import.meta.env.VITE_API_URL}/guardia`, {
+            axios.get(`${import.meta.env.VITE_API_URL}/guardia`, {
                 headers: {
                     Authorization: `Bearer ${state.user?.token}`
                 }
@@ -155,7 +155,6 @@ export default function MonitorGuardias(): ReactElement{
                 setGuardias(res.data)
                 setFilteredGuards(res.data)
             } )
-            : null
         }
         const idIntervalo: NodeJS.Timeout = setInterval(() => {
             if(guardias && selectedGuardia){
@@ -338,9 +337,7 @@ export default function MonitorGuardias(): ReactElement{
             <div className=" flex item-center flex-col gap-2 " >
                 <Button variant="solid" color="danger" size="sm" onClick={ () => setVerGuardiaForm(!verGuardiaForm) } >Agregar guardia</Button>
                 { verGuardiaForm && state.user ?
-                <>
                     <AddWorker tipo="guardia" token={state.user.token}/>
-                </>
                 : null
                 }
             </div>

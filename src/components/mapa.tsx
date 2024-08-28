@@ -3,7 +3,7 @@ import { MapContainer, GeoJSON, TileLayer, Marker, Popup } from "react-leaflet"
 import 'leaflet/dist/leaflet.css'
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
-import { icon } from 'leaflet'
+import { icon, LatLngExpression } from 'leaflet'
 import { worker } from "@/types/worker"
 interface PropsMapa {
     tipo?: "guardia" | "docente"
@@ -33,11 +33,17 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
             setSSala(props.sala)
         }
     }, [props] )
+    const ubicacion: LatLngExpression = {
+        //@ts-ignore
+        lat: props.entidad ? props.entidad.ubicacion?.locations[0].coords.latitude : props.dataSede.ubicacion.features[0].geometry.coordinates[1],
+        //@ts-ignore
+        lng: props.entidad ? props.entidad.ubicacion?.locations[0].coords.longitude : props.dataSede.ubicacion.features[0].geometry.coordinates[0]
+    } 
     return(
         <>
         { props.dataSede ? 
         //@ts-ignore
-        <MapContainer center={[props.dataSede.ubicacion.features[0].geometry.coordinates[1], props.dataSede.ubicacion.features[0].geometry.coordinates[0]]} zoom={20} style={{height: '100%', width: '100%'}} >
+        <MapContainer center={ubicacion} zoom={20} style={{height: '100%', width: '100%'}} key={ubicacion.lat.toString()} >
             <TileLayer 
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Open StreetMap</a> contributors' />
