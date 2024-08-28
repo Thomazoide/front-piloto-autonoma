@@ -5,6 +5,7 @@ import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
 import { icon, LatLngExpression } from 'leaflet'
 import { worker } from "@/types/worker"
+import ReactLeafletDriftMarker from 'react-leaflet-drift-marker';
 interface PropsMapa {
     tipo?: "guardia" | "docente"
     dataSede: sede
@@ -35,14 +36,13 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
     }, [props] )
     const ubicacion: LatLngExpression = {
         //@ts-ignore
-        lat: props.entidad ? props.entidad.ubicacion?.locations[0].coords.latitude : props.dataSede.ubicacion.features[0].geometry.coordinates[1],
+        lat: props.dataSede.ubicacion.features[0].geometry.coordinates[1],
         //@ts-ignore
-        lng: props.entidad ? props.entidad.ubicacion?.locations[0].coords.longitude : props.dataSede.ubicacion.features[0].geometry.coordinates[0]
+        lng: props.dataSede.ubicacion.features[0].geometry.coordinates[0]
     } 
     return(
         <>
         { props.dataSede ? 
-        //@ts-ignore
         <MapContainer center={ubicacion} zoom={20} style={{height: '100%', width: '100%'}} key={ubicacion.lat.toString()} >
             <TileLayer 
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
@@ -60,7 +60,7 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
             : null}
             {
                 props.entidad && props.entidad.ubicacion ?
-                <Marker position={[props.entidad.ubicacion.locations[0].coords.latitude, props.entidad.ubicacion.locations[0].coords.longitude]} icon={miIcono}/>
+                <ReactLeafletDriftMarker duration={500} key={props.entidad.ubicacion.locations[0].coords.latitude.toString()} position={[props.entidad.ubicacion.locations[0].coords.latitude, props.entidad.ubicacion.locations[0].coords.longitude]} icon={miIcono}/>
                 : null
             }
         </MapContainer> 

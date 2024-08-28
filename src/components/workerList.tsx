@@ -7,6 +7,7 @@ import { useState, ReactElement, SetStateAction, Dispatch } from "react";
 interface WLProps{
     workerList: worker[]
     setSelectedWorker: Dispatch<SetStateAction<worker | undefined>>
+    setIsLoading: Dispatch<SetStateAction<boolean>>
 }
 
 export default function WorkerList(props: Readonly<WLProps>): ReactElement{
@@ -36,7 +37,11 @@ export default function WorkerList(props: Readonly<WLProps>): ReactElement{
                 <ScrollShadow className="flex flex-col items-center gap-2 max-h-[650px]" >
                     {
                         filteredWorkers.map( (w) => (
-                            <Button className="w-full" key={w.id} color="danger" onClick={ () => props.setSelectedWorker(w) }>
+                            <Button className="w-full" key={w.id} color="danger" onClick={ () => {
+                                props.setIsLoading(true)
+                                props.setSelectedWorker(w)
+                                props.setIsLoading(false)
+                            } }>
                                 {`${w.nombre} | ${w.rut}`}
                             </Button>
                         ) )
