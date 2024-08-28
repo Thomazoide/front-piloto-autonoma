@@ -34,7 +34,7 @@ export default function FilterIngresosWorker(props: Readonly<FIWProps>): ReactEl
 
     const handleFilters = function(){
         
-        const ingresosFiltradosTemp: ingreso[] = ingresosFiltrados.filter( (i) => {
+        const ingresosFiltradosTemp: ingreso[] = props.ingresos.filter( (i) => {
             const fechaHoraInicial = moment(`${fecha.toString()}T${horaInicial.toString().split("T")[1].split("-")[0]}Z`).utc()
             const fechaHoraFinal = moment(`${fecha.toString()}T${horaFinal.toString().split("T")[1].split("-")[0]}Z`).utc()
             const fechaMoment = moment(i.hora).utc()

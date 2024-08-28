@@ -86,6 +86,13 @@ export default function WorkerDataLocation(props: Readonly<WDLProps>): ReactElem
                         <h5>
                             {`${props.tipo[0].toUpperCase()}${props.tipo.slice(1)}: ${props.entity.nombre}`}
                         </h5>
+                        <p>
+                            Rut: {props.entity.rut}
+                            <br/>
+                            Email: {props.entity.email}
+                            <br/>
+                            Celular: {props.entity.celular}
+                        </p>
                         <hr/>
                         <div className="flex justify-center">
                             <ErrorCircle24Regular/>
@@ -134,6 +141,13 @@ export default function WorkerDataLocation(props: Readonly<WDLProps>): ReactElem
                                 `${props.tipo[0].toUpperCase()}${props.tipo.slice(1)}: ${props.entity.nombre}`
                             }
                         </h5>
+                        <p>
+                            Rut: {props.entity.rut}
+                            <br/>
+                            Email: {props.entity.email}
+                            <br/>
+                            Celular: {props.entity.celular}
+                        </p>
                         { !editWorker && !mostrarFiltros ?
                             <p>
                                 <strong>

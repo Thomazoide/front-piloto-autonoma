@@ -11,7 +11,7 @@ import IconoDocentes from "./svgComponents/IconoDocentes";
 import IconoGuardiaSVG from "./svgComponents/IconoGuardiaSVG";
 import { isDateBetween } from "./utils/function_lib";
 import moment from "moment";
-import { MapContainer, TileLayer, GeoJSON, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Popup, Marker } from "react-leaflet";
 import { icon } from "leaflet";
 import { ingreso } from "@/types/ingreso";
 import IconoSalas from "./svgComponents/iconoSalas";
@@ -90,6 +90,13 @@ export default function NewDashboard(): ReactElement{
         console.log(latlng)
         setMapCenter(latlng)
     }
+
+    const iconoSala = icon({
+        iconUrl: "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/opened-door-aperture.png",
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -34]
+    })
 
     const workerIcon = icon({
         iconUrl: workerType === "guardia" ? 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/PeopleIcons-16-1024.webp' : 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg',
@@ -226,6 +233,17 @@ export default function NewDashboard(): ReactElement{
                                     <strong> {w.nombre} </strong>
                                 </Popup>
                             </ReactLeafletDriftMarker>
+                        ) )
+                    }
+                    {
+                        salas &&
+                        salas.map( (s) => (
+                            //@ts-ignore
+                            <Marker key={s.id} position={ [s.ubicacion.features[0].geometry.coordinates[1], s.ubicacion.features[0].geometry.coordinates[0]]} icon={iconoSala}>
+                                <Popup closeButton>
+                                    {s.numero}
+                                </Popup>
+                            </Marker>
                         ) )
                     }
                 </MapContainer>
