@@ -1,6 +1,5 @@
 import { gateway } from "@/types/gateway";
 import { sala } from "@/types/sala";
-import { ErrorCircle24Filled } from "@fluentui/react-icons";
 import { Input } from "@nextui-org/input";
 import { Button, Link, Select, SelectItem, Spinner } from "@nextui-org/react";
 import axios, { AxiosResponse } from "axios";
@@ -150,7 +149,6 @@ export default function AddSede(props: Readonly<AddSedeProps>): ReactElement{
                     <Button color="danger" size="sm" variant="solid" onClick={handleCrear} isLoading={isLoading} >
                         Crear
                     </Button>
-                    <Button color="primary" onClick={() => setIsLoading(false)} isIconOnly startContent={ <ErrorCircle24Filled/> }/>
                 </div>
             </> 
             : <Spinner color="danger" size="sm"/> }
