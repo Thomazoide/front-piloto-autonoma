@@ -1,6 +1,6 @@
 import { ChangeEvent, MouseEvent, ReactElement, useEffect, useState } from "react"
 import { sede } from "@/types/sede"
-import axios, { AxiosResponse } from "axios"
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import { Accordion, AccordionItem, Button, ScrollShadow, Select, SelectItem, Spinner } from "@nextui-org/react"
 import { sala } from "@/types/sala"
 import { ConferenceRoom24Regular, Map24Regular } from "@fluentui/react-icons"
@@ -22,7 +22,20 @@ export default function SedeManage(): ReactElement {
     const [isMapLoading, setIsMapLoading] = useState<boolean>(false)
     const [selectedSala, setSelectedSala] = useState<sala>()
     const [verSalaForm, setVerSalaForm] = useState<boolean>(false)
+    const [selectedFloor, setSelectedFloor] = useState<number>()
+    const [verMapaIndoor, setVerMapaIndoor] = useState<boolean>(false)
     const { state } = useAuthContext()
+
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${state.user?.token}`
+        }
+    }
+
+    const SALAS_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/sala`
+    const GATEWAYS_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/gateway`
+    const SEDES_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/sedes`
+
 
     const handleSalaButton = (e: MouseEvent<HTMLButtonElement>) => {
         setIsMapLoading(true)
@@ -37,37 +50,36 @@ export default function SedeManage(): ReactElement {
         setSalas(undefined)
         setGateways(undefined)
         setSelectedSala(undefined)
-        axios.post(`${import.meta.env.VITE_API_URL}/sala/sede`, {
+        axios.post(`${SALAS_ENDPOINT}/sede`, {
             id: e.target.value
-        }, {
-            headers: {
-                Authorization: `Bearer ${state.user?.token}`
-            }
-        }).then( (res: AxiosResponse) => setSalas(res.data) )
+        }, CONFIG).then( (res: AxiosResponse<sala[]>) => setSalas(res.data) )
         setIsSedeSelected(true)
         if(sedes) setSelectedSede( sedes.filter( (s: sede) => s.id === Number(e.target.value) )[0] )
         timeOut( () => setIsMapLoading(false), 1500 )
     }
 
+    const handleFloorSelection = function(e: ChangeEvent<HTMLSelectElement>){
+        setSelectedFloor(Number(e.target.value))
+    }
+
+
+    const LoadIndoorMap = function(){
+        setIsMapLoading(true)
+        const loadingTimeOut = setTimeout( () => setIsMapLoading(false), 800 )
+        return () => clearTimeout(loadingTimeOut)
+    }
+
     useEffect( () => {
         if(!sedes){
-            axios.get(`${import.meta.env.VITE_API_URL}/sedes`, {
-                headers: {
-                    Authorization: `Bearer ${state.user?.token}`
-                }
-            }).then( (res: AxiosResponse) => {setSedes(res.data); setSelectedSede(res.data[0])} )
+            axios.get(`${SEDES_ENDPOINT}`, CONFIG).then( (res: AxiosResponse<sede[]>) => {setSedes(res.data); setSelectedSede(res.data[0])} )
         }
         if(salas && salas[0]){
             setGwDataLoading(true)
             const gatwayRequest: gateway[] = []
             for(const sala of salas){
-                axios.post(`${import.meta.env.VITE_API_URL}/gateway/findOne`, {
+                axios.post(`${GATEWAYS_ENDPOINT}/findOne`, {
                     id: sala.id_gateway
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${state.user?.token}`
-                    }
-                }).then( (response: AxiosResponse<gateway>) => {
+                }, CONFIG).then( (response: AxiosResponse<gateway>) => {
                     if(response.data){
                         gatwayRequest.push(response.data)
                     }
@@ -105,16 +117,39 @@ export default function SedeManage(): ReactElement {
                         {selectedSede && isSedeSelected ? 
                             <div className="flex">
                                 <Map24Regular/>
-                                { !isMapLoading && !selectedSala ? <div className="flex h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md">
-                                    <Mapa dataSede={selectedSede}/>
-                                </div> : !isMapLoading && selectedSala ?
+                                { !isMapLoading && !selectedSala ? <div className="flex flex-col items-center h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md">
+                                    {
+                                        selectedSede.indoorMap &&
+                                        <div className="flex flex-row justify-evenly p-[10px] ">
+                                            <Button color="danger" size="sm" variant="flat" onClick={ () => {
+                                                LoadIndoorMap()
+                                                setVerMapaIndoor(!verMapaIndoor)
+                                            } }>
+                                                Ver mapa indoor
+                                            </Button>
+                                            {
+                                                verMapaIndoor &&
+                                                <Select label="Piso" variant="bordered" size="sm" color="danger" placeholder="Seleccionar piso" defaultSelectedKeys="0" onChange={handleFloorSelection} >
+                                                    {
+                                                        selectedSede.indoorMap.pisos.map( (floor ,index) => (
+                                                            <SelectItem key={index.toString()} value={index.toString()} className={`${floor}__`} >
+                                                                Piso {index+1}
+                                                            </SelectItem>
+                                                        ) )
+                                                    }
+                                                </Select>
+                                            }
+                                        </div>
+                                    }
+                                    <Mapa dataSede={selectedSede} showIndoor={verMapaIndoor} floor={selectedFloor}/>
+                                </div> : !isMapLoading && selectedSala && !verMapaIndoor ?
                                 <div className="flex h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md ">
                                     <Mapa dataSede={selectedSede} sala={selectedSala}/>
                                 </div> : isMapLoading  && <Spinner size="lg" color="danger"/> }
                             </div> : null}
-                            <div className="flex flex-col h-fit w-[200px] ">
+                            <div className="flex flex-col h-fit w-fit ">
                                 {
-                                    salas ? 
+                                    salas && selectedSede && !verMapaIndoor ? 
                                     <>
                                         <div className=" flex max-h-[400px] min-h-[200px] w-full p-[10px] border-double border-2 border-red-300 rounded-lg " >
                                             <ScrollShadow>
@@ -130,9 +165,9 @@ export default function SedeManage(): ReactElement {
                                                             isCompact
                                                             startContent={ <ConferenceRoom24Regular/> }
                                                             title={ `Sala ${sala.numero}` }
-                                                            className="shadow-lg border-2 border-solid border-red-200 rounded-md p-[10px] max-h-[400px] overflow-y-scroll mb-[10px] ">
+                                                            className="shadow-lg border-1 border-solid border-red-200 rounded-md p-[10px] h-fit w-fit mb-[10px] ">
                                                                 { gateways && gateways[0] && !gwDataLoading ?
-                                                                    `Gateway: ${gateways.filter( gw => gw.id === sala.id_gateway )[0].mac}`
+                                                                    `Gateway: ${gateways.filter( gw => gw.id === sala.id_gateway && gw.mac )[0].mac}`
                                                                 : gwDataLoading ?
                                                                 <Spinner size="sm" color="danger" label="Cargando datos..." labelColor="warning"/> : gateways && !gateways[0] ?
                                                                 "Sin gateway asignado..." : null }
