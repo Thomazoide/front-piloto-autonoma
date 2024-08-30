@@ -50,7 +50,7 @@ export default function Landing(): ReactElement{
             </div>
             <div className="w-full p-[15px]">
                 <div className="flex justify-center text-center">
-                    <h3 className="text-4xl w-fit h-fit font-bold text-gray-800 bg-white bg-opacity-50 p-4 rounded-md transform hover:-translate-y-1 transition duration-300 sombra-texto"  >Sistema de ingreso docentes/guardias</h3>
+                    <h3 className="text-4xl w-fit h-fit font-bold text-ua-gray bg-white bg-opacity-50 p-4 rounded-md transform hover:-translate-y-1 transition duration-300 sombra-texto heavitas-text"  >Sistema de ingreso docentes/guardias</h3>
                 </div>
             </div>
             <div className="flex justify-center">
