@@ -228,7 +228,7 @@ export default function NewDashboard(): ReactElement{
                     <GeoJSON data={selectedSede.m2} style={{color: "red"}}/>
                     {
                         workers.map( (w) => w.ubicacion && (
-                            <ReactLeafletDriftMarker duration={500} key={w.ubicacion.locations[0].coords.latitude.toString()} position={[w.ubicacion.locations[0].coords.latitude, w.ubicacion.locations[0].coords.longitude]} icon={workerIcon} >
+                            <ReactLeafletDriftMarker duration={1500} key={w.ubicacion.locations[0].coords.latitude.toString()} position={[w.ubicacion.locations[0].coords.latitude, w.ubicacion.locations[0].coords.longitude]} icon={workerIcon} >
                                 <Popup closeButton>
                                     <strong> {w.nombre} </strong>
                                 </Popup>

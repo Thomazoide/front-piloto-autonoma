@@ -69,8 +69,7 @@ export default function ManageUsers(): ReactElement{
     return (
         <div className="flex flex-wrap gap-4 justify-center" >
             <div className="flex flex-col items-center w-[300px] max-h-[500px] border-double border-red-300 border-2 rounded-lg shadow-lg">
-                <h4 className="sombra-texto m-[10px] float-top ">Usuarios</h4>
-                <div>
+                <div className=" mt-[10px] " >
                     <Input type="text" color="danger" variant="bordered" size="sm" startContent={ <PersonSearch20Regular/> } label="Filtrar" placeholder="Nombre | Email | Nombre de usuario" onValueChange={handleFilter} isClearable onClear={ () => setUsuariosFiltrados(usuarios) }/>
                 </div>
                 {

@@ -10,3 +10,12 @@
 .sombra-texto{
     text-shadow: 2px 2px 4px #565353;
 }
+
+@font-face {
+    font-family: "heavitas";
+    src: url("./../fonts/Heavitas.ttf");
+}
+
+.heavitas-text {
+    font-family: "heavitas";
+}
