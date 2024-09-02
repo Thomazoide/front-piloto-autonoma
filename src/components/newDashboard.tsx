@@ -93,14 +93,14 @@ export default function NewDashboard(): ReactElement{
 
     const iconoSala = icon({
         iconUrl: "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/opened-door-aperture.png",
-        iconSize: [32, 32],
+        iconSize: [16, 16],
         iconAnchor: [16, 32],
         popupAnchor: [0, -34]
     })
 
     const workerIcon = icon({
         iconUrl: workerType === "guardia" ? 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/PeopleIcons-16-1024.webp' : 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg',
-        iconSize: [32, 32],
+        iconSize: [18, 18],
         iconAnchor: [16, 32],
         popupAnchor: [0, -34]
     })
@@ -228,7 +228,7 @@ export default function NewDashboard(): ReactElement{
                     <GeoJSON data={selectedSede.m2} style={{color: "red"}}/>
                     {
                         workers.map( (w) => w.ubicacion && (
-                            <ReactLeafletDriftMarker duration={1500} key={w.ubicacion.locations[0].coords.latitude.toString()} position={[w.ubicacion.locations[0].coords.latitude, w.ubicacion.locations[0].coords.longitude]} icon={workerIcon} >
+                            <ReactLeafletDriftMarker duration={1500} position={[w.ubicacion.locations[0].coords.latitude, w.ubicacion.locations[0].coords.longitude]} icon={workerIcon} >
                                 <Popup closeButton>
                                     <strong> {w.nombre} </strong>
                                 </Popup>

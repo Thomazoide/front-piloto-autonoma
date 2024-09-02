@@ -3,7 +3,7 @@ import { MapContainer, GeoJSON, TileLayer, Marker, Popup, ImageOverlay } from "r
 import 'leaflet/dist/leaflet.css'
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
-import { icon, LatLngBounds, LatLngExpression } from 'leaflet'
+import { geoJson, icon, LatLngBounds, LatLngExpression } from 'leaflet'
 import { worker } from "@/types/worker"
 import ReactLeafletDriftMarker from 'react-leaflet-drift-marker';
 interface PropsMapa {
@@ -27,8 +27,8 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
 
     const miIcono = icon({
         iconUrl: props.tipo === "guardia" ? 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/PeopleIcons-16-1024.webp' : 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
+        iconSize: [12, 12],
+        iconAnchor: [8, 16],
         popupAnchor: [0, -34]
     })
     useEffect( () => {
@@ -41,7 +41,7 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
         lng: props.dataSede.ubicacion.features[0].geometry.coordinates[0]
     } 
 
-    const bounds = props.dataSede.indoorMap && new LatLngBounds(props.dataSede.indoorMap.bounds[1], props.dataSede.indoorMap.bounds[0])
+    const bounds: LatLngBounds = geoJson(props.dataSede.m2).getBounds()
 
     return(
         <>
@@ -57,6 +57,8 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
                 <ImageOverlay
                 url={`${props.dataSede.indoorMap.pisos[props.floor]}`}
                 bounds={bounds}
+                zIndex={1000}
+                interactive={false}
                 />
             }
             {sSala ?
@@ -71,7 +73,7 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
             : null}
             {
                 props.entidad && props.entidad.ubicacion ?
-                <ReactLeafletDriftMarker duration={500} key={props.entidad.ubicacion.locations[0].coords.latitude.toString()} position={[props.entidad.ubicacion.locations[0].coords.latitude, props.entidad.ubicacion.locations[0].coords.longitude]} icon={miIcono}/>
+                <ReactLeafletDriftMarker duration={500} position={[props.entidad.ubicacion.locations[0].coords.latitude, props.entidad.ubicacion.locations[0].coords.longitude]} icon={miIcono}/>
                 : null
             }
         </MapContainer> 
