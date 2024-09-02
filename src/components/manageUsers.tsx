@@ -2,7 +2,7 @@ import { useAuthContext } from "@/hooks/useLoginContext";
 import { MouseEvent, ReactElement, useEffect, useState } from "react";
 import { user } from "@/types/user"
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { Button, Input, ScrollShadow } from "@nextui-org/react";
+import { Button, Input, ScrollShadow, Spinner } from "@nextui-org/react";
 import { Delete24Regular, PersonEdit24Regular, PersonSearch20Regular } from "@fluentui/react-icons";
 import { Divider } from "@fluentui/react-components";
 import { CloseButton } from "react-bootstrap";
@@ -18,7 +18,10 @@ export default function ManageUsers(): ReactElement{
     const [selectedUser, setSelectedUser] = useState<user>()
     const [editarUsuario, setEditarUsuario] = useState<boolean>(false)
     const [crearUsuario, setCrearUsuario] = useState<boolean>(false)
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [showDeleteQuestion, setShowDeleteQuestion] = useState<boolean>(false)
+    const [errorDelete, setErrorDelete] = useState<Error>()
+    const [isDeleting, setIsDeleting] = useState<boolean>(false)
+    const [successDelete, setSuccessDelete] = useState<boolean>(false)
 
     const {state} = useAuthContext()
     const config: AxiosRequestConfig = {
@@ -26,6 +29,8 @@ export default function ManageUsers(): ReactElement{
             Authorization: `Bearer ${state.user?.token}`
         }
     }
+
+    const DELETE_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/user`
 
     const handleUserSelection = function(e: MouseEvent<HTMLButtonElement>){
         const usuario: user = JSON.parse(e.currentTarget.value)
@@ -39,22 +44,66 @@ export default function ManageUsers(): ReactElement{
         setUsuariosFiltrados(filtro)
     }
 
-    const handleDelete = function(){
-        setIsLoading(true)
-        axios.delete(`${import.meta.env.VITE_API_URL}/user/delete`, {
-            data: selectedUser,
-            headers: {
-                Authorization: `Bearer ${state.user?.token}`
-            }
-        }).then( (res: AxiosResponse) => {
-            console.log(res)
-            setSelectedUser(undefined)
-            setIsLoading(false)
-            setUsuarios(undefined)
-        } ).catch( (err: Error) => {
-            console.log(err)
-            setIsLoading(false)
+    const deleteUser = function(){
+        setIsDeleting(true)
+        axios.delete(DELETE_ENDPOINT, {
+            ...config,
+            data: selectedUser
+        }).then( () => {
+            setSuccessDelete(true)
+            setErrorDelete(undefined)
+        } ).catch( (e: Error) => {
+            setSuccessDelete(false)
+            setErrorDelete(e)
+        } ).finally( () => {
+            setIsDeleting(false)
         } )
+        
+    }
+
+    const QuestionFrame = function(): ReactElement{
+        return(
+            <div className="m-[15px] p-[15px] w-fit h-fit bg-red-500 gap-1 border-solid border-1 border-yellow-300 text-center flex items-center align-center flex-col rounded-xl " >
+                <div className="flex w-full h-fit justify-end ">
+                    <CloseButton onClick={ () => window.location.reload() } />
+                </div>
+                <div className="w-full h-fit">
+                    <p className="text-neutral-50">
+                        ¿Seguro que desea eliminar este usuario?
+                    </p>
+                </div>
+                <div className="w-full h-fit flex flex-row justify-between" >
+                    <Button color="secondary" variant="solid" size="sm" onClick={ () => setShowDeleteQuestion(false) } isLoading={isDeleting} isDisabled={successDelete} >
+                        Cancelar
+                    </Button>
+                    <Button color="warning" variant="solid" size="sm" onClick={deleteUser} isLoading={isDeleting} isDisabled={successDelete} >
+                        Eliminar
+                    </Button>
+                </div>
+                {
+                    isDeleting &&
+                    <div className="w-fit h-fit flex justify-center">
+                        <Spinner color="danger" size="sm" label="Eliminando..."/>
+                    </div>
+                }
+                {
+                    errorDelete &&
+                    <div className="flex justify-center text-center w-fit h-fit">
+                        <p className="text-neutral-50">
+                            {errorDelete.message}
+                        </p>
+                    </div>
+                }
+                {
+                    successDelete &&
+                    <div className="flex justify-center text-cente w-fit h-fit">
+                        <strong className="text-neutral-50">
+                            Usuario eliminado...
+                        </strong>
+                    </div>
+                }
+            </div>
+        )
     }
 
     useEffect( () => {
@@ -95,7 +144,7 @@ export default function ManageUsers(): ReactElement{
                         <Button isIconOnly color="danger" variant="flat" size="sm" onClick={ () => setEditarUsuario(!editarUsuario) } >
                             <PersonEdit24Regular/>
                         </Button>
-                        <Button isIconOnly isLoading={isLoading} color="danger" variant="flat" size="sm" onClick={handleDelete} >
+                        <Button isIconOnly color="danger" variant="flat" size="sm" onClick={ () => setShowDeleteQuestion(!showDeleteQuestion) } >
                             <Delete24Regular/>
                         </Button>
                         <Button isIconOnly color="danger" variant="flat" size="sm" onClick={() => setSelectedUser(undefined)} >
@@ -104,6 +153,10 @@ export default function ManageUsers(): ReactElement{
                     </div>
                     <Divider/>
                     <div className="flex flex-col w-full items-center">
+                        {
+                            showDeleteQuestion &&
+                            <QuestionFrame/>
+                        }
                         <h4>
                             {
                                 selectedUser.nombre

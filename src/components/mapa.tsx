@@ -37,31 +37,11 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
         }
     }, [props] )
     const ubicacion: LatLngExpression = {
-        //@ts-ignore
         lat: props.dataSede.ubicacion.features[0].geometry.coordinates[1],
-        //@ts-ignore
         lng: props.dataSede.ubicacion.features[0].geometry.coordinates[0]
     } 
 
-    if(props.showIndoor && props.dataSede.indoorMap && props.floor){
-        return(
-            <MapContainer
-            center={ ubicacion }
-            zoom={ 20 }
-            style={{
-                height: "100%",
-                width: "100%"
-            }}
-            key={ ubicacion.lat.toString() }
-            >
-                <ImageOverlay
-                url={props.dataSede.indoorMap.pisos[props.floor]}
-                //@ts-ignore
-                bounds={new LatLngBounds(props.dataSede.m2.features[0].geometry.coordinates[0])}
-                ></ImageOverlay>
-            </MapContainer>
-        )
-    }
+    const bounds = props.dataSede.indoorMap && new LatLngBounds(props.dataSede.indoorMap.bounds[1], props.dataSede.indoorMap.bounds[0])
 
     return(
         <>
@@ -72,6 +52,13 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Open StreetMap</a> contributors' />
             <GeoJSON data={props.dataSede.m2} style={{color: 'red'}}/>
+            {
+                props.dataSede.indoorMap && props.showIndoor && props.floor && bounds && 
+                <ImageOverlay
+                url={`${props.dataSede.indoorMap.pisos[props.floor]}`}
+                bounds={bounds}
+                />
+            }
             {sSala ?
                 sSala.ubicacion.features.map( (f) => (
                     //@ts-ignore

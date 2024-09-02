@@ -60,6 +60,7 @@ export default function SedeManage(): ReactElement {
 
     const handleFloorSelection = function(e: ChangeEvent<HTMLSelectElement>){
         setSelectedFloor(Number(e.target.value))
+        console.log(selectedSede?.m2.features[0].geometry.coordinates[0])
     }
 
 
@@ -120,20 +121,20 @@ export default function SedeManage(): ReactElement {
                                 { !isMapLoading && !selectedSala ? <div className="flex flex-col items-center h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md">
                                     {
                                         selectedSede.indoorMap &&
-                                        <div className="flex flex-row justify-evenly p-[10px] ">
+                                        <div className="flex flex-col gap-2 items-center justify-evenly p-[10px] w-full">
                                             <Button color="danger" size="sm" variant="flat" onClick={ () => {
                                                 LoadIndoorMap()
                                                 setVerMapaIndoor(!verMapaIndoor)
                                             } }>
-                                                Ver mapa indoor
+                                                {!verMapaIndoor ? "Ver mapa indoor" : "Ver mapa satelital"}
                                             </Button>
                                             {
                                                 verMapaIndoor &&
-                                                <Select label="Piso" variant="bordered" size="sm" color="danger" placeholder="Seleccionar piso" defaultSelectedKeys="0" onChange={handleFloorSelection} >
+                                                <Select label="Piso" variant="bordered" size="sm" color="danger" placeholder="Seleccionar piso" defaultSelectedKeys="0" onChange={handleFloorSelection} className="w-[90%]" >
                                                     {
                                                         selectedSede.indoorMap.pisos.map( (floor ,index) => (
-                                                            <SelectItem key={index.toString()} value={index.toString()} className={`${floor}__`} >
-                                                                Piso {index+1}
+                                                            <SelectItem key={index} value={floor} className="w-full" >
+                                                                {`Piso ${index+1}`}
                                                             </SelectItem>
                                                         ) )
                                                     }
