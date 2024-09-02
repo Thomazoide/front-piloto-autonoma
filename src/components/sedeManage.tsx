@@ -22,7 +22,7 @@ export default function SedeManage(): ReactElement {
     const [isMapLoading, setIsMapLoading] = useState<boolean>(false)
     const [selectedSala, setSelectedSala] = useState<sala>()
     const [verSalaForm, setVerSalaForm] = useState<boolean>(false)
-    const [selectedFloor, setSelectedFloor] = useState<number>()
+    const [selectedFloor, setSelectedFloor] = useState<number>(0)
     const [verMapaIndoor, setVerMapaIndoor] = useState<boolean>(false)
     const { state } = useAuthContext()
 
