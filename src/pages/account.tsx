@@ -6,7 +6,7 @@ export default function Account(): ReactElement{
     return(
         <DefaultLayout llave="5">
             <div className="flex w-full justify-center ">
-                <h1 className="text-red-500 sombra-texto heavitas-text p-[15px] rounded-lg border-2 border-solid border-red-500">Mi cuenta</h1>
+                <h1 className="text-red-500 sombra-texto heavitas-text p-[15px] underline">Mi cuenta</h1>
             </div>
             <section className="flex justify-center items-center gap-4 my-3">
                 <MyAccount/>

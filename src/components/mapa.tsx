@@ -1,9 +1,9 @@
 import { ReactElement, useState, useEffect } from "react"
-import { MapContainer, GeoJSON, TileLayer, Marker, Popup } from "react-leaflet"
+import { MapContainer, GeoJSON, TileLayer, Marker, Popup, ImageOverlay } from "react-leaflet"
 import 'leaflet/dist/leaflet.css'
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
-import { icon, LatLngExpression } from 'leaflet'
+import { icon, LatLngBounds, LatLngExpression } from 'leaflet'
 import { worker } from "@/types/worker"
 import ReactLeafletDriftMarker from 'react-leaflet-drift-marker';
 interface PropsMapa {
@@ -11,6 +11,8 @@ interface PropsMapa {
     dataSede: sede
     sala?: sala
     entidad?: worker
+    showIndoor?: boolean
+    floor?: number
 }
 
 export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
@@ -35,19 +37,28 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
         }
     }, [props] )
     const ubicacion: LatLngExpression = {
-        //@ts-ignore
         lat: props.dataSede.ubicacion.features[0].geometry.coordinates[1],
-        //@ts-ignore
         lng: props.dataSede.ubicacion.features[0].geometry.coordinates[0]
     } 
+
+    const bounds = props.dataSede.indoorMap && new LatLngBounds(props.dataSede.indoorMap.bounds[1], props.dataSede.indoorMap.bounds[0])
+
     return(
         <>
         { props.dataSede ? 
+        //@ts-ignore
         <MapContainer center={ubicacion} zoom={20} style={{height: '100%', width: '100%'}} key={ubicacion.lat.toString()} >
             <TileLayer 
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Open StreetMap</a> contributors' />
             <GeoJSON data={props.dataSede.m2} style={{color: 'red'}}/>
+            {
+                props.dataSede.indoorMap && props.showIndoor && props.floor && bounds && 
+                <ImageOverlay
+                url={`${props.dataSede.indoorMap.pisos[props.floor]}`}
+                bounds={bounds}
+                />
+            }
             {sSala ?
                 sSala.ubicacion.features.map( (f) => (
                     //@ts-ignore
