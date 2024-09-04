@@ -19,3 +19,5 @@ El sistema cuenta con gateways que van en cada sala y con beacons, que son como 
 4. BLE - beacons/gateways MineW
 5. NextUI, TailwindCSS
 6. Axios
+
+[E-Connection](https://econnection.cl/)
