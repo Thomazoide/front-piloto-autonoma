@@ -158,7 +158,7 @@ export default function NewDashboard(): ReactElement{
                                                     </strong>
                                                     <br/>
                                                     <small>
-                                                    Ultimo ubicación detectada: {moment(new Date(w.ubicacion.locations[0].timestamp)).format("DD-MM-YYYY HH:mm:ss")}
+                                                    Última ubicación detectada: {moment(new Date(w.ubicacion.locations[0].timestamp)).format("DD-MM-YYYY HH:mm:ss")}
                                                     </small>
                                                 </p>
                                                     <Button size="sm" color="danger" variant="faded" value={w.ubicacion && `${w.ubicacion.locations[0].coords.latitude}_${w.ubicacion.locations[0].coords.longitude}`} onClick={changeCenter} >

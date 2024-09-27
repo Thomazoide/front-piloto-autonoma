@@ -15,9 +15,9 @@ El sistema cuenta con gateways que van en cada sala y con beacons, que son como 
 
 1. Vite - ReactTs
 2. AWS - EC2, RDS, S3, APIGateway
-3. NestJS
-4. BLE - beacons/gateways MineW
-5. NextUI, TailwindCSS
-6. Axios
+3. BLE - beacons/gateways MineW
+4. NextUI, TailwindCSS
+5. Axios
+6. React-Leaflet
 
 [E-Connection](https://econnection.cl/)
