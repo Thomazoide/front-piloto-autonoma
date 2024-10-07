@@ -160,6 +160,8 @@ export interface MonthAndAttendanceChartData{
 
 export const MONTHS: string[] = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
 
+export const MONTHS_NAMES: string[] = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
 export async function SortAttendanceData(sede: sede, token: string, month?: number): Promise<MonthAndAttendanceChartData>{
     const INGRESOS_SEDE_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/ingreso/sede`
     const CONFIG: AxiosRequestConfig<sede> = {

@@ -4,7 +4,7 @@ import { sala } from '@/types/sala'
 import { sede } from '@/types/sede'
 import { useEffect, useState, ReactElement } from 'react'
 import { BarChart, Bar, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Rectangle, Legend, Tooltip } from 'recharts'
-import { MonthAndAttendanceChartData, SortAttendanceData, MONTHS } from '@/components/utils/function_lib'
+import { MonthAndAttendanceChartData, SortAttendanceData, MONTHS, MONTHS_NAMES } from '@/components/utils/function_lib'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Spinner, Dropdown, DropdownMenu, DropdownItem } from '@nextui-org/react'
 import "@/styles/charts.css"
@@ -94,20 +94,48 @@ export default function Dashboard(): ReactElement{
             }
             {
                 ingresosSorted &&
-                <div className="flex justify-center m-[15px] min-h-[200px] min-w-[800px] ">
-                    <ResponsiveContainer width={"100%"} height={"100%"} >
-                        <BarChart
-                        data={ingresosSorted}>
-                            <CartesianGrid strokeDasharray={"3 3"}/>
-                            <Legend/>
-                            <Tooltip/>
-                            <XAxis dataKey={"sede"} />
-                            <YAxis />
-                            <Bar dataKey={"attendances"} fill='#8884d8' activeBar={
-                                <Rectangle fill="gold" stroke="purple"/>
-                            }/>
-                        </BarChart>
-                    </ResponsiveContainer>
+                <div className="flex flex-col gap-3 items center">
+                    <div className="flex flex-row justify-between p-[15px] bg-ua-gray bg-opacity-25 w-full h-fit rounded-xl shadow-xl  ">
+                        <div className="flex justify-center text-center ">
+                            <p>
+                                <strong>
+                                    Asistencia de personal
+                                </strong>
+                                <br/>
+                            </p>
+                            {
+                                ingresosSorted.map( (i, index) => (
+                                    <p key={index+1}>
+                                        <strong>
+                                            {i.sede}
+                                        </strong>
+                                        <br/>
+                                        Numero de trabajadores con asistencia: {i.numberOfWorkers}
+                                    </p>
+                                ) )
+                            }
+                        </div>
+                        <div className="flex justify-center items-center w-fit text-center">
+                            <h1 className="italic font-semibold" >
+                                Asistencia de sedes en el mes de {MONTHS_NAMES[selectedMonth]}
+                            </h1>
+                        </div>
+                    </div>
+                    <div className="flex justify-center m-[15px] min-h-[200px] min-w-[800px] ">
+                        <ResponsiveContainer width={"100%"} height={"100%"} >
+                            <BarChart
+                            data={ingresosSorted}>
+                                <CartesianGrid strokeDasharray={"3 3"}/>
+                                <Legend/>
+                                <Tooltip/>
+                                <XAxis dataKey={"sede"} />
+                                <YAxis />
+                                <Bar dataKey={"attendances"} fill='#8884d8' activeBar={
+                                    <Rectangle fill="gold" stroke="purple"/>
+                                }/>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
             }
         </div>
