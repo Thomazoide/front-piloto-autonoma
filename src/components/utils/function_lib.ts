@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { worker } from "@/types/worker";
 import { beacon } from '@/types/beacon';
 import { ingreso } from '@/types/ingreso';
@@ -149,4 +149,84 @@ export async function getSedesBySalas(listaSalas: sala[], token: string): Promis
 
 export function getSedeNameBySala(listaSedes: sede[], salaIngreso?: sala): string | undefined{
     return listaSedes.find( (s: sede) => s.id === salaIngreso?.id_sede )?.nombre
+}
+
+export interface MonthAndAttendanceChartData{
+    sede: string
+    month: string,
+    attendances: number,
+    numberOfWorkers: number
+}
+
+export const MONTHS: string[] = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+
+export async function SortAttendanceData(sede: sede, token: string, month?: number): Promise<MonthAndAttendanceChartData>{
+    const INGRESOS_SEDE_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/ingreso/sede`
+    const CONFIG: AxiosRequestConfig<sede> = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    }
+    const response: AxiosResponse<ingreso[]> = await axios.post(INGRESOS_SEDE_ENDPOINT, sede, CONFIG)
+    const monthValue: number = month ? month : new Date().getMonth()
+    const ingresosOfMonth: ingreso[] = []
+    for(let ingreso of response.data){
+        if(new Date(ingreso.hora).getMonth() === monthValue){
+            ingresosOfMonth.push(ingreso)
+        }
+    }
+    const workersCount: number[] = Array.from(new Set(ingresosOfMonth.map( (i) => i.id_beacon )))
+    return {
+        sede: sede.nombre,
+        month: MONTHS[monthValue],
+        attendances: ingresosOfMonth.length,
+        numberOfWorkers: workersCount.length
+    }
+}
+
+function sortIngresosBySedeAndMonth(sede: sede, salas: sala[], ingresos: ingreso[], month: number): ingreso[]{
+    const salasDeSede: sala[] = salas.filter( (s) => s.id_sede === sede.id )
+    const ingresosDeSede: ingreso[] = []
+    for(let sala of salasDeSede){
+        if(!sala){
+            break
+        }
+        const ingresoDeSede: ingreso | undefined = ingresos.find( (i) => i.id_gateway === sala.id_gateway )
+        if(ingresoDeSede){
+            ingresosDeSede.push(ingresoDeSede)
+        }
+    }
+    const ingresosByMonth: ingreso[] = []
+    for(let ingreso of ingresosDeSede){
+        console.log(`fecha timestamp: ${ingreso.hora}\nfecha new Date(): ${new Date(ingreso.hora)}`)
+        console.log(new Date(ingreso.hora).getMonth())
+        if(new Date(ingreso.hora).getMonth() === month){
+            ingresosByMonth.push(ingreso)
+        }
+    }
+    return ingresosByMonth
+}
+
+function getNumberOfWorkersByIngresos(listaIngresos: ingreso[]): number[]{
+    return Array.from(new Set<number>(listaIngresos.map( (i) => i.id_beacon )))
+}
+
+export function sortDataForDashboard(listaSedes: sede[], listaSalas: sala[], listaIngresos: ingreso[], monthsToSee: number): MonthAndAttendanceChartData[]{
+    const data: MonthAndAttendanceChartData[] = []
+    const actualMonth: number = new Date().getMonth()
+    console.log(actualMonth)
+    const months: string[] = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+    for(const sede of listaSedes){
+        for(let index = actualMonth - monthsToSee ; index <= actualMonth ; index++){
+            const temp: MonthAndAttendanceChartData = {
+                sede: sede.nombre,
+                month: months[index],
+                attendances: sortIngresosBySedeAndMonth(sede, listaSalas, listaIngresos, index).length,
+                numberOfWorkers: getNumberOfWorkersByIngresos(sortIngresosBySedeAndMonth(sede, listaSalas, listaIngresos, index)).length
+            }
+            data.push(temp)
+        }
+    }
+    console.log(data)
+    return data
 }

@@ -1,5 +1,5 @@
 import DefaultLayout from "@/layouts/default";
-import NewDashboard from "@/components/newDashboard";
+import Dashboard from "@/components/charts/dashboardCharts";
 
 export default function IndexPage() {
   
@@ -10,7 +10,7 @@ export default function IndexPage() {
         <h1 className="text-red-500 sombra-texto heavitas-text p-[15px] underline">Dashboard</h1>
       </div>
       <section className="flex flex-col items-center justify-center gap-4 py-3">
-        <NewDashboard/>
+        <Dashboard/>
       </section>
     </DefaultLayout>
   );
