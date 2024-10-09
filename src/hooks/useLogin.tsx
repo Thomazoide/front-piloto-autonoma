@@ -28,10 +28,11 @@ export const useLogin = () => {
         if(response.token){
             const payload: User = {
                 token: response.token,
-                page: `/dashboard/${response.token.split('.')[0]}`,
+                page: `/dashboard`,
                 data: jwt.jwtDecode(response.token),
                 mensaje: response.mensaje
             }
+            localStorage.setItem("userData", JSON.stringify(payload))
             setSuccessMessage(response.mensaje)
             console.log(payload)
             dispatch({type: actionTypes.LOGIN, payload: payload})

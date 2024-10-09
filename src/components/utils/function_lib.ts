@@ -186,49 +186,24 @@ export async function SortAttendanceData(sede: sede, token: string, month?: numb
     }
 }
 
-function sortIngresosBySedeAndMonth(sede: sede, salas: sala[], ingresos: ingreso[], month: number): ingreso[]{
-    const salasDeSede: sala[] = salas.filter( (s) => s.id_sede === sede.id )
-    const ingresosDeSede: ingreso[] = []
-    for(let sala of salasDeSede){
-        if(!sala){
-            break
-        }
-        const ingresoDeSede: ingreso | undefined = ingresos.find( (i) => i.id_gateway === sala.id_gateway )
-        if(ingresoDeSede){
-            ingresosDeSede.push(ingresoDeSede)
+export async function GetActiveWorkers(tipo: "guardia" | "docente", token: string): Promise<worker[]>{
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
         }
     }
-    const ingresosByMonth: ingreso[] = []
-    for(let ingreso of ingresosDeSede){
-        console.log(`fecha timestamp: ${ingreso.hora}\nfecha new Date(): ${new Date(ingreso.hora)}`)
-        console.log(new Date(ingreso.hora).getMonth())
-        if(new Date(ingreso.hora).getMonth() === month){
-            ingresosByMonth.push(ingreso)
-        }
-    }
-    return ingresosByMonth
-}
-
-function getNumberOfWorkersByIngresos(listaIngresos: ingreso[]): number[]{
-    return Array.from(new Set<number>(listaIngresos.map( (i) => i.id_beacon )))
-}
-
-export function sortDataForDashboard(listaSedes: sede[], listaSalas: sala[], listaIngresos: ingreso[], monthsToSee: number): MonthAndAttendanceChartData[]{
-    const data: MonthAndAttendanceChartData[] = []
-    const actualMonth: number = new Date().getMonth()
-    console.log(actualMonth)
-    const months: string[] = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
-    for(const sede of listaSedes){
-        for(let index = actualMonth - monthsToSee ; index <= actualMonth ; index++){
-            const temp: MonthAndAttendanceChartData = {
-                sede: sede.nombre,
-                month: months[index],
-                attendances: sortIngresosBySedeAndMonth(sede, listaSalas, listaIngresos, index).length,
-                numberOfWorkers: getNumberOfWorkersByIngresos(sortIngresosBySedeAndMonth(sede, listaSalas, listaIngresos, index)).length
+    const WORKER_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/${tipo}`
+    const ACTUAL_TIME_HOUR_LESS = moment(new Date()).subtract({hours: 1})
+    const ACTUAL_TIME = moment(new Date())
+    const response: AxiosResponse<worker[]> = await axios.get(WORKER_ENDPOINT, CONFIG)
+    const activeWorkers: worker[] = []
+    for(const worker of response.data){
+        if(worker.ubicacion){
+            const workerActiveTime = moment(worker.ubicacion.locations[0].timestamp)
+            if(workerActiveTime.isBetween(ACTUAL_TIME_HOUR_LESS, ACTUAL_TIME, null, "(]")){
+                activeWorkers.push(worker)
             }
-            data.push(temp)
         }
     }
-    console.log(data)
-    return data
+    return activeWorkers
 }
