@@ -3,7 +3,7 @@ import { ingreso } from '@/types/ingreso'
 import { sala } from '@/types/sala'
 import { sede } from '@/types/sede'
 import { useEffect, useState, ReactElement, MouseEvent } from 'react'
-import { BarChart, Bar, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Rectangle, Legend, Tooltip } from 'recharts'
+import { BarChart, Bar, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Rectangle, Legend, Tooltip, TooltipProps } from 'recharts'
 import { MonthAndAttendanceChartData, SortAttendanceData, MONTHS, MONTHS_NAMES, GetActiveWorkers } from '@/components/utils/function_lib'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Dropdown, DropdownMenu, DropdownItem, DropdownTrigger, Button, Spinner } from '@nextui-org/react'
@@ -95,6 +95,40 @@ export default function Dashboard(): ReactElement{
         }
     }
 
+    const NumberOfWorkersTooltip = ({active, payload, label}: TooltipProps<any, any>) => {
+        if(active && payload && payload.length){
+            return(
+                <div className="custom-tooltip flex flex-col p-[15px] border-1 border-solid border-default-900 shadow-md rounded-xl bg-default-300 bg-opacity-75 w-[370px] ">
+                    <h3>
+                        {label}
+                    </h3>
+                    <p className="label">
+                        {`Cantidad de trabajadores: ${payload[0].value}`}
+                    </p>
+                    <p className="desc">
+                        Cantidad de trabajadores que han marcado asistencia con sus beacons en las sedes registradas en la aplicación.
+                    </p>
+                </div>
+            )
+        }
+        return null
+    }
+
+    const NumberOfAttendanceTooltip = ({active, payload, label}: TooltipProps<any, any>) => {
+        if(active && payload && payload.length){
+            return(
+                <div className="custom-tooltip flex flex-col p-[15px] border-1 border-solid border-default-900 shadow-md rounded-xl bg-default-300 bg-opacity-75 w-[370px]">
+                    <h3>
+                        {label}
+                    </h3>
+                    <p>
+                        {`Cantidad de asistencias: ${payload[0].value}`}
+                    </p>
+                </div>
+            )
+        }
+    }
+
     
 
     useEffect( () => {
@@ -111,8 +145,10 @@ export default function Dashboard(): ReactElement{
     }, [sedes, salas, ingresos] )
 
     return(
-        <div className="flex flex-wrap gap-4 justify-center ">
-            { activeDocentes && activeGuardias && <div className="flex flex-col gap-1 items-center w-fit text-center bg-default-200 p-[15px] rounded-xl shadow-xl shadow-danger-300 border-double border-3 border-red-500">
+        <div className="flex flex-col items-center gap-2  ">
+            <div className="flex flex-wrap gap-2 justify-center" >
+            <div className="flex flex-col gap-1 items-center w-fit text-center bg-default-200 p-[15px] rounded-xl shadow-xl shadow-danger-300 border-double border-3 border-red-500">
+                { activeDocentes && activeGuardias &&
                 <div className="flex flex-col gap-1">
                     <div className="flex flex-col gap-1 items-center ">
                         <IconoGuardiaSVG/>
@@ -127,7 +163,8 @@ export default function Dashboard(): ReactElement{
                         </p>
                     </div>
                 </div>
-            </div>}
+                }
+            </div>
             <div className="flex flex-col gap-1 items-center w-fit text-center bg-default-200 p-[15px] rounded-xl shadow-xl shadow-danger-300 border-double border-3 border-red-500">
                 <div className="flex justify-center text-center">
                     <h4>
@@ -164,37 +201,38 @@ export default function Dashboard(): ReactElement{
                     </p>
                 </div>
             </div>
+            </div>
             {
                 ingresosSorted &&
-                <div className="flex flex-col gap-3 items center">
-                    <div className="flex flex-column items-center gap-3 justify-between p-[15px] bg-default-200 w-full h-fit rounded-xl shadow-xl shadow-danger-300 border-double border-3 border-red-500  ">
+                <div className="flex flex-col justify-center gap-3 items-center ">
+                    <div className="flex flex-column lg:w-[800px] w-[375px] min-h-[350px] items-center gap-3 justify-between p-[15px] bg-default-200  rounded-xl shadow-xl shadow-danger-300 border-double border-3 border-red-500  ">
                         <div className="text-center">
-                            <h1 className="italic font-semibold max-w-[800px]" >
+                            <h3 className="italic font-semibold max-w-[800px]" >
                                 Numero de trabajadores con asistencia por sede
-                            </h1>
+                            </h3>
                             <p className="italic">
                                 <small>
                                     Mes seleccionado: {MONTHS_NAMES[selectedMonth]}
                                 </small>
                             </p>
                         </div>
-                        { !isLoading ? <div className="flex justify-center min-h-[200px] min-w-[800px]  ">
-                            <ResponsiveContainer width={"100%"} height={"100%"}>
+                        { !isLoading ? <div className="flex justify-start  ">
+                            <ResponsiveContainer minWidth={ window.innerWidth < 1024 ? 375 : 750} minHeight={300}>
                                 <BarChart
                                 data={ingresosSorted}>
                                     <CartesianGrid strokeDasharray={"3 3"}/>
-                                    <Legend />
-                                    <Tooltip/>
+                                    <Legend x={"Cantidad de trabajadores"} />
+                                    <Tooltip content={<NumberOfWorkersTooltip/>} />
                                     <XAxis dataKey={"sede"}/>
                                     <YAxis/>
-                                    <Bar dataKey={"numberOfWorkers"} fill="#8884d8" activeBar={
-                                        <Rectangle fill="gold" stroke="purple"/>
+                                    <Bar dataKey={"numberOfWorkers"} fill="red" activeBar={
+                                        <Rectangle fill="gray" stroke="purple"/>
                                     }/>
                                 </BarChart>
                             </ResponsiveContainer>
                         </div> : <Spinner color="danger" size="sm" label='Generando estadísticas...' labelColor='warning'/> }
                     </div>
-                    <div className="flex flex-col items-center gap-3 w-fit h-fit p-[15px] bg-default-200 rounded-xl shadow-xl shadow-danger-300 border-double border-3 border-red-500 ">
+                    <div className="flex flex-col items-center gap-3 lg:w-[800px] w-[375px] min-h-[350px] p-[15px] bg-default-200 rounded-xl shadow-xl shadow-danger-300 border-double border-3 border-red-500 ">
                         <div className="text-center">
                             <h1 className="italic font-semibold" >
                                 Asistencias marcadas por sede
@@ -205,17 +243,18 @@ export default function Dashboard(): ReactElement{
                                 </small>
                             </p>
                         </div>
-                        { !isLoading ? <div className="flex justify-center m-[15px] min-h-[200px] min-w-[800px] ">
-                            <ResponsiveContainer width={"100%"} height={"100%"} >
+                        { !isLoading ? <div className="flex justify-start">
+                            <ResponsiveContainer 
+                            minWidth={ window.innerWidth < 1024 ? 375 : 750 } minHeight={300} >
                                 <BarChart
                                 data={ingresosSorted}>
                                     <CartesianGrid strokeDasharray={"3 3"}/>
                                     <Legend/>
-                                    <Tooltip/>
+                                    <Tooltip content={ <NumberOfAttendanceTooltip/> } />
                                     <XAxis dataKey={"sede"} />
                                     <YAxis />
-                                    <Bar dataKey={"attendances"} fill='#8884d8' activeBar={
-                                        <Rectangle fill="gold" stroke="purple"/>
+                                    <Bar dataKey={"attendances"} fill='red' activeBar={
+                                        <Rectangle fill="gray" stroke="purple"/>
                                     }/>
                                 </BarChart>
                             </ResponsiveContainer>
