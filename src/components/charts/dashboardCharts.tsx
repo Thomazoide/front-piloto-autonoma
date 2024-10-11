@@ -2,21 +2,23 @@ import { useAuthContext } from '@/hooks/useLoginContext'
 import { ingreso } from '@/types/ingreso'
 import { sala } from '@/types/sala'
 import { sede } from '@/types/sede'
-import { useEffect, useState, ReactElement, MouseEvent } from 'react'
+import { useEffect, useState, ReactElement, MouseEvent, ChangeEvent } from 'react'
 import { BarChart, Bar, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Rectangle, Legend, Tooltip, TooltipProps } from 'recharts'
 import { MonthAndAttendanceChartData, SortAttendanceData, MONTHS, MONTHS_NAMES, GetActiveWorkers } from '@/components/utils/function_lib'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { Dropdown, DropdownMenu, DropdownItem, DropdownTrigger, Button, Spinner } from '@nextui-org/react'
+import { Dropdown, DropdownMenu, DropdownItem, DropdownTrigger, Button, Spinner, Select, SelectItem } from '@nextui-org/react'
 import "@/styles/charts.css"
 import { ArrowDown16Regular, Calendar16Regular } from '@fluentui/react-icons'
 import { worker } from '@/types/worker'
 import IconoGuardiaSVG from '../svgComponents/IconoGuardiaSVG'
 import IconoDocentes from '../svgComponents/IconoDocentes'
+import DataChart from './dataChart'
 
 export default function Dashboard(): ReactElement{
     const {state} = useAuthContext()
     const [sedes, setSedes] = useState<sede[]>()
     const [salas, setSalas] = useState<sala[]>()
+    const [selectedSede, setSelectedSede] = useState<string>()
     const [ingresos, setIngresos] = useState<ingreso[]>()
     const [activeGuardias, setActiveGuardias] = useState<worker[]>()
     const [activeDocentes, setActiveDocentes] = useState<worker[]>()
@@ -42,6 +44,7 @@ export default function Dashboard(): ReactElement{
             const salasResponse: AxiosResponse<sala[]> = await axios.get(SALAS_ENDPOINT, CONFIG)
             setSedes(sedesResponse.data)
             setSalas(salasResponse.data)
+            setSelectedSede(JSON.stringify(sedesResponse.data[0]))
         }catch(err: any){
             console.log(err)
         }finally{
@@ -127,6 +130,10 @@ export default function Dashboard(): ReactElement{
                 </div>
             )
         }
+    }
+
+    const handleSedeSelection = (e: ChangeEvent<HTMLSelectElement>) => {
+        setSelectedSede(e.target.value)
     }
 
     
@@ -221,11 +228,11 @@ export default function Dashboard(): ReactElement{
                                 <BarChart
                                 data={ingresosSorted}>
                                     <CartesianGrid strokeDasharray={"3 3"}/>
-                                    <Legend x={"Cantidad de trabajadores"} />
+                                    <Legend/>
                                     <Tooltip content={<NumberOfWorkersTooltip/>} />
                                     <XAxis dataKey={"sede"}/>
                                     <YAxis/>
-                                    <Bar dataKey={"numberOfWorkers"} fill="red" activeBar={
+                                    <Bar name="Cantidad de trabajadores con asistencia marcada" dataKey={"numberOfWorkers"} fill="red" activeBar={
                                         <Rectangle fill="gray" stroke="purple"/>
                                     }/>
                                 </BarChart>
@@ -253,12 +260,34 @@ export default function Dashboard(): ReactElement{
                                     <Tooltip content={ <NumberOfAttendanceTooltip/> } />
                                     <XAxis dataKey={"sede"} />
                                     <YAxis />
-                                    <Bar dataKey={"attendances"} fill='red' activeBar={
+                                    <Bar name="Número de asistencias" dataKey={"attendances"} fill='red' activeBar={
                                         <Rectangle fill="gray" stroke="purple"/>
                                     }/>
                                 </BarChart>
                             </ResponsiveContainer>
                         </div> : <Spinner color="danger" size="sm" label='Generando estadísticas...' labelColor='warning'/>}
+                    </div>
+                    <div className="flex flex-col items-center gap-3 lg:w-[800px] w-[375px] min-h-[350px] p-[15px] bg-default-200 rounded-xl shadow-xl shadow-danger-300 border-double border-3 border-red-500">
+                        
+                        { sedes && state.user && selectedSede && 
+                        <>
+                        <Select className="max-w-xs" label="Sede" variant="bordered" color="danger" placeholder="Seleccionar" selectionMode='single' onChange={handleSedeSelection} >
+                            {
+                                sedes.map( (sede) => (
+                                    <SelectItem key={JSON.stringify(sede)} value={JSON.stringify(sede)} >
+                                        {sede.nombre}
+                                    </SelectItem>
+                                ) )
+                            }
+                        </Select>
+                        <p>
+                            <small className="italic font-semibold">
+                                Seleccionado: {JSON.parse(selectedSede).nombre}
+                            </small>
+                        </p>
+                        <DataChart key={selectedSede} sede={JSON.parse(selectedSede)} token={state.user.token}/>
+                        </>
+                        }
                     </div>
                 </div>
             }
