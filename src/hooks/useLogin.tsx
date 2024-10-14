@@ -28,7 +28,7 @@ export const useLogin = () => {
         if(response.token){
             const payload: User = {
                 token: response.token,
-                page: `/dashboard`,
+                page: `/dashboard/${response.token.split('.')[0]}`,
                 data: jwt.jwtDecode(response.token),
                 mensaje: response.mensaje
             }

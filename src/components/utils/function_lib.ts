@@ -170,7 +170,7 @@ export async function SortAttendanceData(sede: sede, token: string, month?: numb
         }
     }
     const response: AxiosResponse<ingreso[]> = await axios.post(INGRESOS_SEDE_ENDPOINT, sede, CONFIG)
-    const monthValue: number = month ? month : new Date().getMonth()
+    const monthValue: number = month != undefined ? month : new Date().getMonth()
     const ingresosOfMonth: ingreso[] = []
     for(let ingreso of response.data){
         if(new Date(ingreso.hora).getMonth() === monthValue){

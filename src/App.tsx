@@ -13,20 +13,20 @@ function App() {
   const {state} = useAuthContext()
   const accountPath: string = `/account/${state.user?.token.split(".")[0]}`
   const usersPath: string = `/users/${state.user?.token.split('.')[0]}`
-  const dashboradPath: string = `/dashboard`
-  const sedesPath: string = `/sedes`
-  const docentesPath: string = `/docentes`
-  const guardiasPath: string = `/guardias`
+  const dashboradPath: string = `/dashboard/${state.user?.token.split('.')[0]}`
+  const sedesPath: string = `/sedes/${state.user?.token.split('.')[0]}`
+  const docentesPath: string = `/docentes/${state.user?.token.split('.')[0]}`
+  const guardiasPath: string = `/guardias/${state.user?.token.split('.')[0]}`
 
   return (
     <Routes>
       <Route element={<Landing />} path="/" />
-      <Route element={state.user && <IndexPage />} path={dashboradPath} />
-      <Route element={state.user && <Sedes />} path={sedesPath} />
-      <Route element={state.user && <ManageGuardias />} path={guardiasPath} />
-      <Route element={state.user && <Docentes/>} path={docentesPath} />
-      <Route element={state.user && <Account/>} path={accountPath}/>
-      <Route element={state.user && <Users/>} path={usersPath}/>
+      <Route element={state.user ? <IndexPage /> : <Landing/>} path={dashboradPath} />
+      <Route element={state.user ? <Sedes /> : <Landing/>} path={sedesPath} />
+      <Route element={state.user ? <ManageGuardias /> : <Landing/>} path={guardiasPath} />
+      <Route element={state.user ? <Docentes/> : <Landing/>} path={docentesPath} />
+      <Route element={state.user ? <Account/> : <Landing/>} path={accountPath}/>
+      <Route element={state.user ? <Users/> : <Landing/>} path={usersPath}/>
       <Route element={<NotFoundPage/>} path="*"/>
     </Routes>
   );

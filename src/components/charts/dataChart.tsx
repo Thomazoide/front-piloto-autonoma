@@ -32,14 +32,14 @@ export default function DataChart(props: Readonly<DCProps>): ReactElement{
     return(
         <div className="flex justify-start">
             {  isLoading ? <Spinner color="danger" label="Generando estadísticas..."/> : data &&
-            <ResponsiveContainer minWidth={window.innerWidth < 1024 ? 375 : 750} minHeight={300}>
+            <ResponsiveContainer minWidth={375} minHeight={300}>
                 <LineChart data={data}>
                     <CartesianGrid strokeDasharray={"3 3"}/>
                     <Legend/>
                     <Tooltip/>
                     <XAxis dataKey={"month"}/>
                     <YAxis/>
-                    <Line name="Número de asistencias" dataKey="attendances" color="red"/>
+                    <Line name="Número de asistencias" dataKey="attendances" stroke="red"/>
                     <Line name="Cantidad de docentes con asistencias" dataKey="numberOfWorkers"/>
                 </LineChart>
             </ResponsiveContainer>
