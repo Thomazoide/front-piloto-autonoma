@@ -24,5 +24,6 @@ export type sede = {
     ubicacion: GeoJson<number[]>,
     nombre: string,
     m2: GeoJson<number[][][]>,
-    indoorMap: IndoorMap | null
+    indoorMap: IndoorMap | null,
+    plantas: GeoJson<number[][][]>[]
 }

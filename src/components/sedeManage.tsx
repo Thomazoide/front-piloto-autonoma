@@ -1,7 +1,7 @@
 import { ChangeEvent, MouseEvent, ReactElement, useEffect, useState } from "react"
 import { sede } from "@/types/sede"
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
-import { Accordion, AccordionItem, Button, ScrollShadow, Select, SelectItem, Spinner } from "@nextui-org/react"
+import { Accordion, AccordionItem, Button, ScrollShadow, Select, SelectItem, SelectSection, Spinner } from "@nextui-org/react"
 import { sala } from "@/types/sala"
 import { ConferenceRoom24Regular, Map24Regular } from "@fluentui/react-icons"
 import Mapa from "./mapa"
@@ -22,8 +22,7 @@ export default function SedeManage(): ReactElement {
     const [isMapLoading, setIsMapLoading] = useState<boolean>(false)
     const [selectedSala, setSelectedSala] = useState<sala>()
     const [verSalaForm, setVerSalaForm] = useState<boolean>(false)
-    const [selectedFloor, setSelectedFloor] = useState<number>(0)
-    const [verMapaIndoor, setVerMapaIndoor] = useState<boolean>(false)
+    const [selectedFloor, setSelectedFloor] = useState<string>()
     const { state } = useAuthContext()
 
     const CONFIG: AxiosRequestConfig = {
@@ -59,15 +58,11 @@ export default function SedeManage(): ReactElement {
     }
 
     const handleFloorSelection = function(e: ChangeEvent<HTMLSelectElement>){
-        setSelectedFloor(Number(e.target.value))
-        console.log(selectedSede?.m2.features[0].geometry.coordinates[0])
-    }
-
-
-    const LoadIndoorMap = function(){
-        setIsMapLoading(true)
-        const loadingTimeOut = setTimeout( () => setIsMapLoading(false), 800 )
-        return () => clearTimeout(loadingTimeOut)
+        if(e.target.value === "0"){
+            setSelectedFloor(undefined)
+            return
+        }
+        setSelectedFloor(e.target.value)
     }
 
     useEffect( () => {
@@ -120,37 +115,35 @@ export default function SedeManage(): ReactElement {
                                 <Map24Regular/>
                                 { !isMapLoading && !selectedSala ? <div className="flex flex-col items-center h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md">
                                     {
-                                        selectedSede.indoorMap &&
+                                        selectedSede.plantas &&
                                         <div className="flex flex-col gap-2 items-center justify-evenly p-[10px] w-full">
-                                            <Button color="danger" size="sm" variant="flat" onClick={ () => {
-                                                LoadIndoorMap()
-                                                setVerMapaIndoor(!verMapaIndoor)
-                                            } }>
-                                                {!verMapaIndoor ? "Ver mapa indoor" : "Ver mapa satelital"}
-                                            </Button>
-                                            {
-                                                verMapaIndoor &&
-                                                <Select label="Piso" variant="bordered" size="sm" color="danger" placeholder="Seleccionar piso" defaultSelectedKeys="0" onChange={handleFloorSelection} className="w-[90%]" >
-                                                    {
-                                                        selectedSede.indoorMap.pisos.map( (floor ,index) => (
-                                                            <SelectItem key={index} value={floor} className="w-full" >
-                                                                {`Piso ${index+1}`}
-                                                            </SelectItem>
-                                                        ) )
-                                                    }
-                                                </Select>
-                                            }
+                                            <Select label="Piso" variant="bordered" size="sm" color="danger" placeholder="Seleccionar piso" defaultSelectedKeys="0" onChange={handleFloorSelection} className="w-[90%]" >
+                                                <SelectSection>
+                                                    <SelectItem key="0" value={"0"} className="w-full">
+                                                        Vista general
+                                                    </SelectItem>
+                                                </SelectSection>
+                                                <SelectSection>
+                                                {
+                                                    selectedSede.plantas.map( (floor ,index) => (
+                                                        <SelectItem key={index+1} value={JSON.stringify(floor)} className="w-full" >
+                                                            {`Piso ${index+1}`}
+                                                        </SelectItem>
+                                                    ) )
+                                                }
+                                                </SelectSection>
+                                            </Select>
                                         </div>
                                     }
-                                    <Mapa dataSede={selectedSede} showIndoor={verMapaIndoor} floor={selectedFloor}/>
-                                </div> : !isMapLoading && selectedSala && !verMapaIndoor ?
+                                    {selectedFloor && <Mapa dataSede={selectedSede}  floor={selectedSede.plantas.indexOf(JSON.parse(selectedFloor))}/>}
+                                </div> : !isMapLoading && selectedSala && !selectedFloor ?
                                 <div className="flex h-[500px] min-w-[350px] lg:w-[500px] p-[5px] border-3 border-solid border-red-500 rounded-md ">
                                     <Mapa dataSede={selectedSede} sala={selectedSala}/>
                                 </div> : isMapLoading  && <Spinner size="lg" color="danger"/> }
                             </div> : null}
                             <div className="flex flex-col h-fit w-fit ">
                                 {
-                                    salas && selectedSede && !verMapaIndoor ? 
+                                    salas && selectedSede && !selectedFloor ? 
                                     <>
                                         <div className=" flex max-h-[400px] min-h-[200px] w-full p-[10px] border-double border-2 border-red-300 rounded-lg " >
                                             <ScrollShadow>

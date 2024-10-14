@@ -207,3 +207,14 @@ export async function GetActiveWorkers(tipo: "guardia" | "docente", token: strin
     }
     return activeWorkers
 }
+
+export async function GetAllSedes(token: string): Promise<sede[]>{
+    const SEDES_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/sedes`
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const response: AxiosResponse<sede[]> = await axios.get(SEDES_ENDPOINT, CONFIG)
+    return response.data
+}
