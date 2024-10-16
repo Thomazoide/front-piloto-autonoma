@@ -218,3 +218,27 @@ export async function GetAllSedes(token: string): Promise<sede[]>{
     const response: AxiosResponse<sede[]> = await axios.get(SEDES_ENDPOINT, CONFIG)
     return response.data
 }
+
+function calculateAltitude(floor: number, actualAltitude: number): boolean{
+    const floorAltitude: number = (floor * 100) + 500
+    if((actualAltitude >= floorAltitude) && (actualAltitude <= floorAltitude+70)){
+        return true
+    }
+    return false
+}
+
+export async function GetWorkersByAltitude(token: string, workerType: "guardia" | "docente", floor?: number): Promise<worker[]>{
+    const WORKERS_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/${workerType}`
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const response: AxiosResponse<worker[]> = await axios.get(WORKERS_ENDPOINT, CONFIG)
+    const workers: worker[] = response.data
+    if(!floor){
+        return workers
+    }
+    const sortedWorkers: worker[] = workers.filter( (w) => w.ubicacion && calculateAltitude(floor, w.ubicacion.locations[0].coords.altitude) )
+    return sortedWorkers
+}

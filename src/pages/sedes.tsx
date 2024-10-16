@@ -1,4 +1,3 @@
-import SedeManage from "@/components/sedeManage";
 import SedeMonitor from "@/components/sedesMonitor/sedeMonitor";
 import DefaultLayout from "@/layouts/default";
 

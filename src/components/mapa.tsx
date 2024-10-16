@@ -1,5 +1,5 @@
 import { ReactElement, useState, useEffect } from "react"
-import { MapContainer, GeoJSON, TileLayer, Marker, Popup, ImageOverlay } from "react-leaflet"
+import { MapContainer, GeoJSON, TileLayer, Marker, Popup } from "react-leaflet"
 import 'leaflet/dist/leaflet.css'
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"

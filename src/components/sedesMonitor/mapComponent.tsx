@@ -1,13 +1,17 @@
-import { MapContainer, GeoJSON, TileLayer } from "react-leaflet";
+import { MapContainer, GeoJSON, TileLayer, Popup } from "react-leaflet";
 import { ReactElement } from "react";
 import { GeoJson, sede } from "@/types/sede";
-import { LatLngExpression } from "leaflet";
+import { Content, icon, LatLngExpression, PopupOptions } from "leaflet";
+import { worker } from "@/types/worker";
+import ReactLeafletDriftMarker from 'react-leaflet-drift-marker'
 
 type coordinates = number[][][]
 
 interface MCProps{
     planta?: GeoJson<coordinates>
+    workers?: worker[]
     sede: sede
+    workerType: "guardia" | "docente"
 }
 
 export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
@@ -17,6 +21,12 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
         lng: props.sede.ubicacion.features[0].geometry.coordinates[0]
     }
 
+    const icono = icon({
+        iconUrl: props.workerType === "guardia" ? 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/PeopleIcons-16-1024.webp' : 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg',
+        iconAnchor: [16, 16],
+        iconSize: [32, 32]
+    })
+
     return(
         <MapContainer center={centro} zoom={20} style={{height: "100%", width: "100%"}} key={JSON.stringify(props.sede)}>
             <TileLayer 
@@ -24,8 +34,34 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Open StreetMap</a> contributors' />
             {
                 props.planta ?
-                <GeoJSON data={props.planta} />
+                <GeoJSON onEachFeature={ (feature, layer) => {
+                    const options: PopupOptions = {
+                        minWidth: 100,
+                        className: "feature-popup"
+                    }
+                    layer.bindPopup( (): Content => {
+                        return `${feature.properties.name || feature.properties["name "]}`
+                    }, options )
+                }}
+                data={props.planta} />
                 : <GeoJSON data={props.sede.m2}/>
+            }
+            {
+                props.workers &&
+                props.workers.map( (w) => {
+                    if(w.ubicacion) return(
+                        <ReactLeafletDriftMarker key={w.id} position={{
+                            lat: w.ubicacion.locations[0].coords.latitude,
+                            lng: w.ubicacion.locations[0].coords.longitude
+                        }}
+                        duration={1000}
+                        icon={icono}>
+                            <Popup closeButton>
+                                {w.nombre}
+                            </Popup>
+                        </ReactLeafletDriftMarker>
+                    )
+                } )
             }
         </MapContainer>
     )
