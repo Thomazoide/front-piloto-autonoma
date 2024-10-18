@@ -4,6 +4,7 @@ import { GeoJson, sede } from "@/types/sede";
 import { Content, icon, LatLngExpression, PopupOptions } from "leaflet";
 import { worker } from "@/types/worker";
 import ReactLeafletDriftMarker from 'react-leaflet-drift-marker'
+import 'leaflet/dist/leaflet.css'
 
 type coordinates = number[][][]
 
@@ -28,10 +29,12 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
     })
 
     return(
-        <MapContainer center={centro} zoom={20} style={{height: "100%", width: "100%"}} key={JSON.stringify(props.sede)}>
+        props.sede &&
+        <MapContainer center={centro} zoom={20} style={{height: "100%", width: "100%"}} key={ props.planta ? JSON.stringify(props.planta) : JSON.stringify(props.sede.m2) }>
             <TileLayer 
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Open StreetMap</a> contributors' />
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
+            <GeoJSON data={props.sede.m2}/>
             {
                 props.planta ?
                 <GeoJSON onEachFeature={ (feature, layer) => {
@@ -44,7 +47,7 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
                     }, options )
                 }}
                 data={props.planta} />
-                : <GeoJSON data={props.sede.m2}/>
+                : null
             }
             {
                 props.workers &&

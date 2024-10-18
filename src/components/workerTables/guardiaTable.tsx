@@ -12,22 +12,28 @@ import {
     MenuItem,
     Typography
 } from '@mui/material'
-import { Edit32Regular, Delete32Regular, Calendar24Regular } from "@fluentui/react-icons";
+import { Edit32Regular, Delete32Regular } from "@fluentui/react-icons";
 import { worker_ingreso } from "../utils/function_lib";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import FilterIngresosWorker from "../filterIngresosWorker";
 import { sede } from "@/types/sede";
 import { sala } from "@/types/sala";
+import EditWorkerModal from "../utils/editWorkerModal";
+import { worker } from "@/types/worker";
 
 interface GTProps{
     listaGuardias: worker_ingreso[]
     workerType: "guardia" | "docente"
     salas: sala[]
     sedes: sede[]
+    token: string
+    refetch: () => Promise<void>
 }
 
 export default function GuardiaTable(props: Readonly<GTProps>): ReactElement{
     const [listaGuardias, setListaGuardias] = useState<worker_ingreso[]>([])
+    const [selectedEntity, setSelectedEntity] = useState<worker>()
+    const [isOpen, setIsOpen] = useState<boolean>(false)
     const columns = useMemo<MRT_ColumnDef<worker_ingreso>[]>(
         () => [
             {
@@ -99,9 +105,13 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement{
                 <FilterIngresosWorker entity={row.original} salas={props.salas} sedes={props.sedes}/>
             </Box>
         ),
-        renderRowActionMenuItems: ({closeMenu}) => (
+        renderRowActionMenuItems: ({closeMenu, row}) => (
             [
-            <MenuItem key={0} onClick={ () => closeMenu() }>
+            <MenuItem key={0} onClick={ () => {
+                setSelectedEntity(row.original.worker)
+                setIsOpen(true)
+                closeMenu()
+                } }>
                 <ListItemIcon>
                     <Edit32Regular/>
                 </ListItemIcon>
@@ -127,6 +137,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement{
     }, [] )
     return (
         <LocalizationProvider>
+            <EditWorkerModal token={props.token} entity={selectedEntity!} isOpen={isOpen} workerType={props.workerType} setIsOpen={setIsOpen} refetch={props.refetch} />
             <MaterialReactTable table={table}/>
         </LocalizationProvider>
     )

@@ -14,6 +14,7 @@ export default function SedeMonitor(): ReactElement{
     const [selectedFloor, setSelectedFloor] = useState<GeoJson<number[][][]>>()
     const [workerList, setWorkerList] = useState<worker[]>()
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [workerType, setWorkerType] = useState<"guardia" | "docente">("guardia")
 
     async function getSedes(){
         if(state.user){
@@ -24,6 +25,7 @@ export default function SedeMonitor(): ReactElement{
     }
 
     function handleSedeSelection(e: ChangeEvent<HTMLSelectElement>){
+        setSelectedFloor(undefined)
         const id: number = Number(e.target.value)
         const item: sede | undefined = sedes?.find( (sede) => sede.id === id )
         setSelectedSede(item)
@@ -83,11 +85,11 @@ export default function SedeMonitor(): ReactElement{
             <div className="flex max-w-[800px] min-w-[380px] justify-center" >
                 {
                     sedes && !isLoading ?
-                    <Select color="danger" variant="underlined" size="lg" label="Seleccionar sede" onChange={handleSedeSelection}>
+                    <Select color="danger" variant="underlined" size="lg" label="Seleccionar sede" onChange={handleSedeSelection} id="sede-select" >
                         <SelectSection>
                             {
                                 sedes.map( (sede, index) => (
-                                    <SelectItem key={sede.id} value={index}>
+                                    <SelectItem id={String(index)} key={sede.id} value={index}>
                                         {sede.nombre}
                                     </SelectItem>
                                 ) )
@@ -98,11 +100,11 @@ export default function SedeMonitor(): ReactElement{
                 }
             </div>
             { selectedSede &&
-                <div className="flex flex-col gap-3 p-[15px] items-center sm:w-[380px] lg:w-[800px] h-fit bg-default-300 bg-opacity-25 rounded-xl border-double border-2 border-danger-300 shadow-xl shadow-danger-200 ">
-                    <div className="flex w-[375px] justify-end ">
-                        <Select color="danger" variant="underlined" size="md" label="Seleccionar planta" defaultSelectedKeys={['-1']} onChange={handleFloorSelection}>
+                <div className="flex flex-col gap-3 p-[15px] items-center w-[800px] h-[800px] bg-default-300 bg-opacity-25 rounded-xl border-double border-2 border-danger-300 shadow-xl shadow-danger-200 ">
+                    <div className="flex w-full justify-end ">
+                        <Select id="plant-select" color="danger" variant="underlined" size="md" label="Seleccionar planta" defaultSelectedKeys={['-1']} onChange={handleFloorSelection}>
                             <SelectSection>
-                                <SelectItem key="-1" value="-1">
+                                <SelectItem id="-1" key="-1" value="-1">
                                     Vista general
                                 </SelectItem>
                             </SelectSection>
@@ -110,7 +112,7 @@ export default function SedeMonitor(): ReactElement{
                                 <SelectSection>
                                 {
                                     selectedSede.plantas.map( (planta, index) => (
-                                        <SelectItem textValue={`Piso ${index+1}`} key={index} value={JSON.stringify(planta)}>
+                                        <SelectItem id={String(index)} textValue={`Piso ${index+1}`} key={index} value={JSON.stringify(planta)}>
                                             Piso: {index+1}
                                         </SelectItem>
                                     ) )
@@ -119,8 +121,8 @@ export default function SedeMonitor(): ReactElement{
                             }
                         </Select>
                     </div>
-                    <div className="flex justify-center w-full h-[800px] sm:h-[400px]" >
-                        <MapComponent key={selectedFloor ? JSON.stringify(selectedFloor) : selectedSede.id} planta={selectedFloor} sede={selectedSede} workers={workerList} workerType="guardia"/>
+                    <div className="flex justify-center" style={{height: "750px", width: "750px"}} >
+                        <MapComponent sede={selectedSede} workerType={workerType} planta={selectedFloor} workers={workerList}/>
                     </div>
                 </div>
             }
