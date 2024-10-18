@@ -242,3 +242,39 @@ export async function GetWorkersByAltitude(token: string, workerType: "guardia" 
     const sortedWorkers: worker[] = workers.filter( (w) => w.ubicacion && calculateAltitude(floor, w.ubicacion.locations[0].coords.altitude) )
     return sortedWorkers
 }
+
+export interface worker_ingreso{
+    worker: worker
+    ingresos: ingreso[]
+}
+
+export async function getWorkersAndAttendances(token: string, workerType: "guardia" | "docente"): Promise<worker_ingreso[]>{
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const WORKER_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/${workerType}`
+    const WORKER_ATTENDANCES_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/ingreso/${workerType}`
+    const workers: worker[] = (await axios.get<worker[]>(WORKER_ENDPOINT, CONFIG)).data
+    const workersAndAttendances: worker_ingreso[] = []
+    for(const worker of workers){
+        const ingresos: ingreso[] = (await axios.post<ingreso[]>(WORKER_ATTENDANCES_ENDPOINT, worker, CONFIG)).data
+        workersAndAttendances.push({
+            worker,
+            ingresos
+        })
+    }
+    return workersAndAttendances
+}
+
+export async function getAllSalas(token: string): Promise<sala[]>{
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const SALAS_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/sala`
+    const salas: sala[] = (await axios.get<sala[]>(SALAS_ENDPOINT, CONFIG)).data
+    return salas
+}

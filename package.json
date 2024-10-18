@@ -17,7 +17,7 @@
     "@internationalized/date": "^3.5.4",
     "@mui/icons-material": "^6.1.4",
     "@mui/material": "^6.1.4",
-    "@mui/x-date-pickers": "^7.20.0",
+    "@mui/x-date-pickers": "^7.21.0",
     "@nextui-org/button": "2.0.33",
     "@nextui-org/code": "2.0.28",
     "@nextui-org/input": "2.2.1",
