@@ -81,7 +81,7 @@ export default function AddWorker(props: Readonly<AWProps>): ReactElement{
         <div className="flex flex-col gap-6 min-w-[300px] min-h-[300px] max-w-[500px] border-double border-2 border-red-300 rounded-lg p-[15px] ">
             {
                 success ?
-                <div className="flex w-fit h-fit p-[10px] bg-green-300 border-double border-2 border-double border-yellow-300 rounded-lg">
+                <div className="flex w-fit h-fit p-[10px] bg-green-300 border-2 border-double border-yellow-300 rounded-lg">
                     <div className="flex justify-end">
                         <CloseButton onClick={ () => window.location.reload() } />
                     </div>
@@ -90,7 +90,7 @@ export default function AddWorker(props: Readonly<AWProps>): ReactElement{
                     </p>
                 </div>
                 : error ?
-                <div className="flex w-fit h-fit p-[10px] bg-red-300 border-double border-2 border-double border-yellow-300 rounded-lg">
+                <div className="flex w-fit h-fit p-[10px] bg-red-300 border-2 border-double border-yellow-300 rounded-lg">
                     <div className="flex justify-end">
                         <CloseButton onClick={ () => setError(undefined) } />
                     </div>

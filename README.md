@@ -1,50 +1,23 @@
-# Vite & NextUI Template
+# Sistema de monitoreo de docentes/guardias
 
-This is a template for creating applications using Vite and NextUI (v2).
+![Logo](https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/autonoma-logo.png)
+---
 
-[Try it on CodeSandbox](https://githubbox.com/nextui-org/vite-template)
+## Monitoreo en tiempo real
 
-## Technologies Used
+El sistema permite un monitoreo en tiempo real de los docentes y guardias del establecimiento mientras estos se encuentren dentro de las instalaciones
 
-- [Vite](https://vitejs.dev/guide/)
-- [NextUI](https://nextui.org)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Tailwind Variants](https://tailwind-variants.org)
-- [TypeScript](https://www.typescriptlang.org)
-- [Framer Motion](https://www.framer.com/motion)
+## Tecnología BLE
 
-## How to Use
+El sistema cuenta con gateways que van en cada sala y con beacons, que son como credenciales entregadas a los docentes y guardias del establecimiento. Registrando asi los ingresos de estos en las salas con un control de horarios eficiente.
 
-To clone the project, run the following command:
+### Tecnologías utilizadas
 
-```bash
-git clone https://github.com/nextui-org/vite-template.git
-```
+1. Vite - ReactTs
+2. AWS - EC2, RDS, S3, APIGateway
+3. BLE - beacons/gateways MineW
+4. NextUI, TailwindCSS
+5. Axios
+6. React-Leaflet
 
-### Install dependencies
-
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
-
-```bash
-npm install
-```
-
-### Run the development server
-
-```bash
-npm run dev
-```
-
-### Setup pnpm (optional)
-
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
-
-```bash
-public-hoist-pattern[]=*@nextui-org/*
-```
-
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
-
-## License
-
-Licensed under the [MIT license](https://github.com/nextui-org/vite-template/blob/main/LICENSE).
+[E-Connection](https://econnection.cl/)

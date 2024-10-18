@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { worker } from "@/types/worker";
 import { beacon } from '@/types/beacon';
 import { ingreso } from '@/types/ingreso';
@@ -149,4 +149,132 @@ export async function getSedesBySalas(listaSalas: sala[], token: string): Promis
 
 export function getSedeNameBySala(listaSedes: sede[], salaIngreso?: sala): string | undefined{
     return listaSedes.find( (s: sede) => s.id === salaIngreso?.id_sede )?.nombre
+}
+
+export interface MonthAndAttendanceChartData{
+    sede: string
+    month: string,
+    attendances: number,
+    numberOfWorkers: number
+}
+
+export const MONTHS: string[] = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+
+export const MONTHS_NAMES: string[] = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
+export async function SortAttendanceData(sede: sede, token: string, month?: number): Promise<MonthAndAttendanceChartData>{
+    const INGRESOS_SEDE_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/ingreso/sede`
+    const CONFIG: AxiosRequestConfig<sede> = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    }
+    const response: AxiosResponse<ingreso[]> = await axios.post(INGRESOS_SEDE_ENDPOINT, sede, CONFIG)
+    const monthValue: number = month != undefined ? month : new Date().getMonth()
+    const ingresosOfMonth: ingreso[] = []
+    for(let ingreso of response.data){
+        if(new Date(ingreso.hora).getMonth() === monthValue){
+            ingresosOfMonth.push(ingreso)
+        }
+    }
+    const workersCount: number[] = Array.from(new Set(ingresosOfMonth.map( (i) => i.id_beacon )))
+    return {
+        sede: sede.nombre,
+        month: MONTHS[monthValue],
+        attendances: ingresosOfMonth.length,
+        numberOfWorkers: workersCount.length
+    }
+}
+
+export async function GetActiveWorkers(tipo: "guardia" | "docente", token: string): Promise<worker[]>{
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const WORKER_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/${tipo}`
+    const ACTUAL_TIME_HOUR_LESS = moment(new Date()).subtract({hours: 1})
+    const ACTUAL_TIME = moment(new Date())
+    const response: AxiosResponse<worker[]> = await axios.get(WORKER_ENDPOINT, CONFIG)
+    const activeWorkers: worker[] = []
+    for(const worker of response.data){
+        if(worker.ubicacion){
+            const workerActiveTime = moment(worker.ubicacion.locations[0].timestamp)
+            if(workerActiveTime.isBetween(ACTUAL_TIME_HOUR_LESS, ACTUAL_TIME, null, "(]")){
+                activeWorkers.push(worker)
+            }
+        }
+    }
+    return activeWorkers
+}
+
+export async function GetAllSedes(token: string): Promise<sede[]>{
+    const SEDES_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/sedes`
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const response: AxiosResponse<sede[]> = await axios.get(SEDES_ENDPOINT, CONFIG)
+    return response.data
+}
+
+function calculateAltitude(floor: number, actualAltitude: number): boolean{
+    const floorAltitude: number = (floor * 100) + 500
+    if((actualAltitude >= floorAltitude) && (actualAltitude <= floorAltitude+70)){
+        return true
+    }
+    return false
+}
+
+export async function GetWorkersByAltitude(token: string, workerType: "guardia" | "docente", floor?: number): Promise<worker[]>{
+    const WORKERS_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/${workerType}`
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const response: AxiosResponse<worker[]> = await axios.get(WORKERS_ENDPOINT, CONFIG)
+    const workers: worker[] = response.data
+    if(!floor){
+        return workers
+    }
+    const sortedWorkers: worker[] = workers.filter( (w) => w.ubicacion && calculateAltitude(floor, w.ubicacion.locations[0].coords.altitude) )
+    return sortedWorkers
+}
+
+export interface worker_ingreso{
+    worker: worker
+    ingresos: ingreso[]
+}
+
+export async function getWorkersAndAttendances(token: string, workerType: "guardia" | "docente"): Promise<worker_ingreso[]>{
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const WORKER_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/${workerType}`
+    const WORKER_ATTENDANCES_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/ingreso/${workerType}`
+    const workers: worker[] = (await axios.get<worker[]>(WORKER_ENDPOINT, CONFIG)).data
+    const workersAndAttendances: worker_ingreso[] = []
+    for(const worker of workers){
+        const ingresos: ingreso[] = (await axios.post<ingreso[]>(WORKER_ATTENDANCES_ENDPOINT, worker, CONFIG)).data
+        workersAndAttendances.push({
+            worker,
+            ingresos
+        })
+    }
+    return workersAndAttendances
+}
+
+export async function getAllSalas(token: string): Promise<sala[]>{
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const SALAS_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/sala`
+    const salas: sala[] = (await axios.get<sala[]>(SALAS_ENDPOINT, CONFIG)).data
+    return salas
 }

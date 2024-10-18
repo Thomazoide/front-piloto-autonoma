@@ -1,22 +1,21 @@
 import { ingreso } from "@/types/ingreso";
 import { sala } from "@/types/sala";
 import { sede } from "@/types/sede";
-import { worker } from "@/types/worker";
 import { Calendar24Regular, CatchUp24Regular } from "@fluentui/react-icons";
 import { parseAbsoluteToLocal, parseDate } from "@internationalized/date";
 import { Button, DatePicker, DateValue, ScrollShadow, TimeInput, TimeInputValue } from "@nextui-org/react";
 import moment from "moment";
 import { ReactElement, useState } from "react";
+import { worker_ingreso } from "./utils/function_lib";
 
 interface FIWProps{
-    sedes: sede[]
+    entity: worker_ingreso
     salas: sala[]
-    ingresos: ingreso[]
-    entity: worker
+    sedes: sede[]
 }
 
 export default function FilterIngresosWorker(props: Readonly<FIWProps>): ReactElement{
-    const [ingresosFiltrados, setIngresosFiltrados] = useState<ingreso[]>(props.ingresos)
+    const [ingresosFiltrados, setIngresosFiltrados] = useState<ingreso[]>(props.entity.ingresos)
     const [fecha, setFecha] = useState<DateValue>(parseDate(new Date().toISOString().split("T")[0]))
     const [horaInicial, setHoraInicial] = useState<TimeInputValue>(parseAbsoluteToLocal(moment(new Date().toISOString()).subtract({hours: 1}).toDate().toISOString()))
     const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()))
@@ -34,7 +33,7 @@ export default function FilterIngresosWorker(props: Readonly<FIWProps>): ReactEl
 
     const handleFilters = function(){
         
-        const ingresosFiltradosTemp: ingreso[] = props.ingresos.filter( (i) => {
+        const ingresosFiltradosTemp: ingreso[] = props.entity.ingresos.filter( (i) => {
             const fechaHoraInicial = moment(`${fecha.toString()}T${horaInicial.toString().split("T")[1].split("-")[0]}Z`).utc()
             const fechaHoraFinal = moment(`${fecha.toString()}T${horaFinal.toString().split("T")[1].split("-")[0]}Z`).utc()
             const fechaMoment = moment(i.hora).utc()
@@ -45,12 +44,12 @@ export default function FilterIngresosWorker(props: Readonly<FIWProps>): ReactEl
 
     return(
         <div className="flex flex-col gap-2 items-center w-full h-fit">
-            <div className="flex flex-col gap-1 w-full h-fit">
+            <div className="flex flex-col gap-1 w-[50%] h-fit">
                 <DatePicker label="fecha" color="danger" selectorIcon={
                     <Calendar24Regular/>
                 } value={fecha} onChange={setFecha} size="sm"/>
             </div>
-            <div className="flex flex-row gap-1 w-full h-fit align-center items-center justify-evenly">
+            <div className="flex flex-row gap-1 w-[50%] h-fit align-center items-center justify-evenly">
                 <TimeInput label="Hora inicial" value={horaInicial} onChange={setHoraInicial} color="danger" size="sm"/>
                 <CatchUp24Regular/>
                 <TimeInput label="Hora final" value={horaFinal} onChange={setHoraFinal} color="danger" size="sm"/>
@@ -63,7 +62,7 @@ export default function FilterIngresosWorker(props: Readonly<FIWProps>): ReactEl
                     Registros encontrados:
                 </strong>
             </p>
-            <div className="flex flex-col gap-1 max-h-[200px] w-full overflow-y-scroll">
+            <div className="flex flex-col gap-1 max-h-[200px] w-full ">
                 <ScrollShadow className="w-full max-h-[200px] p-[10px] ">
                     {
                     ingresosFiltrados[0] ?

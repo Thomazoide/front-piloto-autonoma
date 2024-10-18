@@ -1,5 +1,5 @@
 import { ReactElement, useState, useEffect } from "react"
-import { MapContainer, GeoJSON, TileLayer, Marker, Popup, ImageOverlay } from "react-leaflet"
+import { MapContainer, GeoJSON, TileLayer, Marker, Popup } from "react-leaflet"
 import 'leaflet/dist/leaflet.css'
 import { sede } from "@/types/sede"
 import { sala } from "@/types/sala"
@@ -53,13 +53,8 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">Open StreetMap</a> contributors' />
             <GeoJSON data={props.dataSede.m2} style={{color: 'red'}}/>
             {
-                props.dataSede.indoorMap && props.showIndoor && props.floor && bounds && 
-                <ImageOverlay
-                url={`${props.dataSede.indoorMap.pisos[props.floor]}`}
-                bounds={bounds}
-                zIndex={1000}
-                interactive={false}
-                />
+                props.dataSede.indoorMap && props.floor && bounds && 
+                <GeoJSON data={props.dataSede.plantas[props.floor]}/>
             }
             {sSala ?
                 sSala.ubicacion.features.map( (f) => (

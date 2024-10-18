@@ -53,10 +53,10 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
             
             <Navbar.Collapse id='rsponsive-navbar-nav' >
                 <Nav className='me-auto justify-evenly items-center align-center w-[100%]' defaultActiveKey={props.llaveActiva}>
-                    <Nav.Link eventKey={"1"} accessKey="/home" href='/home' onClick={handleNavigate}>Inicio</Nav.Link>
-                    <Nav.Link eventKey={"2"} accessKey="/sedes" href='/sedes' onClick={handleNavigate}>Sedes</Nav.Link>
-                    <Nav.Link eventKey={"3"} accessKey="/docentes" href='/docentes' onClick={handleNavigate} >Docentes</Nav.Link>
-                    <Nav.Link eventKey={"4"} accessKey="/guardias" href='/guardias' onClick={handleNavigate} >Guardias</Nav.Link>
+                    <Nav.Link eventKey={"1"} accessKey={`/dashboard`} href={`/dashboard/${state.user?.token.split('.')[0]}`} onClick={handleNavigate}>Inicio</Nav.Link>
+                    <Nav.Link eventKey={"2"} accessKey={`/sedes`} href={`/sedes/${state.user?.token.split('.')[0]}`} onClick={handleNavigate}>Sedes</Nav.Link>
+                    <Nav.Link eventKey={"3"} accessKey={`/docentes`} href={`/docentes/${state.user?.token.split('.')[0]}`} onClick={handleNavigate} >Docentes</Nav.Link>
+                    <Nav.Link eventKey={"4"} accessKey={`/guardias`} href={`/guardias/${state.user?.token.split('.')[0]}`} onClick={handleNavigate} >Guardias</Nav.Link>
                     <Nav.Link eventKey={"5"} href="#user" className="text-center">
                         <Dropdown>
                             <DropdownTrigger>

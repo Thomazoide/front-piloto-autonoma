@@ -55,24 +55,24 @@ export default function EditWorker(props: Readonly<EWProps>): ReactElement{
     }
 
     return(
-        <div className="flex flex-col items-center gap-2 w-fit h-fit p-[15px] " >
-            <div className="flex justify-center max-w-[172px]">
+        <div className="flex flex-col items-center gap-2 w-full h-fit p-[15px] " >
+            <div className="flex justify-center max-w-[75%]">
                 <Input color="danger" onValueChange={setNombre} variant="underlined" type="text" size="sm" label="Nombre" placeholder={props.entity.nombre}/>
             </div>
-            <div className="flex justify-center max-w-[172px]">
+            <div className="flex justify-center max-w-[75%]">
                 <Input color="danger" onValueChange={setRut} type="text" size="sm" variant="underlined" label="Rut" placeholder={props.entity.rut}/>
             </div>
-            <div className="flex justify-center max-w-[172px]">
+            <div className="flex justify-center max-w-[75%]">
                 <Input color="danger" onValueChange={setEmail} type="email" size="sm" variant="underlined" label="Email" placeholder={props.entity.email}/>
             </div>
-            <div className="flex justify-center max-w-[172px]">
+            <div className="flex justify-center max-w-[75%]">
                 <Input color="danger" onValueChange={setCelular} type="text" size="sm" variant="underlined" startContent="+56" label="Celular" placeholder={props.entity.celular.slice(3)}/>
             </div>
             {
                 success ?
                 <div className="flex flex-col gap-2 h-fit w-fit p-[10px] bg-green-500 border-double border-2 border-yellow-300 rounded-lg ">
                     <div className="flex justify-end">
-                        <CloseButton onClick={() => window.location.reload()}/>
+                        <CloseButton onClick={() => setSuccess(false)}/>
                     </div>
                     <div className="flex justify-center">
                         <p className="text-neutral-50">
