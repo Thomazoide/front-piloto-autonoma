@@ -53,8 +53,8 @@ export default function DeleteWorkerModal(props: Readonly<DWProps>): ReactElemen
                                     Rut: {props.entity.rut}?
                                 </p>
                             </div>
-                            <div className="flex flex-row justify-evenly">
-                                <Button color="success" variant="light" onPress={() => onClose()} isLoading={isDeleting}>
+                            <div className="flex flex-row justify-between w-full">
+                                <Button color="success" variant="flat" onPress={() => onClose()} isLoading={isDeleting}>
                                     Cancelar
                                 </Button>
                                 <Button color="danger" variant="solid" isLoading={isDeleting} onPress={ () => {

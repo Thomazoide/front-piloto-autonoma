@@ -28,6 +28,7 @@ interface GTProps {
     salas: sala[]
     sedes: sede[]
     token: string
+    isAdmin: boolean
     refetch: () => Promise<void>
 }
 
@@ -113,7 +114,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
                     setSelectedEntity(row.original.worker)
                     setIsOpen(true)
                     closeMenu()
-                }}>
+                }} disabled={!props.isAdmin} >
                     <ListItemIcon>
                         <Edit32Regular />
                     </ListItemIcon>
@@ -123,7 +124,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
                     setSelectedEntity(row.original.worker)
                     setIsDeleteOpen(true)
                     closeMenu()
-                }}>
+                }} disabled={!props.isAdmin} >
                     <ListItemIcon>
                         <Delete32Regular />
                     </ListItemIcon>
