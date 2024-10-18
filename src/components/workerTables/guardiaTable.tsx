@@ -20,8 +20,9 @@ import { sede } from "@/types/sede";
 import { sala } from "@/types/sala";
 import EditWorkerModal from "../utils/editWorkerModal";
 import { worker } from "@/types/worker";
+import DeleteWorkerModal from "../utils/deleteWorkerModal";
 
-interface GTProps{
+interface GTProps {
     listaGuardias: worker_ingreso[]
     workerType: "guardia" | "docente"
     salas: sala[]
@@ -30,10 +31,11 @@ interface GTProps{
     refetch: () => Promise<void>
 }
 
-export default function GuardiaTable(props: Readonly<GTProps>): ReactElement{
+export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     const [listaGuardias, setListaGuardias] = useState<worker_ingreso[]>([])
     const [selectedEntity, setSelectedEntity] = useState<worker>()
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
     const columns = useMemo<MRT_ColumnDef<worker_ingreso>[]>(
         () => [
             {
@@ -63,7 +65,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement{
                         size: 250
                     }
                 ]
-                
+
             }
         ], [])
     const table = useMaterialReactTable({
@@ -95,50 +97,55 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement{
             shape: 'rounded',
             variant: 'outlined'
         },
-        renderDetailPanel: ({row}) => (
+        renderDetailPanel: ({ row }) => (
             <Box>
                 <div className="flex justify-evenly p-[15px] w-full h-[150px]">
                     <Typography variant="h4">
                         Ingresos
                     </Typography>
                 </div>
-                <FilterIngresosWorker entity={row.original} salas={props.salas} sedes={props.sedes}/>
+                <FilterIngresosWorker entity={row.original} salas={props.salas} sedes={props.sedes} />
             </Box>
         ),
-        renderRowActionMenuItems: ({closeMenu, row}) => (
+        renderRowActionMenuItems: ({ closeMenu, row }) => (
             [
-            <MenuItem key={0} onClick={ () => {
-                setSelectedEntity(row.original.worker)
-                setIsOpen(true)
-                closeMenu()
-                } }>
-                <ListItemIcon>
-                    <Edit32Regular/>
-                </ListItemIcon>
-                Editar
-            </MenuItem>,
-            <MenuItem key={1} onClick={ () => closeMenu() }>
-                <ListItemIcon>
-                    <Delete32Regular/>
-                </ListItemIcon>
-                Eliminar
-            </MenuItem>
+                <MenuItem key={0} onClick={() => {
+                    setSelectedEntity(row.original.worker)
+                    setIsOpen(true)
+                    closeMenu()
+                }}>
+                    <ListItemIcon>
+                        <Edit32Regular />
+                    </ListItemIcon>
+                    Editar
+                </MenuItem>,
+                <MenuItem key={1} onClick={() => {
+                    setSelectedEntity(row.original.worker)
+                    setIsDeleteOpen(true)
+                    closeMenu()
+                }}>
+                    <ListItemIcon>
+                        <Delete32Regular />
+                    </ListItemIcon>
+                    Eliminar
+                </MenuItem>
             ]
         ),
-        renderTopToolbar: ({table}) => (
-            <Box sx={{display: 'flex', gap: '1rem', alignItems: 'center', paddingLeft: '100px', paddingTop: '15px'}}>
-                <MRT_GlobalFilterTextField table={table}/>
-                <MRT_ToggleFiltersButton table={table}/>
+        renderTopToolbar: ({ table }) => (
+            <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center', paddingLeft: '100px', paddingTop: '15px' }}>
+                <MRT_GlobalFilterTextField table={table} />
+                <MRT_ToggleFiltersButton table={table} />
             </Box>
         )
     })
-    useEffect( () => {
+    useEffect(() => {
         setListaGuardias(props.listaGuardias)
-    }, [] )
+    }, [])
     return (
         <LocalizationProvider>
+            <DeleteWorkerModal token={props.token} entity={selectedEntity!} isOpen={isDeleteOpen} workerType={props.workerType} setIsOpen={setIsDeleteOpen} refetch={props.refetch} />
             <EditWorkerModal token={props.token} entity={selectedEntity!} isOpen={isOpen} workerType={props.workerType} setIsOpen={setIsOpen} refetch={props.refetch} />
-            <MaterialReactTable table={table}/>
+            <MaterialReactTable table={table} />
         </LocalizationProvider>
     )
 }
