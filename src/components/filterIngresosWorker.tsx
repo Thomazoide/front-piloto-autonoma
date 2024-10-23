@@ -1,11 +1,9 @@
 import { ingreso } from "@/types/ingreso";
 import { sala } from "@/types/sala";
 import { sede } from "@/types/sede";
-import { Calendar24Regular, CatchUp24Regular } from "@fluentui/react-icons";
-import { parseAbsoluteToLocal, parseDate } from "@internationalized/date";
-import { Button, DatePicker, DateValue, ScrollShadow, TimeInput, TimeInputValue } from "@nextui-org/react";
+import { ScrollShadow } from "@nextui-org/react";
 import moment from "moment";
-import { ReactElement, useState } from "react";
+import { ReactElement } from "react";
 import { worker_ingreso } from "./utils/function_lib";
 
 interface FIWProps{
@@ -15,10 +13,7 @@ interface FIWProps{
 }
 
 export default function FilterIngresosWorker(props: Readonly<FIWProps>): ReactElement{
-    const [ingresosFiltrados, setIngresosFiltrados] = useState<ingreso[]>(props.entity.ingresos)
-    const [fecha, setFecha] = useState<DateValue>(parseDate(new Date().toISOString().split("T")[0]))
-    const [horaInicial, setHoraInicial] = useState<TimeInputValue>(parseAbsoluteToLocal(moment(new Date().toISOString()).subtract({hours: 1}).toDate().toISOString()))
-    const [horaFinal, setHoraFinal] = useState<TimeInputValue>(parseAbsoluteToLocal(new Date().toISOString()))
+    const ingresosFiltrados = props.entity.ingresos
 
     const findSala = function(i: ingreso): sala{
         const salaTemp: sala = props.salas.filter( (s) => s.id_gateway === i.id_gateway )[0]
@@ -31,37 +26,8 @@ export default function FilterIngresosWorker(props: Readonly<FIWProps>): ReactEl
         return sedeTemp
     }
 
-    const handleFilters = function(){
-        
-        const ingresosFiltradosTemp: ingreso[] = props.entity.ingresos.filter( (i) => {
-            const fechaHoraInicial = moment(`${fecha.toString()}T${horaInicial.toString().split("T")[1].split("-")[0]}Z`).utc()
-            const fechaHoraFinal = moment(`${fecha.toString()}T${horaFinal.toString().split("T")[1].split("-")[0]}Z`).utc()
-            const fechaMoment = moment(i.hora).utc()
-            return fechaMoment.isBetween(fechaHoraInicial, fechaHoraFinal, null, "(]")
-        } )
-        setIngresosFiltrados(ingresosFiltradosTemp)
-    }
-
     return(
         <div className="flex flex-col gap-2 items-center w-full h-fit">
-            <div className="flex flex-col gap-1 w-[50%] h-fit">
-                <DatePicker label="fecha" color="danger" selectorIcon={
-                    <Calendar24Regular/>
-                } value={fecha} onChange={setFecha} size="sm"/>
-            </div>
-            <div className="flex flex-row gap-1 w-[50%] h-fit align-center items-center justify-evenly">
-                <TimeInput label="Hora inicial" value={horaInicial} onChange={setHoraInicial} color="danger" size="sm"/>
-                <CatchUp24Regular/>
-                <TimeInput label="Hora final" value={horaFinal} onChange={setHoraFinal} color="danger" size="sm"/>
-            </div>
-            <Button color="danger" size="sm" variant="solid" onClick={handleFilters}>
-                Filtrar
-            </Button>
-            <p>
-                <strong>
-                    Registros encontrados:
-                </strong>
-            </p>
             <div className="flex flex-col gap-1 max-h-[200px] w-full ">
                 <ScrollShadow className="w-full max-h-[200px] p-[10px] ">
                     {

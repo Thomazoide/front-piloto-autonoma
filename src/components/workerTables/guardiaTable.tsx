@@ -15,12 +15,12 @@ import {
 import { Edit32Regular, Delete32Regular } from "@fluentui/react-icons";
 import { worker_ingreso } from "../utils/function_lib";
 import { LocalizationProvider } from "@mui/x-date-pickers";
-import FilterIngresosWorker from "../filterIngresosWorker";
 import { sede } from "@/types/sede";
 import { sala } from "@/types/sala";
 import EditWorkerModal from "../utils/editWorkerModal";
 import { worker } from "@/types/worker";
 import DeleteWorkerModal from "../utils/deleteWorkerModal";
+import WorkerInfo from "./workerInfo";
 
 interface GTProps {
     listaGuardias: worker_ingreso[]
@@ -100,12 +100,12 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
         },
         renderDetailPanel: ({ row }) => (
             <Box>
-                <div className="flex justify-evenly p-[15px] w-full h-[150px]">
+                <div className="flex justify-evenly p-[15px] w-full h-fit">
                     <Typography variant="h4">
                         Ingresos
                     </Typography>
                 </div>
-                <FilterIngresosWorker entity={row.original} salas={props.salas} sedes={props.sedes} />
+                <WorkerInfo entity={row.original} sedes={props.sedes} salas={props.salas} />
             </Box>
         ),
         renderRowActionMenuItems: ({ closeMenu, row }) => (

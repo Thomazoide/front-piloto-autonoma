@@ -115,7 +115,7 @@ export function obtenerHoradeFecha(fecha: Date): string{
 
 //recibe una fecha y devuelve la fecha en formato "DD/MM/YYYY"
 export function obtenerFechaFormatoI(fecha: Date): string{
-    const nuevaFecha: string = `${fecha.getDate() < 10 ? "0":""}${fecha.getDate()}/${fecha.getMonth() < 10 ? "0":""}${fecha.getMonth()}/${fecha.getFullYear()}`
+    const nuevaFecha: string = `${fecha.getDate() < 10 ? "0":""}${fecha.getDate()}/${fecha.getMonth()+1 < 10 ? "0":""}${fecha.getMonth()+1}/${fecha.getFullYear()}`
     return nuevaFecha
 }
 
@@ -277,4 +277,72 @@ export async function getAllSalas(token: string): Promise<sala[]>{
     const SALAS_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/sala`
     const salas: sala[] = (await axios.get<sala[]>(SALAS_ENDPOINT, CONFIG)).data
     return salas
+}
+
+//RETORNA LAS SALAS DE UNA SEDE ENTREGADA COMO ARGUMENTO JUNTO CON EL TOKEN DE ACCESO
+export async function getSalasBySede(sede: sede, token: string): Promise<sala[]>{
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const SALAS_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/sala/sede`
+    const response: AxiosResponse<sala[]> = await axios.post(SALAS_ENDPOINT, sede, CONFIG)
+    return response.data
+}
+
+//RETORNA UNA LISTA CON LOS AÑOS DE LOS QUE TIENE REGISTRO LA LISTA DE INGRESOS ENTREGADA COMO PARÁMETRO
+export function GetYearsFromAttendanceList(ingresos: ingreso[]): Array<number>{
+    const yearListUnordered: Array<number> = []
+    for(let ingreso of ingresos){
+        yearListUnordered.push(new Date(ingreso.hora).getFullYear())
+    }
+    return Array.from(new Set(yearListUnordered))
+}
+
+//RETORNA UNA LISTA DE INGRESOS SEGUN EL AÑO Y EL MES ENTREGADO COMO PARAMETRO
+export function SortAttendancesByMonthAndYear(attendances: ingreso[], month: number, year: number): ingreso[]{
+    const newAttendances: ingreso[] = []
+    for(let attendance of attendances){
+        if((new Date(attendance.hora).getMonth() === month) && (new Date(attendance.hora).getFullYear() === year)){
+            console.log(new Date(attendance.hora).getMonth())
+            newAttendances.push(attendance)
+        }
+    }
+    return newAttendances
+}
+
+//RETORNA EL NUMERO DE SEMANAS DE UN MES SEGUN EL AÑOY EL MES ENTREGADO COMO PARÁMETRO
+export function GetWeeksOfMonth(year: number, month: number): string[]{
+    const start = moment([year, month])
+    const weeks = Math.ceil(start.daysInMonth()/7)
+    const weekList: string[] = []
+    for(let i = 1 ; i <= weeks ; i++){
+        weekList.push(`semana ${i}`)
+    }
+    return weekList
+}
+
+export interface weekAttendance{
+    week: number
+    ingresos: ingreso[]
+}
+
+//RETORNA UNA LISTA DE INGRESOS AGRUPADOS POR SEMANA DEL MES, ASUMIENDO QUE LA LISTA YA ENTREGA UNA LISTA DE INGRESOS ORDENADAS DENTRO DE UN MES ESPECIFICO
+export function SortAttendancesByWeeks(attendances: ingreso[]): Array<weekAttendance>{
+    const groupedAttendances: Array<{week: number, ingresos: ingreso[]}> = []
+    attendances.forEach( att => {
+        const objDate = moment(att.hora)
+        const weekNumber = objDate.week()
+        console.log(weekNumber)
+        if(!groupedAttendances.find( g => g.week === weekNumber )){
+            groupedAttendances.push({week: weekNumber, ingresos: []})
+        }
+        groupedAttendances.find( g => g.week === weekNumber )!.ingresos.push(att)
+    } )
+    return groupedAttendances
+}
+
+export function GetSalaByAttendance(attendance: any,  salas: any[]): sala{
+    return salas.filter( (s) => s.id_gateway === attendance.id_gateway )[0]
 }
