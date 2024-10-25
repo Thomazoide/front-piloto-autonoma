@@ -55,7 +55,8 @@ export default function CalendarView(props: Readonly<CVProps>): ReactElement{
             locale="es"
             timeZone="America/Santiago"
             eventClick={handleEventClick}
-            events={props.events}/>
+            events={props.events}
+            weekNumbers/>
         </div>
     )
 }
