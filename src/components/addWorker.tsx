@@ -5,7 +5,7 @@ import { ChangeEvent, ReactElement, useEffect, useState } from "react"
 import { timeOut } from "./utils/function_lib"
 import { worker } from "@/types/worker"
 import { beacon } from "@/types/beacon"
-import axios, { AxiosResponse } from "axios"
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import { Select, SelectItem, Spinner } from "@nextui-org/react"
 import { CloseButton } from "react-bootstrap"
 
@@ -27,6 +27,15 @@ export default function AddWorker(props: Readonly<AWProps>): ReactElement{
     const [error, setError] = useState<Error>()
     const [beacons, setBeacons] = useState<beacon[]>()
 
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${props.token}`
+        }
+    }
+
+    const ADD_WORKER_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/${props.tipo}`
+    const GET_FREE_BEACONS_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/beacon/free`
+
     //METODOS
     
     const handleBeaconSelect = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -44,11 +53,7 @@ export default function AddWorker(props: Readonly<AWProps>): ReactElement{
                 celular,
                 id_beacon: idBeacon
             }
-            axios.post(`${import.meta.env.VITE_API_URL}/${props.tipo}`, newWorker, {
-                headers: {
-                    Authorization: `Bearer ${props.token}`
-                }
-            }).then( (res: AxiosResponse<worker>) => {
+            axios.post(ADD_WORKER_ENDPOINT, newWorker, CONFIG).then( (res: AxiosResponse<worker>) => {
                 console.log(res.data)
                 setSuccess(true)
                 setError(undefined)
@@ -67,11 +72,7 @@ export default function AddWorker(props: Readonly<AWProps>): ReactElement{
 
     useEffect( () => {
         if(!beacons){
-            axios.get(`${import.meta.env.VITE_API_URL}/beacon/free`, {
-                headers: {
-                    Authorization: `Bearer ${props.token}`
-                }
-            }).then( (res: AxiosResponse<beacon[]>) => {
+            axios.get(GET_FREE_BEACONS_ENDPOINT, CONFIG).then( (res: AxiosResponse<beacon[]>) => {
                 setBeacons(res.data)
             } )
         }

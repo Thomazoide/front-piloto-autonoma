@@ -15,12 +15,14 @@ import {
 import { Edit32Regular, Delete32Regular } from "@fluentui/react-icons";
 import { worker_ingreso } from "../utils/function_lib";
 import { LocalizationProvider } from "@mui/x-date-pickers";
-import FilterIngresosWorker from "../filterIngresosWorker";
 import { sede } from "@/types/sede";
 import { sala } from "@/types/sala";
 import EditWorkerModal from "../utils/editWorkerModal";
 import { worker } from "@/types/worker";
 import DeleteWorkerModal from "../utils/deleteWorkerModal";
+import WorkerInfo from "./workerInfo";
+import { Button } from "@nextui-org/button";
+import AddWorkerModal from "../utils/addWorkerModal";
 
 interface GTProps {
     listaGuardias: worker_ingreso[]
@@ -37,6 +39,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     const [selectedEntity, setSelectedEntity] = useState<worker>()
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
+    const [showModal, setShowModal] = useState<boolean>(false)
     const columns = useMemo<MRT_ColumnDef<worker_ingreso>[]>(
         () => [
             {
@@ -100,12 +103,12 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
         },
         renderDetailPanel: ({ row }) => (
             <Box>
-                <div className="flex justify-evenly p-[15px] w-full h-[150px]">
+                <div className="flex justify-evenly p-[15px] w-full h-fit">
                     <Typography variant="h4">
                         Ingresos
                     </Typography>
                 </div>
-                <FilterIngresosWorker entity={row.original} salas={props.salas} sedes={props.sedes} />
+                <WorkerInfo entity={row.original} sedes={props.sedes} salas={props.salas} />
             </Box>
         ),
         renderRowActionMenuItems: ({ closeMenu, row }) => (
@@ -136,6 +139,11 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
             <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center', paddingLeft: '100px', paddingTop: '15px' }}>
                 <MRT_GlobalFilterTextField table={table} />
                 <MRT_ToggleFiltersButton table={table} />
+                <div className="flex w-full justify-end pr-[150px] ">
+                    <Button color="danger" onPress={ () => setShowModal(true) } >
+                        Crear {props.workerType}
+                    </Button>
+                </div>
             </Box>
         )
     })
@@ -144,6 +152,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     }, [])
     return (
         <LocalizationProvider>
+            <AddWorkerModal token={props.token} showModal={showModal} setShowModal={setShowModal} tipo={props.workerType} refetch={props.refetch}/>
             <DeleteWorkerModal token={props.token} entity={selectedEntity!} isOpen={isDeleteOpen} workerType={props.workerType} setIsOpen={setIsDeleteOpen} refetch={props.refetch} />
             <EditWorkerModal token={props.token} entity={selectedEntity!} isOpen={isOpen} workerType={props.workerType} setIsOpen={setIsOpen} refetch={props.refetch} />
             <MaterialReactTable table={table} />
