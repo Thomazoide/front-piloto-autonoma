@@ -44,7 +44,7 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
     return(
         <Navbar collapseOnSelect expand='lg' className="bg-ua-gray shadow-lg" data-bs-theme="dark" sticky="top">
             
-                <Navbar.Brand href='/home' className="max-h-[80px] shadow-sm ">
+                <Navbar.Brand href={`/dashboard/${state.user?.token.split('.')[0]}`} className="max-h-[80px] shadow-sm ">
                     
                     <Image alt="logo-uautonoma" src="https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/autonoma-logo.png" className="max-h-[70px]"/>
                     

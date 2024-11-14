@@ -31,7 +31,7 @@ export default function SedeMonitor(): ReactElement {
         const id: number = Number(e.target.value)
         const item: sede | undefined = sedes?.find((sede) => sede.id === id)
         setSelectedSede(item)
-        GetWorkersByAltitude(state.user!.token, "guardia")
+        GetWorkersByAltitude(state.user!.token, workerType)
             .then((workers) => setWorkerList(workers))
     }
 
