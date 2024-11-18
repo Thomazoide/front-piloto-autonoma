@@ -16,15 +16,18 @@ export default function HomeComponent(): ReactElement {
 
     const classNames1: string = "flex flex-col items-center max-h-[75px gap-1 rounded-xl p-[15px] border-2 border-solid border-danger-300 text-center "
 
+    function fetchData(){
+        GetActiveRooms( state.user!.token )
+            .then( (value) => setSalasActivas(value) )
+        GetAllDocentes( state.user!.token )
+            .then( (workers) => setDocentes(workers) )
+        GetActiveWorkers("docente", state.user!.token)
+            .then( ( workers ) => setDocentesActivos( workers.length ))
+    }
+
     useEffect( () => {
-        const refetchInterval = setInterval( () => {
-            GetActiveRooms( state.user!.token )
-                .then( (value) => setSalasActivas(value) )
-            GetAllDocentes( state.user!.token )
-                .then( (workers) => setDocentes(workers) )
-            GetActiveWorkers("docente", state.user!.token)
-                .then( ( workers ) => setDocentesActivos( workers.length ) )
-        }, 15000 )
+        !docentes && fetchData()
+        const refetchInterval = setInterval( fetchData, 15000 )
         return () => clearInterval(refetchInterval)
     }, [] )
 
@@ -55,7 +58,7 @@ export default function HomeComponent(): ReactElement {
                 </div>
             </div>
             {
-                !seeCharts ?
+                !seeCharts && docentes ?
                 <HomeMap token={state.user!.token} workers={docentes!} />
                 : <Dashboard/>
             }

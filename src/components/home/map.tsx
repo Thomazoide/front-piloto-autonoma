@@ -53,7 +53,22 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
                 }
                 {
                     props.workers.map( (w) => (
-                        w.ubicacion && <ReactleafletDriftMarker position={{lat: w.ubicacion.locations[0].coords.latitude, lng: w.ubicacion.locations[0].coords.longitude}} duration={1000}/>
+                        w.ubicacion && <ReactleafletDriftMarker position={{lat: w.ubicacion.locations[0].coords.latitude, lng: w.ubicacion.locations[0].coords.longitude}} duration={1000}>
+                            <Popup>
+                                <p>
+                                    {w.nombre}
+                                    <br/>
+                                    <hr/>
+                                    rut: {w.rut}
+                                    <br/>
+                                    <hr/>
+                                    email: {w.email}
+                                    <br/>
+                                    <hr/>
+                                    celular: {w.celular}
+                                </p>
+                            </Popup>
+                        </ReactleafletDriftMarker>
                     ) )
                 }
             </MapContainer> : isLoading && <Spinner color="danger" size="lg"/>}
