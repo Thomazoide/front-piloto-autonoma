@@ -24,7 +24,9 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
         setIsLoading(false)
     }
 
-    
+    function changeCenter(){
+        return
+    }
 
     useEffect( () => {
         !sedes && getSedes()
@@ -47,6 +49,11 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
                 {
                     sedes.map( (sede) => (
                         <GeoJSON data={sede.m2}/>
+                    ) )
+                }
+                {
+                    props.workers.map( (w) => (
+                        w.ubicacion && <ReactleafletDriftMarker position={{lat: w.ubicacion.locations[0].coords.latitude, lng: w.ubicacion.locations[0].coords.longitude}} duration={1000}/>
                     ) )
                 }
             </MapContainer> : isLoading && <Spinner color="danger" size="lg"/>}
