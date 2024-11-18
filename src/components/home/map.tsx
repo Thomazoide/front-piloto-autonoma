@@ -1,11 +1,11 @@
-import { ReactElement, useEffect, useState } from "react";
+import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 import { MapContainer, TileLayer, GeoJSON, Popup } from "react-leaflet";
 import ReactleafletDriftMarker from 'react-leaflet-drift-marker'
 import { GetAllSedes } from "../utils/function_lib";
 import { worker } from "@/types/worker";
 import { sede } from "@/types/sede";
-import { Spinner } from "@nextui-org/react";
-import { LatLngExpression } from "leaflet";
+import { Select, SelectItem, SelectSection, Spinner } from "@nextui-org/react";
+import { Icon, LatLngExpression } from "leaflet";
 
 interface mapProps{
     token: string
@@ -24,9 +24,21 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
         setIsLoading(false)
     }
 
-    function changeCenter(){
-        return
+    function changeCenter(e: ChangeEvent<HTMLSelectElement>){
+        const selectedSede: sede = sedes!.filter( (sede) => sede.id === Number(e.target.value) )[0]
+        const nuevoCentro: LatLngExpression = {
+            lat: selectedSede.ubicacion.features[0].geometry.coordinates[1],
+            lng: selectedSede.ubicacion.features[0].geometry.coordinates[0]
+        }
+        console.log(nuevoCentro)
+        setCenter(nuevoCentro)
     }
+
+    const DocenteIcon = new Icon({
+        iconUrl: "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg",
+        iconAnchor: [32, 16],
+        iconSize: [32, 32]
+    })
 
     useEffect( () => {
         !sedes && getSedes()
@@ -38,8 +50,23 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
     }, [sedes] )
 
     return(
-        <div className="flex justify-center w-full h-[800px] border-3 border-solid rounded-xl  ">
-           {!isLoading && center && sedes ? <MapContainer center={center} zoom={20} style={{
+        <div className="flex flex-col gap-3 p-[10px] items-center w-full h-[800px] border-3 border-solid rounded-xl  ">
+           {!isLoading && center && sedes ? 
+           <>
+           <div className="flex justify-center w-full">
+                <Select label="sede" selectionMode="single" defaultSelectedKeys={["1"]} onChange={changeCenter} >
+                    <SelectSection>
+                    {
+                        sedes.map( (sede) => (
+                            <SelectItem accessKey={String(sede.id)} key={String(sede.id)} value={sede.id} >
+                                {sede.nombre}
+                            </SelectItem>
+                        ) )
+                    }
+                    </SelectSection>
+                </Select>
+           </div>
+           <MapContainer key={JSON.stringify(center)} center={center} zoom={20} style={{
                 height: "100%",
                 width: "100%"
             }}>
@@ -53,7 +80,7 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
                 }
                 {
                     props.workers.map( (w) => (
-                        w.ubicacion && <ReactleafletDriftMarker position={{lat: w.ubicacion.locations[0].coords.latitude, lng: w.ubicacion.locations[0].coords.longitude}} duration={1000}>
+                        w.ubicacion && <ReactleafletDriftMarker icon={DocenteIcon} position={{lat: w.ubicacion.locations[0].coords.latitude, lng: w.ubicacion.locations[0].coords.longitude}} duration={1000}>
                             <Popup>
                                 <p>
                                     {w.nombre}
@@ -71,7 +98,8 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
                         </ReactleafletDriftMarker>
                     ) )
                 }
-            </MapContainer> : isLoading && <Spinner color="danger" size="lg"/>}
+            </MapContainer>
+            </> : isLoading && <Spinner color="danger" size="lg"/>}
         </div>
     )
 }

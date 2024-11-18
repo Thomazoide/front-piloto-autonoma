@@ -1,5 +1,4 @@
 import DefaultLayout from "@/layouts/default";
-import Dashboard from "@/components/charts/dashboardCharts";
 import HomeComponent from "@/components/home/home";
 
 export default function IndexPage() {

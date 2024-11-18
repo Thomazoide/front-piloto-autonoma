@@ -1,27 +1,39 @@
 import { useState, useEffect, ReactElement, ChangeEvent } from "react";
-import { Button, Select, SelectItem, SelectSection, Spinner } from "@nextui-org/react"
-import { GetAllSedes, GetWorkersByAltitude } from "@/components/utils/function_lib"
+import { Select, SelectItem, SelectSection, Spinner, Switch } from "@nextui-org/react"
+import { getAllSalas, GetAllSedes, GetWorkersByAltitude } from "@/components/utils/function_lib"
 import { GeoJson, sede } from "@/types/sede";
 import { useAuthContext } from "@/hooks/useLoginContext";
 import MapComponent from "./mapComponent";
 import { worker } from "@/types/worker";
 import axios, { AxiosRequestConfig } from "axios";
-import IconoGuardiaSVG from "../svgComponents/IconoGuardiaSVG";
 import IconoDocentes from "../svgComponents/IconoDocentes";
+import IconoSalas from "../svgComponents/iconoSalas";
+import { sala } from "@/types/sala";
 
 export default function SedeMonitor(): ReactElement {
     const [sedes, setSedes] = useState<sede[]>()
+    const [salas, setSalas] = useState<sala[]>()
     const [selectedSede, setSelectedSede] = useState<sede>()
     const { state } = useAuthContext()
     const [selectedFloor, setSelectedFloor] = useState<GeoJson<number[][][]>>()
     const [workerList, setWorkerList] = useState<worker[]>()
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [workerType, setWorkerType] = useState<"guardia" | "docente">("guardia")
+    const [workerType] = useState<"guardia" | "docente">("docente")
+    const [showWorkers, setShowWorkers] = useState<boolean>(false)
+    const [showSalas, setShowSalas] = useState<boolean>(false)
 
     async function getSedes() {
         if (state.user) {
             setIsLoading(true)
             setSedes(await GetAllSedes(state.user.token))
+            setIsLoading(false)
+        }
+    }
+
+    async function getSalas() {
+        if (state.user) {
+            setIsLoading(true)
+            setSalas(await getAllSalas(state.user.token))
             setIsLoading(false)
         }
     }
@@ -39,26 +51,27 @@ export default function SedeMonitor(): ReactElement {
         console.log(e.target.value)
         if (!e.target.value) {
             setSelectedFloor(undefined)
-            GetWorkersByAltitude(state.user!.token, "guardia")
+            GetWorkersByAltitude(state.user!.token, workerType)
                 .then((workers) => setWorkerList(workers))
             return
         }
         const index: number = Number(e.target.value)
         if (index === -1) {
             setSelectedFloor(undefined)
-            GetWorkersByAltitude(state.user!.token, "guardia")
+            GetWorkersByAltitude(state.user!.token, workerType)
                 .then((workers) => setWorkerList(workers))
             return
         }
         if (selectedSede && selectedSede.plantas) {
             setSelectedFloor(selectedSede.plantas[index])
-            GetWorkersByAltitude(state.user!.token, "guardia", index + 1)
+            GetWorkersByAltitude(state.user!.token, workerType, index + 1)
                 .then((workers) => setWorkerList(workers))
         }
     }
 
     useEffect(() => {
         getSedes()
+        getSalas()
         if (workerList) {
             const updateWorkersData = setInterval(() => {
                 const CONFIG: AxiosRequestConfig = {
@@ -66,7 +79,7 @@ export default function SedeMonitor(): ReactElement {
                         Authorization: `Bearer ${state.user!.token}`
                     }
                 }
-                const ENDPOINT: string = `${import.meta.env.VITE_API_URL}/guardia/findOne`
+                const ENDPOINT: string = `${import.meta.env.VITE_API_URL}/${workerType}/findOne`
                 const updatedWorkers: worker[] = []
                 try {
                     workerList.map((w) => {
@@ -104,16 +117,12 @@ export default function SedeMonitor(): ReactElement {
             {
                 selectedSede &&
                 <div className="flex flex-row justify-between p-[15px] w-[800px] ">
-                    <Button color="danger" variant="flat" value="guardia" startContent={
-                        <IconoGuardiaSVG />
-                    } onPress={() => setWorkerType("guardia")} >
-                        Guardias
-                    </Button>
-                    <Button color="danger" variant="flat" value="docente" startContent={
-                        <IconoDocentes />
-                    } onPress={() => setWorkerType("docente")} >
-                        Docentes
-                    </Button>
+                    <Switch color="danger" thumbIcon={IconoDocentes} isSelected={showWorkers} onValueChange={setShowWorkers} >
+                        Mostrar docentes activos
+                    </Switch>
+                    <Switch color="danger" thumbIcon={IconoSalas} isSelected={showSalas} onValueChange={setShowSalas}>
+                        Mostrar salas
+                    </Switch>
                 </div>
             }
             {selectedSede &&
@@ -139,7 +148,7 @@ export default function SedeMonitor(): ReactElement {
                         </Select>
                     </div>
                     <div className="flex justify-center" style={{ height: "750px", width: "750px" }} >
-                        <MapComponent sede={selectedSede} workerType={workerType} planta={selectedFloor} workers={workerList} />
+                        <MapComponent showWorkers={showWorkers} sede={selectedSede} workerType={workerType} planta={selectedFloor} workers={workerList} salas={salas} showSalas={showSalas} />
                     </div>
                 </div>
             }
