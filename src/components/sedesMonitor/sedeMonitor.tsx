@@ -114,17 +114,7 @@ export default function SedeMonitor(): ReactElement {
                         : isLoading && <Spinner color="danger" label="Cargando..." />
                 }
             </div>
-            {
-                selectedSede &&
-                <div className="flex flex-row justify-between p-[15px] w-[800px] ">
-                    <Switch color="danger" thumbIcon={IconoDocentes} isSelected={showWorkers} onValueChange={setShowWorkers} >
-                        Mostrar docentes activos
-                    </Switch>
-                    <Switch color="danger" thumbIcon={IconoSalas} isSelected={showSalas} onValueChange={setShowSalas}>
-                        Mostrar salas
-                    </Switch>
-                </div>
-            }
+            
             {selectedSede &&
                 <div className="flex flex-col gap-3 p-[15px] items-center w-[800px] h-[800px] bg-default-300 bg-opacity-25 rounded-xl border-double border-2 border-danger-300 shadow-xl shadow-danger-200 ">
                     <div className="flex w-full justify-end ">
@@ -147,6 +137,14 @@ export default function SedeMonitor(): ReactElement {
                             }
                         </Select>
                     </div>
+                    <div className="flex flex-row justify-between p-[15px] w-[800px] ">
+                    <Switch color="danger" thumbIcon={IconoDocentes} isSelected={showWorkers} onValueChange={setShowWorkers} >
+                        Mostrar docentes activos
+                    </Switch>
+                    <Switch color="danger" thumbIcon={IconoSalas} isSelected={showSalas} onValueChange={setShowSalas}>
+                        Mostrar salas
+                    </Switch>
+                </div>
                     <div className="flex justify-center" style={{ height: "750px", width: "750px" }} >
                         <MapComponent showWorkers={showWorkers} sede={selectedSede} workerType={workerType} planta={selectedFloor} workers={workerList} salas={salas} showSalas={showSalas} />
                     </div>
