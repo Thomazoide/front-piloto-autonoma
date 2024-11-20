@@ -346,3 +346,24 @@ export function SortAttendancesByWeeks(attendances: ingreso[]): Array<weekAttend
 export function GetSalaByAttendance(attendance: any,  salas: any[]): sala{
     return salas.filter( (s) => s.id_gateway === attendance.id_gateway )[0]
 }
+
+export async function GetAllDocentes(token: string): Promise<worker[]> {
+    const ENDPOINT: string = `${import.meta.env.VITE_API_URL}/docente`
+    const CONFIG: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    return (await axios.get(ENDPOINT, CONFIG)).data
+}
+
+export function GetActiveDocentes(docentes: worker[]): number {
+    let active: number = 0
+    docentes.forEach( (docente) => docente.ubicacion ?? active++)
+    return active
+}
+
+export async function GetActiveRooms(token: string): Promise<number> {
+    const salas: sala[] = await getAllSalas(token)
+    return salas.length
+}

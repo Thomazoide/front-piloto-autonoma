@@ -105,7 +105,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
             <Box>
                 <div className="flex justify-evenly p-[15px] w-full h-fit">
                     <Typography variant="h4">
-                        Ingresos
+                        Registro de ingresos
                     </Typography>
                 </div>
                 <WorkerInfo entity={row.original} sedes={props.sedes} salas={props.salas} />

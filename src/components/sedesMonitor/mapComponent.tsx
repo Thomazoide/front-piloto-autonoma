@@ -5,14 +5,18 @@ import { Content, icon, LatLngExpression, PopupOptions } from "leaflet";
 import { worker } from "@/types/worker";
 import ReactLeafletDriftMarker from 'react-leaflet-drift-marker'
 import 'leaflet/dist/leaflet.css'
+import { sala } from "@/types/sala";
 
 type coordinates = number[][][]
 
 interface MCProps{
     planta?: GeoJson<coordinates>
     workers?: worker[]
+    salas?: sala[]
     sede: sede
     workerType: "guardia" | "docente"
+    showWorkers: boolean
+    showSalas?: boolean
 }
 
 export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
@@ -28,9 +32,15 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
         iconSize: [32, 32]
     })
 
+    const iconoSalas = icon({
+        iconUrl: "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/opened-door-aperture.png",
+        iconAnchor: [16, 16],
+        iconSize: [32, 32]
+    })
+
     return(
         props.sede &&
-        <MapContainer center={centro} zoom={20} style={{height: "100%", width: "100%"}} key={ props.planta ? JSON.stringify(props.planta) : JSON.stringify(props.sede.m2) }>
+        <MapContainer dragging={false} zoomControl={false} minZoom={15} center={centro} zoom={20} style={{height: "100%", width: "100%"}} key={ props.planta ? JSON.stringify(props.planta) : JSON.stringify(props.sede.m2) }>
             <TileLayer 
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
@@ -50,7 +60,7 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
                 : null
             }
             {
-                props.workers &&
+                props.workers && props.showWorkers &&
                 props.workers.map( (w) => {
                     if(w.ubicacion) return(
                         <ReactLeafletDriftMarker key={w.id} position={{
@@ -65,6 +75,19 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
                         </ReactLeafletDriftMarker>
                     )
                 } )
+            }
+            {
+                props.salas && props.showSalas &&
+                props.salas.map( (s) => (
+                    <ReactLeafletDriftMarker key={s.id} position={{
+                        //@ts-ignore
+                        lat: s.ubicacion.features[0].geometry.coordinates[1],
+                        //@ts-ignore
+                        lng: s.ubicacion.features[0].geometry.coordinates[0]
+                    }}
+                    duration={1000}
+                    icon={iconoSalas}></ReactLeafletDriftMarker>
+                ) )
             }
         </MapContainer>
     )
