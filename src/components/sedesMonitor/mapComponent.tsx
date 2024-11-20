@@ -40,7 +40,7 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
 
     return(
         props.sede &&
-        <MapContainer center={centro} zoom={20} style={{height: "100%", width: "100%"}} key={ props.planta ? JSON.stringify(props.planta) : JSON.stringify(props.sede.m2) }>
+        <MapContainer dragging={false} zoomControl={false} minZoom={15} center={centro} zoom={20} style={{height: "100%", width: "100%"}} key={ props.planta ? JSON.stringify(props.planta) : JSON.stringify(props.sede.m2) }>
             <TileLayer 
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />

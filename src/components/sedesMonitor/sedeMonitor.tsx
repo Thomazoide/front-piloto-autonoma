@@ -96,7 +96,7 @@ export default function SedeMonitor(): ReactElement {
     }, [])
 
     return (
-        <div className="flex flex-col gap-3 items-center p-[15px] ">
+        <div className="flex flex-col w-full gap-3 items-center p-[15px] ">
             <div className="flex max-w-[800px] min-w-[380px] justify-center" >
                 {
                     sedes && !isLoading ?
@@ -116,7 +116,7 @@ export default function SedeMonitor(): ReactElement {
             </div>
             
             {selectedSede &&
-                <div className="flex flex-col gap-3 p-[15px] items-center w-[800px] h-[800px] bg-default-300 bg-opacity-25 rounded-xl border-double border-2 border-danger-300 shadow-xl shadow-danger-200 ">
+                <div className="flex flex-col gap-3 p-[15px] items-center w-full bg-default-300 bg-opacity-25 rounded-xl border-double border-2 border-danger-300 shadow-xl shadow-danger-200 ">
                     <div className="flex w-full justify-end ">
                         <Select id="plant-select" color="danger" variant="underlined" size="md" label="Seleccionar planta" defaultSelectedKeys={['-1']} onChange={handleFloorSelection}>
                             <SelectSection>
@@ -145,7 +145,10 @@ export default function SedeMonitor(): ReactElement {
                         Mostrar salas
                     </Switch>
                 </div>
-                    <div className="flex justify-center" style={{ height: "750px", width: "750px" }} >
+                    <div className="flex justify-center " style={{
+                        height: "800px",
+                        width: "100%"
+                    }}  >
                         <MapComponent showWorkers={showWorkers} sede={selectedSede} workerType={workerType} planta={selectedFloor} workers={workerList} salas={salas} showSalas={showSalas} />
                     </div>
                 </div>
