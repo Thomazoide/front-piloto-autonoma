@@ -74,13 +74,13 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'/>
                 {
-                    sedes.map( (sede) => (
-                        <GeoJSON data={sede.m2}/>
+                    sedes.map( (sede, index) => (
+                        <GeoJSON key={index+1} data={sede.m2}/>
                     ) )
                 }
                 {
-                    props.workers.map( (w) => (
-                        w.ubicacion && <ReactleafletDriftMarker icon={DocenteIcon} position={{lat: w.ubicacion.locations[0].coords.latitude, lng: w.ubicacion.locations[0].coords.longitude}} duration={1000}>
+                    props.workers.map( (w, index) => (
+                        w.ubicacion && <ReactleafletDriftMarker key={index+1} icon={DocenteIcon} position={{lat: w.ubicacion.locations[0].coords.latitude, lng: w.ubicacion.locations[0].coords.longitude}} duration={1000}>
                             <Popup>
                                 <p>
                                     {w.nombre}

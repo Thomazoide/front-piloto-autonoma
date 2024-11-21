@@ -56,7 +56,6 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
                     <Nav.Link eventKey={"1"} accessKey={`/dashboard`} href={`/dashboard/${state.user?.token.split('.')[0]}`} onClick={handleNavigate}>Inicio</Nav.Link>
                     <Nav.Link eventKey={"2"} accessKey={`/sedes`} href={`/sedes/${state.user?.token.split('.')[0]}`} onClick={handleNavigate}>Sedes</Nav.Link>
                     <Nav.Link eventKey={"3"} accessKey={`/docentes`} href={`/docentes/${state.user?.token.split('.')[0]}`} onClick={handleNavigate} >Docentes</Nav.Link>
-                    <Nav.Link eventKey={"4"} accessKey={`/guardias`} href={`/guardias/${state.user?.token.split('.')[0]}`} onClick={handleNavigate} >Guardias</Nav.Link>
                     <Nav.Link eventKey={"5"} href="#user" className="text-center">
                         <Dropdown>
                             <DropdownTrigger>
