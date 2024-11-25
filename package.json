@@ -52,6 +52,7 @@
     "react-dom": "18.2.0",
     "react-leaflet": "^4.2.1",
     "react-leaflet-drift-marker": "^4.0.0",
+    "react-native-sse": "^1.2.1",
     "react-router-dom": "6.23.0",
     "recharts": "^2.12.7",
     "rut.ts": "^2.1.0",

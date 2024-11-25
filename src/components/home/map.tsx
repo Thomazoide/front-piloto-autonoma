@@ -85,13 +85,19 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
                                 <p>
                                     {w.nombre}
                                     <br/>
-                                    <hr/>
+                                </p>
+                                <hr/>
+                                <p>
                                     rut: {w.rut}
                                     <br/>
-                                    <hr/>
+                                </p>
+                                <hr/>
+                                <p>
                                     email: {w.email}
                                     <br/>
-                                    <hr/>
+                                </p>
+                                <hr/>
+                                <p>
                                     celular: {w.celular}
                                 </p>
                             </Popup>
