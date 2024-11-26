@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, ReactElement, useEffect, useMemo, useState } from "react";
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -23,6 +23,7 @@ import DeleteWorkerModal from "../utils/deleteWorkerModal";
 import WorkerInfo from "./workerInfo";
 import { Button } from "@nextui-org/button";
 import AddWorkerModal from "../utils/addWorkerModal";
+import { Input } from "@nextui-org/input";
 
 interface GTProps {
     listaGuardias: worker_ingreso[]
@@ -40,6 +41,28 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
     const [showModal, setShowModal] = useState<boolean>(false)
+    const [isFileTypeValid, setIsFileTypeValid] = useState<boolean>(false)
+    const [archivo, setArchivo] = useState<File>()
+
+    const checkFileType = function (e: ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.item(0)?.name
+        
+        if(file){
+            setArchivo(e.target.files!.item(0)!)
+            const extension = file.split(".")[1]
+            if(extension === 'csv'){
+                setIsFileTypeValid(true)
+                return
+            }
+            if(extension === 'xlsx'){
+                setIsFileTypeValid(true)
+                return
+            }
+            setIsFileTypeValid(false)
+            alert("tipo de archivo invalido")
+        }
+    }
+
     const columns = useMemo<MRT_ColumnDef<worker_ingreso>[]>(
         () => [
             {
@@ -139,10 +162,14 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
             <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center', paddingLeft: '100px', paddingTop: '15px' }}>
                 <MRT_GlobalFilterTextField table={table} />
                 <MRT_ToggleFiltersButton table={table} />
-                <div className="flex w-full justify-end pr-[150px] ">
+                <div className="flex flex-row gap-3 w-full justify-end pr-[150px] ">
                     <Button color="danger" onPress={ () => setShowModal(true) } >
                         Crear {props.workerType}
                     </Button>
+                    <div className="flex flex-col items-center border-1 border-solid border-danger-300 p-[10px] rounded-lg ">
+                        <p>Cargar desde archivo</p>
+                        <Input label="  " type="file" color="danger" variant="flat" placeholder="Cargar desde archivo" accept=".csv,.xlsx" size="sm" onChange={checkFileType} />
+                    </div>
                 </div>
             </Box>
         )
