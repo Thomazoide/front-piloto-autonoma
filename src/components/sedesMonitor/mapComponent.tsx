@@ -6,6 +6,8 @@ import { worker } from "@/types/worker";
 import ReactLeafletDriftMarker from 'react-leaflet-drift-marker'
 import 'leaflet/dist/leaflet.css'
 import { sala } from "@/types/sala";
+import { FullscreenControl } from "react-leaflet-fullscreen"
+import "../../../node_modules/react-leaflet-fullscreen/styles.css"
 
 type coordinates = number[][][]
 
@@ -40,10 +42,11 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
 
     return(
         props.sede &&
-        <MapContainer dragging={false} zoomControl={false} minZoom={15} center={centro} zoom={20} style={{height: "100%", width: "100%"}} key={ props.planta ? JSON.stringify(props.planta) : JSON.stringify(props.sede.m2) }>
+        <MapContainer dragging={false} scrollWheelZoom={false} zoomControl={false} minZoom={15} center={centro} zoom={20} style={{height: "100%", width: "100%"}} key={ props.planta ? JSON.stringify(props.planta) : JSON.stringify(props.sede.m2) }>
             <TileLayer 
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
+            <FullscreenControl/>
             <GeoJSON data={props.sede.m2}/>
             {
                 props.planta ?

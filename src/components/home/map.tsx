@@ -6,6 +6,8 @@ import { worker } from "@/types/worker";
 import { sede } from "@/types/sede";
 import { Select, SelectItem, SelectSection, Spinner } from "@nextui-org/react";
 import { Icon, LatLngExpression } from "leaflet";
+import { FullscreenControl } from 'react-leaflet-fullscreen';
+import "../../../node_modules/react-leaflet-fullscreen/styles.css";
 
 interface mapProps{
     token: string
@@ -50,7 +52,7 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
     }, [sedes] )
 
     return(
-        <div className="flex flex-col gap-3 p-[10px] items-center w-full h-[800px] border-3 border-solid rounded-xl  ">
+        <div className="flex flex-col gap-3 p-[10px] items-center w-full h-[800px] bg-white border-3 border-solid rounded-xl  ">
            {!isLoading && center && sedes ? 
            <>
            <div className="flex justify-center w-full">
@@ -69,10 +71,11 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
            <MapContainer key={JSON.stringify(center)} center={center} zoom={20} style={{
                 height: "100%",
                 width: "100%"
-            }}>
+            }} dragging={false} zoomControl={false} scrollWheelZoom={false} >
                 <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'/>
+                <FullscreenControl/>
                 {
                     sedes.map( (sede, index) => (
                         <GeoJSON key={index+1} data={sede.m2}/>

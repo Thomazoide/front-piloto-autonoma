@@ -2,9 +2,9 @@ import { worker } from "@/types/worker";
 import { Switch } from "@nextui-org/switch";
 import { useState, useEffect, ReactElement } from "react";
 import Dashboard from "../charts/dashboardCharts";
-import { GetActiveRooms, GetActiveWorkers, GetAllDocentes } from "../utils/function_lib";
+import { GetActiveRooms, GetAllDocentes } from "../utils/function_lib";
 import { useAuthContext } from "@/hooks/useLoginContext";
-import { ChartMultiple16Regular } from "@fluentui/react-icons";
+import { ChartMultiple16Regular, Map16Regular } from "@fluentui/react-icons";
 import HomeMap from "./map";
 
 export default function HomeComponent(): ReactElement {
@@ -14,15 +14,18 @@ export default function HomeComponent(): ReactElement {
     const [seeCharts, setSeeCharts] = useState<boolean>(false)
     const { state } = useAuthContext()
 
-    const classNames1: string = "flex flex-col items-center max-h-[75px gap-1 rounded-xl p-[15px] border-2 border-solid border-danger-300 text-center "
+    const classNames1: string = "flex flex-col items-center max-h-[75px gap-1 rounded-xl p-[15px] bg-white border-2 border-solid border-danger-300 text-center "
 
     function fetchData(){
         GetActiveRooms( state.user!.token )
             .then( (value) => setSalasActivas(value) )
         GetAllDocentes( state.user!.token )
-            .then( (workers) => setDocentes(workers) )
-        GetActiveWorkers("docente", state.user!.token)
-            .then( ( workers ) => setDocentesActivos( workers.length ))
+            .then( (workers) => {
+                if(workers && workers[0]){
+                    setDocentes(workers)
+                    setDocentesActivos(workers.filter( (w) => w.ubicacion).length)
+                }
+            } )
     }
 
     useEffect( () => {
@@ -50,10 +53,12 @@ export default function HomeComponent(): ReactElement {
                 </div>
                 <div className={classNames1}>
                     <p>
-                        Ver estadísticas
+                        { !seeCharts ? "Ver estadísticas" : "Ver mapa"}
                     </p>
                     <Switch color="danger" thumbIcon={
+                        !seeCharts ?
                         <ChartMultiple16Regular/>
+                        : <Map16Regular/>
                     } isSelected={seeCharts} onValueChange={setSeeCharts}/>
                 </div>
             </div>

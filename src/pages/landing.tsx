@@ -14,7 +14,7 @@ export default function Landing(): ReactElement{
     const {login, error, loading, successMessage} = useLogin()
     const {state} = useAuthContext()
     const navegar: NavigateFunction = useNavigate()
-    const background: string = "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/edificio-nuevo-providencia-autonoma-1.png"
+    const background: string = "https://storagejca.s3.sa-east-1.amazonaws.com/edificio-nuevo-providencia-autonoma-1.webp"
 
     const handleSubmit = async (e: KeyboardEvent<HTMLButtonElement | HTMLInputElement>) => {
         
@@ -46,7 +46,7 @@ export default function Landing(): ReactElement{
             height: '100vh'
         }}>
             <div className="flex justify-center align-center items-center">
-                <Image className="" src="https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/autonoma-logo.png" alt="logo-uautonoma" shadow shape="rounded"/>
+                <Image className="" src="https://storagejca.s3.sa-east-1.amazonaws.com/autonoma-logo.webp" alt="logo-uautonoma" shadow shape="rounded"/>
             </div>
             <div className="w-full p-[15px]">
                 <div className="flex justify-center text-center">
