@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, ReactElement, useEffect, useMemo, useState } from "react";
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -12,7 +12,7 @@ import {
     MenuItem,
     Typography
 } from '@mui/material'
-import { Edit32Regular, Delete32Regular } from "@fluentui/react-icons";
+import { Edit32Regular, Delete32Regular, ArrowClockwiseDashes16Regular } from "@fluentui/react-icons";
 import { worker_ingreso } from "../utils/function_lib";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { sede } from "@/types/sede";
@@ -23,6 +23,8 @@ import DeleteWorkerModal from "../utils/deleteWorkerModal";
 import WorkerInfo from "./workerInfo";
 import { Button } from "@nextui-org/button";
 import AddWorkerModal from "../utils/addWorkerModal";
+import { Form } from "react-bootstrap";
+import XlsxReader from "../utils/xlsxReader";
 
 interface GTProps {
     listaGuardias: worker_ingreso[]
@@ -40,6 +42,27 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
     const [showModal, setShowModal] = useState<boolean>(false)
+    const [isFileTypeValid, setIsFileTypeValid] = useState<boolean>(false)
+    const [archivo, setArchivo] = useState<Blob>()
+
+    const checkFileType = function (e: ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.item(0)
+        if(file){
+            if(file.type === 'text/csv'){
+                setIsFileTypeValid(true)
+                setArchivo(new Blob([file], {type: file.type}))
+                return
+            }
+            if(file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
+                setIsFileTypeValid(true)
+                setArchivo(new Blob([file], {type: file.type}))
+                return
+            }
+            setIsFileTypeValid(false)
+            alert("tipo de archivo invalido")
+        }
+    }
+
     const columns = useMemo<MRT_ColumnDef<worker_ingreso>[]>(
         () => [
             {
@@ -139,9 +162,18 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
             <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center', paddingLeft: '100px', paddingTop: '15px' }}>
                 <MRT_GlobalFilterTextField table={table} />
                 <MRT_ToggleFiltersButton table={table} />
-                <div className="flex w-full justify-end pr-[150px] ">
+                <div className="flex flex-row gap-3 w-full justify-end pr-[150px] ">
                     <Button color="danger" onPress={ () => setShowModal(true) } >
                         Crear {props.workerType}
+                    </Button>
+                    <div className="flex flex-col items-center border-1 border-solid border-danger-300 p-[10px] rounded-lg ">
+                        <p>Cargar desde archivo</p>
+                        <Form.Control type="file" size="sm" onChange={checkFileType} accept=".csv,.xlsx" />
+                    </div>
+                    <Button startContent={
+                        <ArrowClockwiseDashes16Regular/>
+                    } onPress={props.refetch} color="danger">
+                        Actualizar
                     </Button>
                 </div>
             </Box>
@@ -152,6 +184,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     }, [])
     return (
         <LocalizationProvider>
+            <XlsxReader file={archivo!} showModal={isFileTypeValid} setShowModal={setIsFileTypeValid} token={props.token}/>
             <AddWorkerModal token={props.token} showModal={showModal} setShowModal={setShowModal} tipo={props.workerType} refetch={props.refetch}/>
             <DeleteWorkerModal token={props.token} entity={selectedEntity!} isOpen={isDeleteOpen} workerType={props.workerType} setIsOpen={setIsDeleteOpen} refetch={props.refetch} />
             <EditWorkerModal token={props.token} entity={selectedEntity!} isOpen={isOpen} workerType={props.workerType} setIsOpen={setIsOpen} refetch={props.refetch} />

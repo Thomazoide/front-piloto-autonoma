@@ -4,7 +4,8 @@ import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { CloseButton } from "react-bootstrap";
-import { format } from "rut.ts"
+import { format, validate } from "rut.ts";
+import { isEmail, isAlpha, isNumeric } from "validator";
 
 interface EWProps{
     tipo: 'guardia' | 'docente'
@@ -29,10 +30,33 @@ export default function EditWorker(props: Readonly<EWProps>): ReactElement{
         }
     }
 
+    const isFormDataValid = (): boolean => {
+        const tempData = {
+            nombre: nombre ? isAlpha(nombre, 'es-ES') : undefined,
+            rut: rut && rut.split("-") && isNumeric(rut.split("-")[0]) && isNumeric(rut.split("-")[1]) ? (validate(format(rut, {dots: false}))) : undefined,
+            email: email ? isEmail(email) : undefined,
+            celular: celular ? isNumeric(celular) : undefined,
+        }
+        const keys = Object.values(tempData)
+        for(let key of keys) {
+            if(key !== undefined || key !== true) {
+                setErrorMessage("Los campos a modificar deben ser validos")
+                return false
+            }
+        } 
+        return true
+    }
+
     const handleSubmit = () => {
         setIsLoading(true)
         if(!nombre && !rut && !email && !celular){
             setErrorMessage("Se debe rellenar por lo menos un campo")
+            setError(true)
+            setIsLoading(false)
+            return
+        }
+        const isValid: boolean = isFormDataValid()
+        if(!isValid){
             setError(true)
             setIsLoading(false)
             return

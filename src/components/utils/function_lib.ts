@@ -193,7 +193,7 @@ export async function GetActiveWorkers(tipo: "guardia" | "docente", token: strin
         }
     }
     const WORKER_ENDPOINT: string = `${import.meta.env.VITE_API_URL}/${tipo}`
-    const ACTUAL_TIME_HOUR_LESS = moment(new Date()).subtract({hours: 1})
+    const ACTUAL_TIME_HOUR_LESS = moment(new Date()).subtract({hours: 4})
     const ACTUAL_TIME = moment(new Date())
     const response: AxiosResponse<worker[]> = await axios.get(WORKER_ENDPOINT, CONFIG)
     const activeWorkers: worker[] = []

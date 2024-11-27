@@ -48,7 +48,7 @@ export default function AddWorker(props: Readonly<AWProps>): ReactElement{
 
     const isFormDataValid = (): boolean => {
         if(nombre && apellido && rut && email && celular && idBeacon){
-            if((validator.isAlpha(nombre, "es-ES") && validator.isAlpha(apellido, "es-ES")) && (format(rut, {dots: false}) && validate(rut)) && validator.isEmail(email) && (celular.length === 9)){
+            if((validator.isAlpha(nombre, "es-ES") && validator.isAlpha(apellido, "es-ES")) && (format(rut, {dots: false}) && validate(rut)) && validator.isEmail(email) && (celular.length === 9 && validator.isNumeric(celular))){
                 return true
             } else {
                 setError(new Error("Debe ingresar datos validos"))
