@@ -49,13 +49,13 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
         const file = e.target.files?.item(0)
         if(file){
             if(file.type === 'text/csv'){
-                setIsFileTypeValid(true)
                 setArchivo(new Blob([file], {type: file.type}))
+                setIsFileTypeValid(true)
                 return
             }
             if(file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
-                setIsFileTypeValid(true)
                 setArchivo(new Blob([file], {type: file.type}))
+                setIsFileTypeValid(true)
                 return
             }
             setIsFileTypeValid(false)
@@ -184,7 +184,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     }, [])
     return (
         <LocalizationProvider>
-            <XlsxReader file={archivo!} showModal={isFileTypeValid} setShowModal={setIsFileTypeValid} token={props.token}/>
+            { archivo && <XlsxReader file={archivo} showModal={isFileTypeValid} setShowModal={setIsFileTypeValid} token={props.token}/>}
             <AddWorkerModal token={props.token} showModal={showModal} setShowModal={setShowModal} tipo={props.workerType} refetch={props.refetch}/>
             <DeleteWorkerModal token={props.token} entity={selectedEntity!} isOpen={isDeleteOpen} workerType={props.workerType} setIsOpen={setIsDeleteOpen} refetch={props.refetch} />
             <EditWorkerModal token={props.token} entity={selectedEntity!} isOpen={isOpen} workerType={props.workerType} setIsOpen={setIsOpen} refetch={props.refetch} />

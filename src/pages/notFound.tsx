@@ -21,7 +21,7 @@ export default function NotFoundPage(): ReactElement{
     return(
         <div className="flex flex-col items-center justify-center min-h-[100vh] w-full ">
             { !isLoading && showContent ? <>
-            <img src="https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/sad_face.png" width={"400px"} alt="cara triste"/>
+            <img src="https://storagejca.s3.sa-east-1.amazonaws.com/sad_face.webp" width={"400px"} alt="cara triste"/>
             <h2>
                 Ha ocurrido un error inesperado...
             </h2>

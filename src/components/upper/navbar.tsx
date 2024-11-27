@@ -46,7 +46,7 @@ export default function NavBar(props: Readonly<Nprops>): ReactElement{
             
                 <Navbar.Brand href={`/dashboard/${state.user?.token.split('.')[0]}`} className="max-h-[80px] shadow-sm ">
                     
-                    <Image alt="logo-uautonoma" src="https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/autonoma-logo.png" className="max-h-[70px]"/>
+                    <Image alt="logo-uautonoma" src="https://storagejca.s3.sa-east-1.amazonaws.com/autonoma-logo.webp" className="max-h-[70px]"/>
                     
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />

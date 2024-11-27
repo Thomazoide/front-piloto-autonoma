@@ -5,10 +5,10 @@ import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinn
 import axios, { AxiosRequestConfig } from 'axios';
 
 interface readerProps{
-    file?: Blob
+    file: Blob
     showModal: boolean
     setShowModal: Dispatch<SetStateAction<boolean>>
-    token?: string
+    token: string
 }
 
 export default function XlsxReader(props: Readonly<readerProps>): ReactElement {
@@ -49,22 +49,27 @@ export default function XlsxReader(props: Readonly<readerProps>): ReactElement {
         reader.onload = (e) => {
             try{
                 setIsReadingFile(true)
+                console.log(e.target!.result)
                 const data = new Uint8Array(e.target!.result as ArrayBuffer)
                 const workBook = xlsx.read(data, {type: 'array'})
                 const sheetName = workBook.SheetNames[0]
                 const workSheet = xlsx.utils.sheet_to_json<Partial<worker>>(workBook.Sheets[sheetName])
+                console.log(workSheet)
                 const validWorkers: Partial<worker>[] = workSheet.filter( (w) => (w.celular && w.email && w.nombre && w.rut) )
-                if(validWorkers.length < 1){
-                    throw new Error()
+                console.log(validWorkers)
+                if(!validWorkers[0]){
+                    console.log("tirando error")
+                    throw new Error("Data invalida...")
                 }
                 setFileData(validWorkers)
                 setIsReadingFile(false)
-            }catch{
-                setIsReadingFile(false)
+            }catch(err: any){
                 setReadingError(new Error("Data invalida..."))
+                setIsReadingFile(false)
+                console.log(err)
             }
         }
-        reader.readAsArrayBuffer(props.file!)
+        reader.readAsArrayBuffer(props.file)
     }
 
     useEffect( () => {
@@ -72,7 +77,14 @@ export default function XlsxReader(props: Readonly<readerProps>): ReactElement {
     }, [props.file] )
 
     return(
-        <Modal isOpen={props.showModal} onOpenChange={onOpenChange} isDismissable={false} placement="bottom">
+        <Modal isOpen={props.showModal} onClose={
+            () => {
+                onOpenChange()
+                setReadingError(undefined)
+                setUploadSuccess(false)
+                setUploadError(false)
+            }
+        } onOpenChange={onOpenChange} isDismissable={false} placement="bottom">
             <ModalContent>
                 {
                     (onClose) => (
@@ -82,43 +94,38 @@ export default function XlsxReader(props: Readonly<readerProps>): ReactElement {
                             </ModalHeader>
                             <ModalBody className='flex flex-col items-center gap-2 justify-center'>
                                 {
-                                    isReadingFile ?
+                                    isReadingFile &&
                                     <Spinner color="danger" size="sm" label="Cargando archivo..."/>
-                                    : fileData && !isReadingFile ?
-                                    <div className="flex flex-col items-center w-full justify-center" >
-                                        {
-                                            !readingError ?
-                                            <>
-                                            <p>
-                                                Estas a punto de cargar un archivo con los datos de {fileData.length} docentes.
-                                            </p>
-                                            <p>
-                                                ¿Proceder con la operación?
-                                            </p>
-                                            </>
-                                            :
-                                            <p>
-                                                Error, {readingError.message}
-                                            </p>
-                                        }
-                                        {
-                                            uploadSuccess &&
-                                            <div className="flex justify-center w-full opacity-75 border-double border-2 border-warning-400 bg-success-500 text-white rounded-xl shadow-md h-fit p-[10px] ">
-                                                <p>
-                                                    Datos cargados correctamente...
-                                                </p>
-                                            </div>
-                                        }
-                                        {
-                                            uploadError &&
-                                            <div className="flex justify-center opacity-75 w-full border-double border-2 border-warning-400 bg-danger-500 text-white rounded-xl shadow-md h-fit p-[10px] " >
-                                                <p>
-                                                    Error en la carga de datos...
-                                                </p>
-                                            </div>
-                                        }
+                                }
+                                {
+                                    readingError &&
+                                    <p>
+                                        Error, {readingError.message}
+                                    </p>
+                                }
+                                {
+                                    !readingError && fileData &&
+                                    <p>
+                                        Estás por agregar {fileData.length} docentes al sistema...
+                                        <br/>
+                                        ¿Proceder con la operación?
+                                    </p>
+                                }
+                                {
+                                    uploadSuccess &&
+                                    <div className="flex justify-center w-full opacity-75 border-double border-2 border-warning-400 bg-success-500 text-white rounded-xl shadow-md h-fit p-[10px] ">
+                                        <p>
+                                            Datos cargados correctamente...
+                                        </p>
                                     </div>
-                                    : null
+                                }
+                                {
+                                    uploadError &&
+                                    <div className="flex justify-center opacity-75 w-full border-double border-2 border-warning-400 bg-danger-500 text-white rounded-xl shadow-md h-fit p-[10px] " >
+                                        <p>
+                                            Error en la carga de datos...
+                                        </p>
+                                    </div>
                                 }
                             </ModalBody>
                             <ModalFooter>

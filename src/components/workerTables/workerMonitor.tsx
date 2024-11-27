@@ -27,7 +27,7 @@ export default function WorkerMonitor(props: Readonly<WMProps>): ReactElement{
         fetchWorkersAndAttendances()
     }, [] )
     return (
-        <div className="flex flex-col gap-3 p-[15px] items-center w-fit h-fit bg-default-300 bg-opacity-25 rounded-xl border-double border-2 border-danger-300 shadow-xl shadow-danger-200">
+        <div className="flex flex-col gap-3 p-[15px] items-center w-fit h-fit bg-ua-gray rounded-xl border-double border-2 border-danger-300 shadow-xl shadow-danger-200">
             {!isLoading ? <GuardiaTable listaGuardias={workersAndAttendances!} workerType={props.workerType} salas={salas!} sedes={sedes!} refetch={fetchWorkersAndAttendances} token={state.user!.token} isAdmin={state.user!.data.isAdmin}/> : <Spinner color="danger" label="Cargando datos..." size="lg"/>}
         </div>
     )

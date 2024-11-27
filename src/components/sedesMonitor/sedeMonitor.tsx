@@ -100,7 +100,7 @@ export default function SedeMonitor(): ReactElement {
             <div className="flex max-w-[800px] min-w-[380px] justify-center" >
                 {
                     sedes && !isLoading ?
-                        <Select color="danger" variant="underlined" size="lg" label="Seleccionar sede" onChange={handleSedeSelection} id="sede-select" >
+                        <Select color="danger" variant="flat" size="lg" label="Seleccionar sede" onChange={handleSedeSelection} id="sede-select" >
                             <SelectSection>
                                 {
                                     sedes.map((sede, index) => (
@@ -116,7 +116,7 @@ export default function SedeMonitor(): ReactElement {
             </div>
             
             {selectedSede &&
-                <div className="flex flex-col gap-3 p-[15px] items-center w-full bg-default-300 bg-opacity-25 rounded-xl border-double border-2 border-danger-300 shadow-xl shadow-danger-200 ">
+                <div className="flex flex-col gap-3 p-[15px] items-center w-full bg-white rounded-xl border-double border-2 border-danger-300 shadow-xl shadow-danger-200 ">
                     <div className="flex w-full justify-end ">
                         <Select id="plant-select" color="danger" variant="underlined" size="md" label="Seleccionar planta" defaultSelectedKeys={['-1']} onChange={handleFloorSelection}>
                             <SelectSection>
@@ -137,7 +137,7 @@ export default function SedeMonitor(): ReactElement {
                             }
                         </Select>
                     </div>
-                    <div className="flex flex-row justify-between p-[15px] w-[800px] ">
+                    <div className="flex flex-row justify-between p-[15px] w-full ">
                     <Switch color="danger" thumbIcon={IconoDocentes} isSelected={showWorkers} onValueChange={setShowWorkers} >
                         Mostrar docentes activos
                     </Switch>
