@@ -12,7 +12,7 @@ import {
     MenuItem,
     Typography
 } from '@mui/material'
-import { Edit32Regular, Delete32Regular } from "@fluentui/react-icons";
+import { Edit32Regular, Delete32Regular, ArrowClockwiseDashes16Regular } from "@fluentui/react-icons";
 import { worker_ingreso } from "../utils/function_lib";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { sede } from "@/types/sede";
@@ -23,7 +23,8 @@ import DeleteWorkerModal from "../utils/deleteWorkerModal";
 import WorkerInfo from "./workerInfo";
 import { Button } from "@nextui-org/button";
 import AddWorkerModal from "../utils/addWorkerModal";
-import { Input } from "@nextui-org/input";
+import { Form } from "react-bootstrap";
+import XlsxReader from "../utils/xlsxReader";
 
 interface GTProps {
     listaGuardias: worker_ingreso[]
@@ -42,20 +43,19 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
     const [showModal, setShowModal] = useState<boolean>(false)
     const [isFileTypeValid, setIsFileTypeValid] = useState<boolean>(false)
-    const [archivo, setArchivo] = useState<File>()
+    const [archivo, setArchivo] = useState<Blob>()
 
     const checkFileType = function (e: ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.item(0)?.name
-        
+        const file = e.target.files?.item(0)
         if(file){
-            setArchivo(e.target.files!.item(0)!)
-            const extension = file.split(".")[1]
-            if(extension === 'csv'){
+            if(file.type === 'text/csv'){
                 setIsFileTypeValid(true)
+                setArchivo(new Blob([file], {type: file.type}))
                 return
             }
-            if(extension === 'xlsx'){
+            if(file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
                 setIsFileTypeValid(true)
+                setArchivo(new Blob([file], {type: file.type}))
                 return
             }
             setIsFileTypeValid(false)
@@ -168,8 +168,13 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
                     </Button>
                     <div className="flex flex-col items-center border-1 border-solid border-danger-300 p-[10px] rounded-lg ">
                         <p>Cargar desde archivo</p>
-                        <Input label="  " type="file" color="danger" variant="flat" placeholder="Cargar desde archivo" accept=".csv,.xlsx" size="sm" onChange={checkFileType} />
+                        <Form.Control type="file" size="sm" onChange={checkFileType} accept=".csv,.xlsx" />
                     </div>
+                    <Button startContent={
+                        <ArrowClockwiseDashes16Regular/>
+                    } onPress={props.refetch} color="danger">
+                        Actualizar
+                    </Button>
                 </div>
             </Box>
         )
@@ -179,6 +184,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     }, [])
     return (
         <LocalizationProvider>
+            <XlsxReader file={archivo!} showModal={isFileTypeValid} setShowModal={setIsFileTypeValid} token={props.token}/>
             <AddWorkerModal token={props.token} showModal={showModal} setShowModal={setShowModal} tipo={props.workerType} refetch={props.refetch}/>
             <DeleteWorkerModal token={props.token} entity={selectedEntity!} isOpen={isDeleteOpen} workerType={props.workerType} setIsOpen={setIsDeleteOpen} refetch={props.refetch} />
             <EditWorkerModal token={props.token} entity={selectedEntity!} isOpen={isOpen} workerType={props.workerType} setIsOpen={setIsOpen} refetch={props.refetch} />

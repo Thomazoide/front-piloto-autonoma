@@ -1,5 +1,5 @@
 import DefaultLayout from "@/layouts/default";
-import HomeComponent from "@/components/home/home copy";
+import HomeComponent from "@/components/home/home";
 
 export default function IndexPage() {
   
