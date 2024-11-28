@@ -19,14 +19,14 @@ export default function Mapa(props: Readonly<PropsMapa>): ReactElement {
     const [sSala, setSSala] = useState<sala | undefined>(props.sala)
     
     const iconoSala = icon({
-        iconUrl: "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/opened-door-aperture.png",
+        iconUrl: "https://storagejca.s3.sa-east-1.amazonaws.com/teacher-icon-png-11.webp",
         iconSize: [32, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -34]
     })
 
     const miIcono = icon({
-        iconUrl: props.tipo === "guardia" ? 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/PeopleIcons-16-1024.webp' : 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg',
+        iconUrl: 'https://storagejca.s3.sa-east-1.amazonaws.com/teacher-icon-png-11.webp',
         iconSize: [12, 12],
         iconAnchor: [8, 16],
         popupAnchor: [0, -34]

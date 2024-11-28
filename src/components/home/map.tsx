@@ -7,7 +7,7 @@ import { sede } from "@/types/sede";
 import { Select, SelectItem, SelectSection, Spinner } from "@nextui-org/react";
 import { Icon, LatLngExpression } from "leaflet";
 import { FullscreenControl } from 'react-leaflet-fullscreen';
-import "../../../node_modules/react-leaflet-fullscreen/styles.css";
+import "react-leaflet-fullscreen/styles.css";
 
 interface mapProps{
     token: string
@@ -37,7 +37,7 @@ export default function HomeMap(props: Readonly<mapProps>): ReactElement{
     }
 
     const DocenteIcon = new Icon({
-        iconUrl: "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg",
+        iconUrl: "https://storagejca.s3.sa-east-1.amazonaws.com/teacher-icon-png-11.webp",
         iconAnchor: [32, 16],
         iconSize: [32, 32]
     })

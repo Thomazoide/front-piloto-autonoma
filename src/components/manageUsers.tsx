@@ -117,7 +117,7 @@ export default function ManageUsers(): ReactElement{
 
     return (
         <div className="flex flex-wrap gap-4 justify-center" >
-            <div className="flex flex-col items-center w-[300px] max-h-[500px] border-double border-red-300 border-2 rounded-lg shadow-lg">
+            <div className="flex flex-col items-center w-[300px] max-h-[500px] bg-white border-double border-red-300 border-2 rounded-lg shadow-lg">
                 <div className=" mt-[10px] " >
                     <Input type="text" color="danger" variant="bordered" size="sm" startContent={ <PersonSearch20Regular/> } label="Filtrar" placeholder="Nombre | Email | Nombre de usuario" onValueChange={handleFilter} isClearable onClear={ () => setUsuariosFiltrados(usuarios) }/>
                 </div>
@@ -139,7 +139,7 @@ export default function ManageUsers(): ReactElement{
             </div>
             {
                 selectedUser ?
-                <div className="flex flex-col gap-2 items-center p-[10px] w-[300px] border-double border-red-300 border-2 rounded-lg shadow-lg overflow-y-scroll" >
+                <div className="flex flex-col gap-2 items-center p-[10px] w-[300px] bg-white border-double border-red-300 border-2 rounded-lg shadow-lg overflow-y-scroll" >
                     <div className="flex w-full justify-evenly">
                         <Button isIconOnly color="danger" variant="flat" size="sm" onClick={ () => setEditarUsuario(!editarUsuario) } >
                             <PersonEdit24Regular/>

@@ -61,7 +61,7 @@ export default function AddUser(props: Readonly<AUProps>): ReactElement{
     }
 
     return(
-        <div className="flex flex-col gap-2 items-center border-double border-2 border-red-300 rounded-xl shadow-xl p-[15px] w-[300px] h-fit" >
+        <div className="flex flex-col gap-2 items-center bg-white border-double border-2 border-red-300 rounded-xl shadow-xl p-[15px] w-[300px] h-fit" >
             {
                 success && usuario ?
                 <div className="flex flex-col w-fit h-fit p-[10px] bg-green-500 border-double border-2 border-yellow-300 rounded-xl">
