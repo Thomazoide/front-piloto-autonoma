@@ -7,7 +7,7 @@ import ReactLeafletDriftMarker from 'react-leaflet-drift-marker'
 import 'leaflet/dist/leaflet.css'
 import { sala } from "@/types/sala";
 import { FullscreenControl } from "react-leaflet-fullscreen"
-import "../../../node_modules/react-leaflet-fullscreen/styles.css"
+import "react-leaflet-fullscreen/styles.css"
 
 type coordinates = number[][][]
 
@@ -29,13 +29,13 @@ export default function MapComponent( props: Readonly<MCProps> ): ReactElement{
     }
 
     const icono = icon({
-        iconUrl: props.workerType === "guardia" ? 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/PeopleIcons-16-1024.webp' : 'https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/teacher-icon-png-11.jpg',
+        iconUrl: "https://storagejca.s3.sa-east-1.amazonaws.com/teacher-icon-png-11.webp",
         iconAnchor: [16, 16],
         iconSize: [32, 32]
     })
 
     const iconoSalas = icon({
-        iconUrl: "https://hipic-vet-soft-backend.s3.us-west-1.amazonaws.com/autonoma/opened-door-aperture.png",
+        iconUrl: "https://storagejca.s3.sa-east-1.amazonaws.com/opened-door-aperture.webp",
         iconAnchor: [16, 16],
         iconSize: [32, 32]
     })

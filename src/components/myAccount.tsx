@@ -24,7 +24,7 @@ export default function MyAccount(): ReactElement{
     const [isChecking, setIsChecking] = useState<boolean>(false)
     const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
-    const [mensajeError, setMensajerror] = useState<string>()
+    const [mensajeError, setMensajeError] = useState<string>()
     const [responseError, setResponseError] = useState<string>()
     const [successMessage, setSuccessMessage] = useState<string>()
 
@@ -38,19 +38,19 @@ export default function MyAccount(): ReactElement{
 
     const verCuadroUsername = () => {
         setCambiarUsername(!cambiarUsername)
-        setMensajerror(undefined)
+        setMensajeError(undefined)
         setIsNewUsernameValid(false)
     }
 
     const verCuadroEmail = () => {
         setCambiarEmail(!cambiarEmail)
-        setMensajerror(undefined)
+        setMensajeError(undefined)
         setIsNewEmailValid(false)
     }
 
     const verCuadroPass = () => {
         setCambiarPass(!cambiarPass)
-        setMensajerror(undefined)
+        setMensajeError(undefined)
         setPassIsValid(false)
     }
 
@@ -65,10 +65,10 @@ export default function MyAccount(): ReactElement{
                 }
             })).data
             if(isValid.isValid){
-                setMensajerror(undefined)
+                setMensajeError(undefined)
                 setIsNewUsernameValid(true)
             } else {
-                setMensajerror("Nombre de usuario no disponible")
+                setMensajeError("Nombre de usuario no disponible")
                 setIsNewUsernameValid(false)
             }
         }
@@ -86,10 +86,10 @@ export default function MyAccount(): ReactElement{
                 }
             })).data
             if(isValid.isValid){
-                setMensajerror(undefined)
+                setMensajeError(undefined)
                 setIsNewEmailValid(true)
             } else {
-                setMensajerror("Email no disponible")
+                setMensajeError("Email no disponible")
                 setIsNewEmailValid(false)
             }
         }
@@ -101,10 +101,10 @@ export default function MyAccount(): ReactElement{
         if(newPass && newPassConfirm){
             if(newPass === valorInput){
                 setPassIsValid(true)
-                setMensajerror(undefined)
+                setMensajeError(undefined)
             } else {
                 setPassIsValid(false)
-                setMensajerror("Las contraseñas deben ser idénticas")
+                setMensajeError("Las contraseñas deben ser idénticas")
             }
         }
     }
@@ -170,7 +170,7 @@ export default function MyAccount(): ReactElement{
         <div className="flex flex-wrap gap-3 justify-center align-center items-center">
             {
                 state.user ?
-                <div className="flex flex-col gap-2 border-double rounded-lg border-3 border-red-300 p-[15px] ">
+                <div className="flex flex-col gap-2 border-double rounded-lg bg-white border-3 border-red-300 p-[15px] ">
                     <div className="flex justify-center" >
                         <h3>
                             {
