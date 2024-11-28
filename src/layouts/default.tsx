@@ -30,7 +30,7 @@ export default function DefaultLayout({children, llave}: Readonly<{
           href="https://econnection.cl/"
           title=""
         >
-          <span className="text-default-600">Todos los derechos reservados</span>
+          <span className="text-warning-500">Todos los derechos reservados</span>
           <p className="text-primary">E-connection</p>
         </Link>
       </footer>
