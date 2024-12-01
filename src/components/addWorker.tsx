@@ -8,7 +8,7 @@ import { beacon } from "@/types/beacon"
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import { Select, SelectItem, Spinner } from "@nextui-org/react"
 import { CloseButton } from "react-bootstrap"
-import { format, validate } from 'rut.ts'
+import { format } from 'rut.ts'
 import validator from 'validator'
 
 
@@ -48,7 +48,7 @@ export default function AddWorker(props: Readonly<AWProps>): ReactElement{
 
     const isFormDataValid = (): boolean => {
         if(nombre && apellido && rut && email && celular && idBeacon){
-            if((validator.isAlpha(nombre, "es-ES") && validator.isAlpha(apellido, "es-ES")) && (format(rut, {dots: false}) && validate(rut)) && validator.isEmail(email) && (celular.length === 9 && validator.isNumeric(celular))){
+            if((validator.isAlpha(nombre, "es-ES") && validator.isAlpha(apellido, "es-ES")) && (format(rut, {dots: false})) && validator.isEmail(email) && (celular.length === 9 && validator.isNumeric(celular))){
                 return true
             } else {
                 setError(new Error("Debe ingresar datos validos"))
