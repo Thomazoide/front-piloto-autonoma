@@ -25,6 +25,7 @@ import { Button } from "@nextui-org/button";
 import AddWorkerModal from "../utils/addWorkerModal";
 import { Form } from "react-bootstrap";
 import XlsxReader from "../utils/xlsxReader";
+import { Checkbox } from "@nextui-org/react";
 
 interface GTProps {
     listaGuardias: worker_ingreso[]
@@ -40,6 +41,7 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
     const [listaGuardias, setListaGuardias] = useState<worker_ingreso[]>([])
     const [selectedEntity, setSelectedEntity] = useState<worker>()
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [sortListaguardias, setSortListaGuardias] = useState<boolean>(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
     const [showModal, setShowModal] = useState<boolean>(false)
     const [isFileTypeValid, setIsFileTypeValid] = useState<boolean>(false)
@@ -162,6 +164,10 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
             <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center', paddingLeft: '100px', paddingTop: '15px' }}>
                 <MRT_GlobalFilterTextField table={table} />
                 <MRT_ToggleFiltersButton table={table} />
+                <div className="flex flex-col items-center gap-0 border-1 border-solid border-danger-300 rounded-xl p-[10px] ">
+                    <p className="w-full text-center" >Ocultar docentes sin asistencias</p>
+                    <Checkbox onChange={ () => setSortListaGuardias(!sortListaguardias) } color="danger" title="Ocultar docentes sin asistencias"/>
+                </div>
                 <div className="flex flex-row gap-3 w-full justify-end pr-[150px] ">
                     <Button color="danger" onPress={ () => setShowModal(true) } >
                         Crear {props.workerType}
@@ -180,8 +186,8 @@ export default function GuardiaTable(props: Readonly<GTProps>): ReactElement {
         )
     })
     useEffect(() => {
-        setListaGuardias(props.listaGuardias)
-    }, [])
+        if(!sortListaguardias){setListaGuardias(props.listaGuardias)}else{setListaGuardias(props.listaGuardias.filter( (guardia) => guardia.ingresos && guardia.ingresos[0] ))}
+    }, [sortListaguardias])
     return (
         <LocalizationProvider>
             { archivo && <XlsxReader file={archivo} showModal={isFileTypeValid} setShowModal={setIsFileTypeValid} token={props.token}/>}
